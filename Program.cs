@@ -2,6 +2,8 @@
 using System.Security;
 using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 // CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
 // filter.cbSize = 
@@ -25,10 +27,25 @@ filter.cbSize = (uint)Marshal.SizeOf(filter);
 filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
 filter.u.DeviceInterface.ClassGuid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
 
+string InlineCharArrayToString(ref VariableLengthInlineArray<char, ushort> array) {
+    StringBuilder str = new StringBuilder();
+
+    char chr;
+    while ((chr = Unsafe.Add(ref array.e0, str.Length)) != 0) {
+        str.Append(chr);
+    }
+
+    return str.ToString();
+}
+
 uint DeviceCallback(HCMNOTIFICATION notification, [Optional] void* Context,
-    CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* eventData, uint eventDataSize)
+    CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* evt, uint eventDataSize)
 {
     Console.WriteLine($"In callback, action {action}");
+    if (evt->FilterType == CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE) {
+        Console.WriteLine($"    {evt->u.DeviceInterface.ClassGuid} {InlineCharArrayToString(ref evt->u.DeviceInterface.SymbolicLink)}");
+    }
+
     return 0;
 }
 
