@@ -51,61 +51,23 @@ unsafe
 
 Console.WriteLine("Registration for device notifications succeeded");
 
-unsafe
-{
-    BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lparam)
-    {
-        Console.WriteLine($"Monitor: {hMonitor}");
+var monitors = new Monitors();
+monitors.Refresh();
 
-        BOOL success;
-
-        var monitorInfoEx = new MONITORINFOEXW();
-        monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
-
-        success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
-        if (!success)
-        {
-            Console.WriteLine("Getting monitor information failed");
-            return true;
-        }
-
-        Console.WriteLine($"Monitor device {monitorInfoEx.szDevice}");
-
-        uint numberOfPhysicalMonitors;
-        success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
-        if (!success)
-        {
-            Console.WriteLine("Getting physical monitor number failed");
-            return true;
-        }
-
-        var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
-        success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
-        if (!success)
-        {
-            Console.WriteLine("Getting physical monitor information failed");
-            return true;
-        }
-
-        foreach (var physicalMonitor in physicalMonitors)
-        {
-            Console.WriteLine($"Physical monitor {physicalMonitor.szPhysicalMonitorDescription}");
-        }
-
-        return true;
-    }
-
-    BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
-    if (!success)
-    {
-        Console.WriteLine("Monitor enumeration failed");
-        // TODO return error
-    }
+foreach (var monitor in monitors) {
+    Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
 }
+
+Console.WriteLine("Monitor enumeration succeeded");
 
 await foreach (CM_NOTIFY_ACTION action in channel.Reader.ReadAllAsync())
 {
     Console.WriteLine($"Action: {action}");
+
+    if (action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL) {
+
+    } else if (action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEREMOVAL) {
+    }
 }
 
 Console.WriteLine("Press any key to continue...");
