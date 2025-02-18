@@ -19,25 +19,36 @@ public class Monitor
 
 class Monitors : IEnumerable<Monitor>
 {
-    public unsafe void Refresh()
+    struct LParamData
     {
-#pragma warning disable CS8500 // take address of a managed type
-        fixed (List<Monitor>* monitorsPtr = &_monitors)
-        {
-            BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, (nint)monitorsPtr);
-            // TODO also pass errors from MonitorCallback to here (through LPARAM)
-            if (!success)
-            {
-                throw new Exception("Monitor enumeration failed");
-            }
-        }
-#pragma warning restore CS8500
+        public List<Monitor> monitors;
+        public Exception exception;
     }
 
-    static unsafe BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lparam)
+    public unsafe void Refresh()
+    {
+        // The lParamData variable is fixed, because it's a local variable in unsafe context
+        var lParamData = new LParamData { monitors = _monitors };
+
+#pragma warning disable CS8500 // take address of a managed type
+        BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, (nint)(&lParamData));
+#pragma warning restore CS8500
+
+        if (!success)
+        {
+            throw new Exception("Monitor enumeration failed");
+        }
+
+        if (lParamData.exception != null)
+        {
+            throw lParamData.exception;
+        }
+    }
+
+    static unsafe BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lParam)
     {
 #pragma warning disable CS8500 // declares a pointer to a managed type
-        List<Monitor> monitors = *(List<Monitor>*)lparam.Value;
+        var lParamData = *(LParamData*)lParam.Value;
 #pragma warning restore CS8500
 
         BOOL success;
@@ -48,7 +59,7 @@ class Monitors : IEnumerable<Monitor>
         success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
         if (!success)
         {
-            Console.WriteLine("Getting monitor information failed"); // TODO report error through lparam
+            lParamData.exception = new Exception("Getting monitor information failed");
             return true;
         }
 
@@ -56,7 +67,7 @@ class Monitors : IEnumerable<Monitor>
         success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
         if (!success)
         {
-            Console.WriteLine("Getting physical monitor number failed"); // TODO report error through lparam
+            lParamData.exception = new Exception("Getting physical monitor number failed");
             return true;
         }
 
@@ -68,14 +79,15 @@ class Monitors : IEnumerable<Monitor>
         success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
         if (!success)
         {
-            Console.WriteLine("Getting physical monitor information failed"); // TODO report error through lparam
+            lParamData.exception = new Exception("Getting physical monitor information failed");
             return true;
         }
 
         foreach (var physicalMonitor in physicalMonitors)
         {
             // TODO also pass physicalMonitor.hPhysicalMonitor out, probably need to duplicate the handle
-            monitors.Add(new Monitor(monitorInfoEx.szDevice.ToString(), physicalMonitor.szPhysicalMonitorDescription.ToString()));
+            var monitor = new Monitor(monitorInfoEx.szDevice.ToString(), physicalMonitor.szPhysicalMonitorDescription.ToString());
+            lParamData.monitors.Add(monitor);
         }
 
         return true;
