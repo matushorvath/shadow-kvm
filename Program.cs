@@ -2,6 +2,7 @@
 using System.Threading.Channels;
 using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
+using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 
@@ -55,6 +56,30 @@ unsafe
     BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lparam)
     {
         Console.WriteLine($"Monitor: {hMonitor}");
+
+        BOOL success;
+
+        uint numberOfPhysicalMonitors;
+        success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
+        if (!success)
+        {
+            Console.WriteLine("Getting physical monitor number failed");
+            return true;
+        }
+
+        var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
+        success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
+        if (!success)
+        {
+            Console.WriteLine("Getting physical monitor information failed");
+            return true;
+        }
+
+        foreach (var physicalMonitor in physicalMonitors)
+        {
+            Console.WriteLine($"Monitor device {physicalMonitor.szPhysicalMonitorDescription}");
+        }
+
         return true;
     }
 

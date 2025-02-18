@@ -1,5 +1,7 @@
 CM_Register_Notification
 CM_Unregister_Notification
 EnumDisplayMonitors
-ERROR_SUCCESS
+GetNumberOfPhysicalMonitorsFromHMONITOR
+GetPhysicalMonitorsFromHMONITOR
 GUID_DEVINTERFACE_KEYBOARD
+WIN32_ERROR
