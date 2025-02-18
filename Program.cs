@@ -59,6 +59,18 @@ unsafe
 
         BOOL success;
 
+        var monitorInfoEx = new MONITORINFOEXW();
+        monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
+
+        success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
+        if (!success)
+        {
+            Console.WriteLine("Getting monitor information failed");
+            return true;
+        }
+
+        Console.WriteLine($"Monitor device {monitorInfoEx.szDevice}");
+
         uint numberOfPhysicalMonitors;
         success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
         if (!success)
@@ -77,7 +89,7 @@ unsafe
 
         foreach (var physicalMonitor in physicalMonitors)
         {
-            Console.WriteLine($"Monitor device {physicalMonitor.szPhysicalMonitorDescription}");
+            Console.WriteLine($"Physical monitor {physicalMonitor.szPhysicalMonitorDescription}");
         }
 
         return true;
