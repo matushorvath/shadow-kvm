@@ -1,74 +1,31 @@
-﻿using System.Runtime.InteropServices;
-using System.Threading.Channels;
-using Windows.Win32;
-using Windows.Win32.Devices.DeviceAndDriverInstallation;
-using Windows.Win32.Devices.Display;
-using Windows.Win32.Foundation;
-using Windows.Win32.Graphics.Gdi;
-
-// Disposing this will unregister the device notification
-CM_Unregister_NotificationSafeHandle notification;
-
-var channelOptions = new BoundedChannelOptions(16);
-channelOptions.FullMode = BoundedChannelFullMode.DropOldest;
-channelOptions.SingleReader = true;
-channelOptions.SingleWriter = true;
-
-var channel = Channel.CreateUnbounded<CM_NOTIFY_ACTION>();
-
-unsafe
+﻿using (var notification = new DeviceNotification())
 {
-    uint DeviceCallback(HCMNOTIFICATION notification, [Optional] void* Context,
-        CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* evt, uint eventDataSize)
+    notification.Register();
+
+    Console.WriteLine("Registration for device notifications succeeded");
+
+    var monitors = new Monitors();
+    monitors.Refresh();
+
+    foreach (var monitor in monitors)
     {
-        if (evt->FilterType != CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE)
-        {
-            return (uint)WIN32_ERROR.ERROR_SUCCESS;
-        }
-
-        if (action != CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL
-            && action != CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEREMOVAL)
-        {
-            return (uint)WIN32_ERROR.ERROR_SUCCESS;
-        }
-
-        channel.Writer.TryWrite(action);    // always succeeds
-        return (uint)WIN32_ERROR.ERROR_SUCCESS;
+        Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
     }
 
-    CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
-    filter.cbSize = (uint)Marshal.SizeOf(filter);
-    filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
-    filter.u.DeviceInterface.ClassGuid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+    Console.WriteLine("Monitor enumeration succeeded");
 
-    CONFIGRET res = PInvoke.CM_Register_Notification(filter, null, DeviceCallback, out notification);
-    if (res != CONFIGRET.CR_SUCCESS)
+    await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
     {
-        Console.WriteLine($"Registration for device notifications failed, result {res}");
-        // TODO return error
+        Console.WriteLine($"Action: {action}");
+
+        if (action == DeviceNotification.Action.Arrival)
+        {
+        }
+        else if (action == DeviceNotification.Action.Removal)
+        {
+        }
     }
+
+    Console.WriteLine("Press any key to continue...");
+    Console.ReadKey();
 }
-
-Console.WriteLine("Registration for device notifications succeeded");
-
-var monitors = new Monitors();
-monitors.Refresh();
-
-foreach (var monitor in monitors) {
-    Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
-}
-
-Console.WriteLine("Monitor enumeration succeeded");
-
-await foreach (CM_NOTIFY_ACTION action in channel.Reader.ReadAllAsync())
-{
-    Console.WriteLine($"Action: {action}");
-
-    if (action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL) {
-
-    } else if (action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEREMOVAL) {
-    }
-}
-
-Console.WriteLine("Press any key to continue...");
-Console.ReadKey();

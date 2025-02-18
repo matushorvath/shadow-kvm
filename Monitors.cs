@@ -71,7 +71,8 @@ class Monitors : IEnumerable<Monitor>
             return true;
         }
 
-        if (numberOfPhysicalMonitors == 0) {
+        if (numberOfPhysicalMonitors == 0)
+        {
             return true;
         }
 
