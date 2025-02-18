@@ -1,64 +1,56 @@
 ﻿using System.Runtime.InteropServices;
-using System.Security;
+using System.Threading.Channels;
 using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
-using System.Runtime.CompilerServices;
-using System.Text;
+using Windows.Win32.Foundation;
 
-// CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
-// filter.cbSize = 
-
-//GUID_DEVINTERFACE_MOUSE  {378DE44C-56EF-11D1-BC8C-00A0C91405DD}
-//GUID_DEVINTERFACE_KEYBOARD {884b96c3-56ef-11d1-bc8c-00a0c91405dd}
-
-
-//CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE 
-
-// TODO using? IDisposable?
-//PInvoke.HCMNOTIFICATION notification;
-
-
-//unsafe winmdroot.Devices.DeviceAndDriverInstallation.CONFIGRET CM_Register_Notification(in winmdroot.Devices.DeviceAndDriverInstallation.CM_NOTIFY_FILTER pFilter, void* pContext, winmdroot.Devices.DeviceAndDriverInstallation.PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext)
-
-unsafe {
+// Disposing this will unregister the device notification
+CM_Unregister_NotificationSafeHandle notification;
 
 CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
 filter.cbSize = (uint)Marshal.SizeOf(filter);
 filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
 filter.u.DeviceInterface.ClassGuid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
 
-string InlineCharArrayToString(ref VariableLengthInlineArray<char, ushort> array) {
-    StringBuilder str = new StringBuilder();
+var channelOptions = new BoundedChannelOptions(16);
+channelOptions.FullMode = BoundedChannelFullMode.DropOldest;
+channelOptions.SingleReader = true;
+channelOptions.SingleWriter = true;
 
-    char chr;
-    while ((chr = Unsafe.Add(ref array.e0, str.Length)) != 0) {
-        str.Append(chr);
+var channel = Channel.CreateUnbounded<CM_NOTIFY_ACTION>();
+
+unsafe {
+    uint DeviceCallback(HCMNOTIFICATION notification, [Optional] void* Context,
+        CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* evt, uint eventDataSize)
+    {
+        if (evt->FilterType != CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE)
+        {
+            return (uint)WIN32_ERROR.ERROR_SUCCESS;
+        }
+
+        if (action != CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL
+            && action != CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEREMOVAL)
+        {
+            return (uint)WIN32_ERROR.ERROR_SUCCESS;
+        }
+
+        channel.Writer.TryWrite(action);    // always succeeds
+        return (uint)WIN32_ERROR.ERROR_SUCCESS;
     }
 
-    return str.ToString();
-}
-
-uint DeviceCallback(HCMNOTIFICATION notification, [Optional] void* Context,
-    CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* evt, uint eventDataSize)
-{
-    Console.WriteLine($"In callback, action {action}");
-    if (evt->FilterType == CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE) {
-        Console.WriteLine($"    {evt->u.DeviceInterface.ClassGuid} {InlineCharArrayToString(ref evt->u.DeviceInterface.SymbolicLink)}");
+    CONFIGRET res = PInvoke.CM_Register_Notification(filter, null, DeviceCallback, out notification);
+    if (res != CONFIGRET.CR_SUCCESS)
+    {
+        Console.WriteLine($"Failed, result {res}");
     }
-
-    return 0;
 }
 
-CM_Unregister_NotificationSafeHandle notification;
-CONFIGRET res = PInvoke.CM_Register_Notification(filter, null, DeviceCallback, out notification);
-if (res != CONFIGRET.CR_SUCCESS)
+Console.WriteLine("Registration succeeded");
+
+await foreach (CM_NOTIFY_ACTION action in channel.Reader.ReadAllAsync())
 {
-    Console.WriteLine($"Failed, result {res}");
+    Console.WriteLine($"Action: {action}");
 }
-
-Console.WriteLine("Succeeded");
 
 Console.WriteLine("Press any key to continue...");
 Console.ReadKey();
-
-}

@@ -1,3 +1,4 @@
+ERROR_SUCCESS
 GUID_DEVINTERFACE_KEYBOARD
 CM_Register_Notification
 CM_Unregister_Notification
