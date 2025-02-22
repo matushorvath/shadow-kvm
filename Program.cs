@@ -5,10 +5,11 @@ var config = Config.Load("C:\\Documents\\kvm\\config.yaml");
 DeviceNotification.Action? lastAction = null;
 
 using (var notification = new DeviceNotification())
+using (var keyPressCanceller = new KeyPressCanceller())
 {
     notification.Register();
 
-    await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
+    await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync(keyPressCanceller.Token))
     {
         ProcessNotification(action);
     }
@@ -58,4 +59,43 @@ void ProcessNotification(DeviceNotification.Action action)
             PInvoke.SetVCPFeature(monitorDevice.Handle, actionConfig.Code, actionConfig.Value);
         }
     }
+}
+
+internal class KeyPressCanceller : IDisposable
+{
+    public KeyPressCanceller()
+    {
+        _tokenSource = new CancellationTokenSource();
+
+        var waitFunction = () =>
+        {
+            Console.ReadKey();
+            _tokenSource.Cancel();
+        };
+
+        _task = Task.Run(waitFunction);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (_task != null)
+            {
+                _task?.Dispose();
+                _task = null;
+            }
+        }
+    }
+
+    public CancellationToken Token => _tokenSource.Token;
+
+    CancellationTokenSource _tokenSource;
+    Task? _task;
 }
