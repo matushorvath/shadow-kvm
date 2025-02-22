@@ -1,0 +1,20 @@
+version: 1
+
+monitors:
+  - description: Dell S2722QC(HDMI1)
+    device: \\.\DISPLAY1
+    attach:
+      code: 0x60
+      value: 0x11
+    detach:
+      code: 0x60
+      value: 0x12
+
+  - description: Dell S2722QC(HDMI1)
+    device: \\.\DISPLAY2
+    attach:
+      code: 0x60
+      value: 0x11
+    detach:
+      code: 0x60
+      value: 0x12

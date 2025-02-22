@@ -1,12 +1,12 @@
 ﻿using Windows.Win32;
 
+var config = Config.Load("C:\\Documents\\kvm\\config.yaml");
+
 DeviceNotification.Action? lastAction = null;
 
 using (var notification = new DeviceNotification())
 {
     notification.Register();
-
-    Console.WriteLine("Registration for device notifications succeeded");
 
     await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
     {
