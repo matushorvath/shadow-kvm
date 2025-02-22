@@ -4,7 +4,7 @@ using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 
-class DeviceNotification : IDisposable
+internal class DeviceNotification : IDisposable
 {
     public enum Action
     {

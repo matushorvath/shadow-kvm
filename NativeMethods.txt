@@ -1,9 +1,11 @@
 CM_Register_Notification
 CM_Unregister_Notification
+DestroyPhysicalMonitor
 EnumDisplayMonitors
 GetMonitorInfo
 GetNumberOfPhysicalMonitorsFromHMONITOR
 GetPhysicalMonitorsFromHMONITOR
 GUID_DEVINTERFACE_KEYBOARD
 MONITORINFOEXW
+SetVCPFeature
 WIN32_ERROR

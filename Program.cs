@@ -1,28 +1,35 @@
-﻿using (var notification = new DeviceNotification())
+﻿using Windows.Win32;
+
+using (var notification = new DeviceNotification())
 {
     notification.Register();
 
     Console.WriteLine("Registration for device notifications succeeded");
 
-    var monitors = new Monitors();
-    monitors.Refresh();
-
-    foreach (var monitor in monitors)
+    using (var monitors = new Monitors())
     {
-        Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
-    }
+        monitors.Refresh();
 
-    Console.WriteLine("Monitor enumeration succeeded");
-
-    await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
-    {
-        Console.WriteLine($"Action: {action}");
-
-        if (action == DeviceNotification.Action.Arrival)
+        foreach (var monitor in monitors)
         {
+            Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
         }
-        else if (action == DeviceNotification.Action.Removal)
+
+        Console.WriteLine("Monitor enumeration succeeded");
+
+        await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
         {
+            Console.WriteLine($"Action: {action}");
+
+            // TODO remove
+            PInvoke.SetVCPFeature(monitors.First().Handle, 0x62, 0x42);
+
+            if (action == DeviceNotification.Action.Arrival)
+            {
+            }
+            else if (action == DeviceNotification.Action.Removal)
+            {
+            }
         }
     }
 

@@ -5,19 +5,39 @@ using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 
-public class Monitor
+internal class Monitor : IDisposable
 {
-    public Monitor(string device, string description)
+    public Monitor(string device, SafePhysicalMonitorHandle handle, string description)
     {
         Device = device;
+        Handle = handle;
         Description = description;
     }
 
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (!Handle.IsInvalid)
+            {
+                Handle.Dispose();
+                Handle.SetHandleAsInvalid();
+            }
+        }
+    }
+
     public string Device { get; }
+    public SafePhysicalMonitorHandle Handle { get; } // TODO IDisposable, also on Monitors below
     public string Description { get; }
 };
 
-class Monitors : IEnumerable<Monitor>
+internal class Monitors : IEnumerable<Monitor>, IDisposable
 {
     struct LParamData
     {
@@ -27,6 +47,12 @@ class Monitors : IEnumerable<Monitor>
 
     public unsafe void Refresh()
     {
+        foreach (var monitor in _monitors)
+        {
+            monitor.Dispose();
+        }
+        _monitors.Clear();
+
         // The lParamData variable is fixed, because it's a local variable in unsafe context
         var lParamData = new LParamData { monitors = _monitors };
 
@@ -86,8 +112,9 @@ class Monitors : IEnumerable<Monitor>
 
         foreach (var physicalMonitor in physicalMonitors)
         {
-            // TODO also pass physicalMonitor.hPhysicalMonitor out, probably need to duplicate the handle
-            var monitor = new Monitor(monitorInfoEx.szDevice.ToString(), physicalMonitor.szPhysicalMonitorDescription.ToString());
+            var monitor = new Monitor(monitorInfoEx.szDevice.ToString(),
+                new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true),
+                physicalMonitor.szPhysicalMonitorDescription.ToString());
             lParamData.monitors.Add(monitor);
         }
 
@@ -102,6 +129,24 @@ class Monitors : IEnumerable<Monitor>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            foreach (var monitor in _monitors)
+            {
+                monitor.Dispose();
+            }
+            _monitors.Clear();
+        }
     }
 
     List<Monitor> _monitors = new List<Monitor>();
