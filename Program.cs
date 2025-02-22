@@ -1,38 +1,38 @@
 ﻿using Windows.Win32;
 
+DeviceNotification.Action? lastAction = null;
+
 using (var notification = new DeviceNotification())
 {
     notification.Register();
 
     Console.WriteLine("Registration for device notifications succeeded");
 
-    using (var monitors = new Monitors())
+    await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
     {
-        monitors.Refresh();
-
-        foreach (var monitor in monitors)
-        {
-            Console.WriteLine($"Monitor: device {monitor.Device} description {monitor.Description}");
-        }
-
-        Console.WriteLine("Monitor enumeration succeeded");
-
-        await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
-        {
+        if (lastAction != action) {
             Console.WriteLine($"Action: {action}");
 
-            // TODO remove
-            PInvoke.SetVCPFeature(monitors.First().Handle, 0x62, 0x42);
+            using (var monitors = new Monitors())
+            {
+                monitors.Refresh();
 
-            if (action == DeviceNotification.Action.Arrival)
-            {
+                foreach (var monitor in monitors)
+                {
+                    if (action == DeviceNotification.Action.Arrival)
+                    {
+                        // TODO remove
+                        PInvoke.SetVCPFeature(monitor.Handle, 0x60, 0x11);
+                    }
+                    else if (action == DeviceNotification.Action.Removal)
+                    {
+                        // TODO remove
+                        PInvoke.SetVCPFeature(monitor.Handle, 0x60, 0x12);
+                    }
+                }
             }
-            else if (action == DeviceNotification.Action.Removal)
-            {
-            }
+
+            lastAction = action;
         }
     }
-
-    Console.WriteLine("Press any key to continue...");
-    Console.ReadKey();
 }
