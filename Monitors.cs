@@ -5,9 +5,9 @@ using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 
-internal class Monitor : IDisposable
+internal class MonitorDevice : IDisposable
 {
-    public Monitor(string device, SafePhysicalMonitorHandle handle, string description)
+    public MonitorDevice(string device, SafePhysicalMonitorHandle handle, string description)
     {
         Device = device;
         Handle = handle;
@@ -37,11 +37,11 @@ internal class Monitor : IDisposable
     public string Description { get; }
 };
 
-internal class Monitors : IEnumerable<Monitor>, IDisposable
+internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
 {
     struct LParamData
     {
-        public List<Monitor> monitors;
+        public List<MonitorDevice> monitors;
         public Exception exception;
     }
 
@@ -112,7 +112,7 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
 
         foreach (var physicalMonitor in physicalMonitors)
         {
-            var monitor = new Monitor(monitorInfoEx.szDevice.ToString(),
+            var monitor = new MonitorDevice(monitorInfoEx.szDevice.ToString(),
                 new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true),
                 physicalMonitor.szPhysicalMonitorDescription.ToString());
             lParamData.monitors.Add(monitor);
@@ -121,7 +121,7 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
         return true;
     }
 
-    public IEnumerator<Monitor> GetEnumerator()
+    public IEnumerator<MonitorDevice> GetEnumerator()
     {
         return _monitors.GetEnumerator();
     }
@@ -149,5 +149,5 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
         }
     }
 
-    List<Monitor> _monitors = new List<Monitor>();
+    List<MonitorDevice> _monitors = new List<MonitorDevice>();
 }

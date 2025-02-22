@@ -7,3 +7,4 @@ tray icon
 resources in exe, including icon
 config UI
 ci cd, releases
+configure device class to look for (keyboard or mouse or GUID?)

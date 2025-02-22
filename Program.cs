@@ -10,29 +10,52 @@ using (var notification = new DeviceNotification())
 
     await foreach (DeviceNotification.Action action in notification.Reader.ReadAllAsync())
     {
-        if (lastAction != action) {
-            Console.WriteLine($"Action: {action}");
+        ProcessNotification(action);
+    }
+}
 
-            using (var monitors = new Monitors())
+void ProcessNotification(DeviceNotification.Action action)
+{
+    if (lastAction == action)
+    {
+        // Ignore repeated actions
+        return;
+    }
+    lastAction = action;
+
+    // TODO log
+    Console.WriteLine($"Action: {action}");
+
+    using (var monitorDevices = new MonitorDevices())
+    {
+        monitorDevices.Refresh();
+
+        foreach (var monitorConfig in config.Monitors)
+        {
+            // Find the action config for this device action
+            var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;
+
+            if (actionConfig == null)
             {
-                monitors.Refresh();
-
-                foreach (var monitor in monitors)
-                {
-                    if (action == DeviceNotification.Action.Arrival)
-                    {
-                        // TODO remove
-                        PInvoke.SetVCPFeature(monitor.Handle, 0x60, 0x11);
-                    }
-                    else if (action == DeviceNotification.Action.Removal)
-                    {
-                        // TODO remove
-                        PInvoke.SetVCPFeature(monitor.Handle, 0x60, 0x12);
-                    }
-                }
+                continue;
             }
 
-            lastAction = action;
+            // Find a device to match this config item
+            var monitorDevice = (
+                    from device in monitorDevices
+                    where device.Description == monitorConfig.Description
+                        && device.Device == monitorConfig.Device
+                    select device
+                ).SingleOrDefault();
+
+            // TODO log the device found, or if no such device found
+            if (monitorDevice == null)
+            {
+                continue;
+            }
+
+            // Execute the action for this monitor
+            PInvoke.SetVCPFeature(monitorDevice.Handle, actionConfig.Code, actionConfig.Value);
         }
     }
 }

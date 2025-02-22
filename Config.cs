@@ -13,10 +13,18 @@ internal class Config
                 .WithNamingConvention(HyphenatedNamingConvention.Instance)
                 .Build();
 
+            Config config;
             using (var input = new StreamReader(path))
             {
-                return deserializer.Deserialize<Config>(input);
+                config = deserializer.Deserialize<Config>(input);
             }
+
+            if (config.Version != 1)
+            {
+                throw new ConfigException(path, $"Unsupported configuration version (found {config.Version}, supporting 1)");
+            }
+
+            return config;
         }
         catch (YamlException exception)
         {
@@ -49,6 +57,12 @@ internal class ActionConfig
 
 internal class ConfigException : Exception
 {
+    public ConfigException(string path, string message)
+        : base(message)
+    {
+        _path = path;
+    }
+
     public ConfigException(string path, YamlException exception)
         : base(null, exception)
     {
@@ -59,9 +73,15 @@ internal class ConfigException : Exception
     {
         get
         {
+            var baseMessage = base.Message;
+            if (baseMessage != null)
+            {
+                return baseMessage;
+            }
+
             if (InnerException is YamlException)
             {
-                return FormatMessageYaml();
+                return FormatYamlMessage();
             }
 
             var innerMessage = InnerException?.Message != null ? $" ({InnerException?.Message})" : "";
@@ -69,7 +89,7 @@ internal class ConfigException : Exception
         }
     }
 
-    private string FormatMessageYaml()
+    private string FormatYamlMessage()
     {
         var builder = new StringBuilder();
 
