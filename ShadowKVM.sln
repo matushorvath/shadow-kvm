@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowKVM", "ShadowKVM.csproj", "{D260DE33-9D74-C5E7-6A07-D5B4698DCD6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowKVM", "ShadowKVM\ShadowKVM.csproj", "{D260DE33-9D74-C5E7-6A07-D5B4698DCD6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

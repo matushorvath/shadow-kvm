@@ -1,7 +1,6 @@
 TODO List
 =========
 
-- create a directory for sources
 - generate config file if it does not exist
 - detect if 0x60 looks correct (it has valid values)
 - log file, add log messages everywhere
