@@ -25,6 +25,18 @@ If you have multiple computers connected to the same displays and a USB switch t
 - Uses the DDC/CI protocol (`SetVCPFeature`) to switch the display input to the corresponding computer.
 - Ensures seamless transitions between multiple machines connected to the same monitors.
 
+## Third-Party Work
+
+This project uses [H.NotifyIcon](https://github.com/HavenDV/H.NotifyIcon) to display a tray icon.
+The tray icon handling code is partly based on an
+[example](https://github.com/HavenDV/H.NotifyIcon/tree/master/src/apps/H.NotifyIcon.Apps.Wpf)
+that is part of H.NotifyIcon source code.
+
+This project includes the [Shadow Icon](https://icon-icons.com/icon/shadow/264912) by Mingcute,
+licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+The icon was modified by inverting the colors.
+
 ## License
 
-MIT
+[MIT License](https://choosealicense.com/licenses/mit/) (everything except the icon)  
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (icon artwork only)  
