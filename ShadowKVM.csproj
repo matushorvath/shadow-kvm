@@ -4,9 +4,19 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows8</TargetFramework>
     <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <AssemblyTitle>Shadow KVM: Sync your monitor inputs with a USB switch for seamless multi-PC control</AssemblyTitle>
+    <Authors>Matúš Horváth</Authors>
+    <Copyright>© 2025 Matúš Horváth. All rights reserved.</Copyright>
+    <Product>Shadow KVM</Product>
+    <RepositoryUrl>https://github.com/matushorvath/shadow-kvm</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="*.ico" />
+    <Resource Include="Icon.ico" />
   </ItemGroup>
 
 </Project>
