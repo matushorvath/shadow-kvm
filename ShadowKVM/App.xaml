@@ -6,22 +6,11 @@
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
 
-    <!-- <tb:TaskbarIcon
-        x:Key="NotifyIcon"
-        ToolTipText="ToolTip"
-        IconSource="/Icon.ico"
-        ContextMenu="{StaticResource TrayMenu}"
-        MenuActivation="LeftOrRightClick"
-        TrayPopup="{StaticResource TrayStatusPopup}"
-        PopupActivation="DoubleClick"
-        TrayToolTip="{StaticResource TrayToolTip}"
-        /> -->
-
-   <tb:TaskbarIcon
-        x:Key="NotifyIcon"
-        ToolTipText="ToolTip"
-        IconSource="pack://application:,,,/IconAttached.ico"
-        />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="NotifyIconResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
 
     </Application.Resources>
 </Application>
