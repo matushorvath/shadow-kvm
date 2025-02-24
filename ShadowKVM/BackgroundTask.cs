@@ -1,14 +1,21 @@
-﻿using Windows.Win32;
+﻿using Serilog;
+using System.Windows;
+using Windows.Win32;
+
+namespace ShadowKVM;
 
 internal class BackgroundTask(Config config) : IDisposable
 {
     public void Start()
     {
+        Log.Debug("Starting background task");
         _task = Task.Run(ProcessNotifications);
     }
 
     async void ProcessNotifications()
     {
+        Log.Debug("Background task started");
+
         DeviceNotification.Action? lastAction = null;
 
         using (var notification = new DeviceNotification())
@@ -30,14 +37,16 @@ internal class BackgroundTask(Config config) : IDisposable
             catch (OperationCanceledException)
             {
                 // Background task was cancelled from outside, just return
-                // TODO log stopping the background task
+                Log.Debug("Background task stopped");
             }
         }
+
+        Application.Current.Shutdown();
     }
 
     void ProcessNotification(DeviceNotification.Action action)
     {
-        // TODO log $"Action: {action}"
+        Log.Debug("Received device notification, action {Action}", action);
 
         using (var monitorDevices = new MonitorDevices())
         {
@@ -61,16 +70,28 @@ internal class BackgroundTask(Config config) : IDisposable
                         select device
                     ).SingleOrDefault();
 
-                // TODO log the device found, or if no such device found
                 if (monitorDevice == null)
                 {
+                    Log.Warning("Did not find monitor for description \"{ConfigDescription}\" device \"{ConfigDevice}\"",
+                        monitorConfig.Description, monitorConfig.Device);
+                    var existingMonitors = from md in monitorDevices
+                        select new { Description = md.Description, Device = md.Device };
+                    Log.Debug("Following monitors exist: {@Monitors}", existingMonitors.ToArray());
+
                     continue;
                 }
 
+                Log.Debug("Found monitor for description \"{ConfigDescription}\" device \"{ConfigDevice}\"",
+                    monitorConfig.Description, monitorConfig.Device);
+
                 // Execute the action for this monitor
                 PInvoke.SetVCPFeature(monitorDevice.Handle, actionConfig.Code, actionConfig.Value);
+
+                Log.Debug("Executed action, code 0x{Code:X} value 0x{Value:X}", actionConfig.Code, actionConfig.Value);
             }
         }
+
+        Log.Debug("Device notification processed");
     }
 
     public void Dispose()

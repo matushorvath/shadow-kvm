@@ -1,3 +1,4 @@
+using Serilog.Events;
 using System.IO;
 using System.Text;
 using YamlDotNet.Core;
@@ -5,23 +6,16 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Windows.Win32;
 
+namespace ShadowKVM;
+
 internal class Config
 {
-    public static Config Load()
+    public static Config Load(string dataDirectory)
     {
-        var path = DefaultConfigFilePath;
-
-        var directory = Path.GetDirectoryName(path);
-        if (directory != null) {
-            Directory.CreateDirectory(directory);
-        }
-
         // TODO handle missing config, create it automatically/display config window
-        return Load(path);
-    }
 
-    public static Config Load(string path)
-    {
+        var configPath = Path.Combine(dataDirectory, "config.yaml");
+
         try
         {
             var deserializer = new DeserializerBuilder()
@@ -29,7 +23,7 @@ internal class Config
                 .Build();
 
             Config config;
-            using (var input = new StreamReader(path))
+            using (var input = new StreamReader(configPath))
             {
                 config = deserializer.Deserialize<Config>(input);
             }
@@ -43,16 +37,7 @@ internal class Config
         }
         catch (YamlException exception)
         {
-            throw new ConfigFileException(path, exception);
-        }
-    }
-
-    static string DefaultConfigFilePath
-    {
-        get
-        {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            return Path.Combine(appData, "Shadow KVM", "config.yaml");
+            throw new ConfigFileException(configPath, exception);
         }
     }
 
@@ -70,6 +55,7 @@ internal class Config
     }
 
     public int Version { get; set; }
+    public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
 
     // TODO require one or the other
     public enum DeviceTypeEnum { Keyboard, Mouse }

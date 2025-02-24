@@ -5,6 +5,8 @@ using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 
+namespace ShadowKVM;
+
 internal class MonitorDevice : IDisposable
 {
     public MonitorDevice(string device, SafePhysicalMonitorHandle handle, string description)

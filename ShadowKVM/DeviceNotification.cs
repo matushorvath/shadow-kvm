@@ -4,6 +4,8 @@ using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 
+namespace ShadowKVM;
+
 internal class DeviceNotification : IDisposable
 {
     public enum Action
