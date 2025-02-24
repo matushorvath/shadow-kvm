@@ -1,5 +1,7 @@
 version: 1
 
+device-type: keyboard
+
 monitors:
   - description: Dell S2722QC(HDMI1)
     device: \\.\DISPLAY1

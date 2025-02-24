@@ -3,9 +3,23 @@ using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Windows.Win32;
 
 internal class Config
 {
+    public static Config Load()
+    {
+        var path = DefaultConfigFilePath;
+
+        var directory = Path.GetDirectoryName(path);
+        if (directory != null) {
+            Directory.CreateDirectory(directory);
+        }
+
+        // TODO handle missing config, create it automatically/display config window
+        return Load(path);
+    }
+
     public static Config Load(string path)
     {
         try
@@ -22,24 +36,47 @@ internal class Config
 
             if (config.Version != 1)
             {
-                throw new ConfigException(path, $"Unsupported configuration version (found {config.Version}, supporting 1)");
+                throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
             }
 
             return config;
         }
         catch (YamlException exception)
         {
-            throw new ConfigException(path, exception);
+            throw new ConfigFileException(path, exception);
         }
     }
 
-    public Config()
+    static string DefaultConfigFilePath
     {
-        Monitors = new List<MonitorConfig>();
+        get
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            return Path.Combine(appData, "Shadow KVM", "config.yaml");
+        }
+    }
+
+    public Guid DeviceClassGuid
+    {
+        get
+        {
+            switch (DeviceType)
+            {
+                case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+                case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
+                default: return DeviceClass ?? throw new ConfigException("Either device-type or device-class must be set");
+            }
+        }
     }
 
     public int Version { get; set; }
-    public List<MonitorConfig> Monitors { get; set; }
+
+    // TODO require one or the other
+    public enum DeviceTypeEnum { Keyboard, Mouse }
+    public DeviceTypeEnum? DeviceType { get; set; }
+    public Guid? DeviceClass { get; set; }
+
+    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
 }
 
 internal class MonitorConfig
@@ -58,14 +95,21 @@ internal class ActionConfig
 
 internal class ConfigException : Exception
 {
-    public ConfigException(string path, string message)
+    public ConfigException(string message)
         : base(message)
     {
-        _path = path;
     }
 
-    public ConfigException(string path, YamlException exception)
-        : base(null, exception)
+    public ConfigException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
+}
+
+internal class ConfigFileException : ConfigException
+{
+    public ConfigFileException(string path, YamlException exception)
+        : base(string.Empty, exception)
     {
         _path = path;
     }
@@ -74,12 +118,6 @@ internal class ConfigException : Exception
     {
         get
         {
-            var baseMessage = base.Message;
-            if (baseMessage != null)
-            {
-                return baseMessage;
-            }
-
             if (InnerException is YamlException)
             {
                 return FormatYamlMessage();
