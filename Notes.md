@@ -16,6 +16,7 @@ Misc
 ====
 
 - log file, add log messages everywhere
+- merge device-class and device-type to device, it's really confusing
 
 Configuration UI
 ================

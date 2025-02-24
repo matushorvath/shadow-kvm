@@ -36,20 +36,15 @@ internal class Config
 
             if (config.Version != 1)
             {
-                throw new ConfigException(path, $"Unsupported configuration version (found {config.Version}, supporting 1)");
+                throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
             }
 
             return config;
         }
         catch (YamlException exception)
         {
-            throw new ConfigException(path, exception);
+            throw new ConfigFileException(path, exception);
         }
-    }
-
-    public Config()
-    {
-        Monitors = new List<MonitorConfig>();
     }
 
     static string DefaultConfigFilePath
@@ -69,7 +64,7 @@ internal class Config
             {
                 case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
                 case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
-                default: return DeviceClass;
+                default: return DeviceClass ?? throw new ConfigException("Either device-type or device-class must be set");
             }
         }
     }
@@ -79,9 +74,9 @@ internal class Config
     // TODO require one or the other
     public enum DeviceTypeEnum { Keyboard, Mouse }
     public DeviceTypeEnum? DeviceType { get; set; }
-    public Guid DeviceClass { get; set; }
+    public Guid? DeviceClass { get; set; }
 
-    public List<MonitorConfig> Monitors { get; set; }
+    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
 }
 
 internal class MonitorConfig
@@ -100,14 +95,21 @@ internal class ActionConfig
 
 internal class ConfigException : Exception
 {
-    public ConfigException(string path, string message)
+    public ConfigException(string message)
         : base(message)
     {
-        _path = path;
     }
 
-    public ConfigException(string path, YamlException exception)
-        : base(null, exception)
+    public ConfigException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
+}
+
+internal class ConfigFileException : ConfigException
+{
+    public ConfigFileException(string path, YamlException exception)
+        : base(string.Empty, exception)
     {
         _path = path;
     }
@@ -116,12 +118,6 @@ internal class ConfigException : Exception
     {
         get
         {
-            var baseMessage = base.Message;
-            if (baseMessage != null)
-            {
-                return baseMessage;
-            }
-
             if (InnerException is YamlException)
             {
                 return FormatYamlMessage();

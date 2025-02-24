@@ -1,12 +1,7 @@
 ﻿using Windows.Win32;
 
-internal class BackgroundTask : IDisposable
+internal class BackgroundTask(Config config) : IDisposable
 {
-    public BackgroundTask(Config config)
-    {
-        _config = config;
-    }
-
     public void Start()
     {
         _task = Task.Run(ProcessNotifications);
@@ -18,7 +13,7 @@ internal class BackgroundTask : IDisposable
 
         using (var notification = new DeviceNotification())
         {
-            notification.Register(_config.DeviceClassGuid);
+            notification.Register(config.DeviceClassGuid);
 
             try
             {
@@ -48,7 +43,7 @@ internal class BackgroundTask : IDisposable
         {
             monitorDevices.Refresh();
 
-            foreach (var monitorConfig in _config.Monitors)
+            foreach (var monitorConfig in config.Monitors)
             {
                 // Find the action config for this device action
                 var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;
@@ -98,7 +93,6 @@ internal class BackgroundTask : IDisposable
         }
     }
 
-    Config _config;
     Task? _task;
 
     CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
