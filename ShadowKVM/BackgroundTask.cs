@@ -2,10 +2,9 @@
 
 internal class BackgroundTask : IDisposable
 {
-    public BackgroundTask()
+    public BackgroundTask(Config config)
     {
-        // TODO move loading the config out
-        _config = Config.Load("C:\\Documents\\kvm\\shadow-kvm\\config.yaml");
+        _config = config;
     }
 
     public void Start()
@@ -19,7 +18,7 @@ internal class BackgroundTask : IDisposable
 
         using (var notification = new DeviceNotification())
         {
-            notification.Register();
+            notification.Register(_config.DeviceClassGuid);
 
             try
             {

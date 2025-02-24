@@ -27,7 +27,7 @@ internal class DeviceNotification : IDisposable
         _channel = Channel.CreateUnbounded<Action>();
     }
 
-    public unsafe void Register()
+    public unsafe void Register(Guid deviceClassGuid)
     {
         if (_notification != null)
         {
@@ -37,7 +37,7 @@ internal class DeviceNotification : IDisposable
         CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
         filter.cbSize = (uint)Marshal.SizeOf(filter);
         filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
-        filter.u.DeviceInterface.ClassGuid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+        filter.u.DeviceInterface.ClassGuid = deviceClassGuid;
 
         CONFIGRET res = PInvoke.CM_Register_Notification(filter, null, DeviceCallback, out _notification);
         if (res != CONFIGRET.CR_SUCCESS)

@@ -3,9 +3,23 @@ using System.Text;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Windows.Win32;
 
 internal class Config
 {
+    public static Config Load()
+    {
+        var path = DefaultConfigFilePath;
+
+        var directory = Path.GetDirectoryName(path);
+        if (directory != null) {
+            Directory.CreateDirectory(directory);
+        }
+
+        // TODO handle missing config, create it automatically/display config window
+        return Load(path);
+    }
+
     public static Config Load(string path)
     {
         try
@@ -38,7 +52,35 @@ internal class Config
         Monitors = new List<MonitorConfig>();
     }
 
+    static string DefaultConfigFilePath
+    {
+        get
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            return Path.Combine(appData, "Shadow KVM", "config.yaml");
+        }
+    }
+
+    public Guid DeviceClassGuid
+    {
+        get
+        {
+            switch (DeviceType)
+            {
+                case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+                case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
+                default: return DeviceClass;
+            }
+        }
+    }
+
     public int Version { get; set; }
+
+    // TODO require one or the other
+    public enum DeviceTypeEnum { Keyboard, Mouse }
+    public DeviceTypeEnum? DeviceType { get; set; }
+    public Guid DeviceClass { get; set; }
+
     public List<MonitorConfig> Monitors { get; set; }
 }
 

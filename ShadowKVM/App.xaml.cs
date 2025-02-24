@@ -12,7 +12,9 @@ public partial class App : Application
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
 
-        _backgroundTask = new BackgroundTask();
+        var config = Config.Load();
+
+        _backgroundTask = new BackgroundTask(config);
         _backgroundTask.Start();
     }
 

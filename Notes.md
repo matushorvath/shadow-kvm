@@ -1,13 +1,21 @@
-TODO List
-=========
+Configuration Persistence
+=========================
 
-- generate config file if it does not exist
-- detect if 0x60 looks correct (it has valid values)
-- log file, add log messages everywhere
 - command line params to specify config file
-- configuration UI
-- ci/cd, installer (include Apache 2.0 license because icon), releases
-- configure device class to look for (keyboard or mouse or GUID)
+- generate config file if it does not exist
+    - detect if 0x60 looks correct (it has valid values)
+
+Release Automation
+==================
+
+- installer (include Apache 2.0 license because icon)
+- ci/cd, releases
+- investigate unit tests in C#
+
+Misc
+====
+
+- log file, add log messages everywhere
 
 Configuration UI
 ================
