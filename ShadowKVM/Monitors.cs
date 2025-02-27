@@ -36,7 +36,7 @@ internal class MonitorDevice : IDisposable
     }
 
     public string Device { get; }
-    public SafePhysicalMonitorHandle Handle { get; } // TODO IDisposable, also on Monitors below
+    public SafePhysicalMonitorHandle Handle { get; }
     public string Description { get; }
 };
 
