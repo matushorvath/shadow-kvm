@@ -1,12 +1,12 @@
 (work in progress)
 
-# ShadowKVM
+# Shadow KVM
 
-ShadowKVM is a Windows application that enhances a basic USB switch to function like a full KVM switch. It automatically switches your monitor inputs based on which computer currently has the USB keyboard connected.
+Shadow KVM is a Windows application that enhances a basic USB switch to function like a full KVM switch. It automatically switches your monitor inputs based on which computer currently has the USB keyboard connected.
 
 ## Use Case
 
-If you have multiple computers connected to the same displays and a USB switch that shares a keyboard and mouse, ShadowKVM will automatically switch your display input when you change the USB switch to a different machine. This removes the need for a manual KVM switch while maintaining the same functionality.
+If you have multiple computers connected to the same displays and a USB switch that shares a keyboard and mouse, Shadow KVM will automatically switch your display input when you change the USB switch to a different machine. This removes the need for a manual KVM switch while maintaining the same functionality.
 
 ## Installation & Usage
 

@@ -10,6 +10,9 @@
       Language="1033"
       UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
 
+    <Icon Id="Icon" SourceFile="..\ShadowKVM\Icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Icon" />
+
     <Launch
         Condition="Installed OR (VersionNT >= 602)"
         Message="This application requires Windows 8 or newer." />
@@ -71,6 +74,6 @@
     </Feature>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
-    <WixVariable Id="WixUILicenseRtf" Value="..\LICENSE.txt" />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" /> <!-- same text as ../LICENSE.txt -->
   </Package>
 </Wix>
