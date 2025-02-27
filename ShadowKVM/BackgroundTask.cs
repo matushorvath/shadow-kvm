@@ -41,7 +41,7 @@ internal class BackgroundTask(Config config) : IDisposable
             }
         }
 
-        Application.Current.Shutdown();
+        // TODO either restart the background task or notify main thread to exit the app
     }
 
     void ProcessNotification(DeviceNotification.Action action)

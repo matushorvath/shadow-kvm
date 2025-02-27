@@ -1,3 +1,4 @@
+using Serilog;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Windows.Win32;
@@ -114,10 +115,13 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
 
         foreach (var physicalMonitor in physicalMonitors)
         {
-            var monitor = new MonitorDevice(monitorInfoEx.szDevice.ToString(),
-                new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true),
-                physicalMonitor.szPhysicalMonitorDescription.ToString());
+            var device = monitorInfoEx.szDevice.ToString();
+            var description = physicalMonitor.szPhysicalMonitorDescription.ToString();
+            var handle = new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true);
+            var monitor = new MonitorDevice(device, handle, description);
+
             lParamData.monitors.Add(monitor);
+            Log.Debug("Discovered physical monitor: description \"{Description}\" device \"{Device}\"", description, device);
         }
 
         return true;

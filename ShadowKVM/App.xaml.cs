@@ -25,11 +25,15 @@ public partial class App : Application
             .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
+        // Set up exception logging
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
         // Load config and possibly adjust the log level
         var config = Config.Load(dataDirectory);
         loggingLevelSwitch.MinimumLevel = config.LogLevel;
 
-        Log.Information("Starting up");
+        Log.Information("Initializing");
 
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
@@ -46,6 +50,16 @@ public partial class App : Application
         _notifyIcon?.Dispose();
 
         base.OnExit(e);
+    }
+
+    void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+    {
+        Log.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
+    }
+
+    void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs args)
+    {
+        Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
     TaskbarIcon? _notifyIcon;

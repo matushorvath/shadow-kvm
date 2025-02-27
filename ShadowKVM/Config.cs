@@ -1,3 +1,4 @@
+using Serilog;
 using Serilog.Events;
 using System.IO;
 using System.Text;
@@ -15,6 +16,7 @@ internal class Config
         // TODO handle missing config, create it automatically/display config window
 
         var configPath = Path.Combine(dataDirectory, "config.yaml");
+        Log.Information("Loading configuration from {ConfigPath}", configPath);
 
         try
         {

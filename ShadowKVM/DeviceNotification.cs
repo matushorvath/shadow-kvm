@@ -33,7 +33,8 @@ internal class DeviceNotification : IDisposable
     {
         if (_notification != null)
         {
-            throw new Exception("Device notification already registered");
+            // Already registered, nothing to do
+            return;
         }
 
         CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
