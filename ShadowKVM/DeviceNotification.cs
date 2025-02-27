@@ -4,6 +4,8 @@ using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 
+namespace ShadowKVM;
+
 internal class DeviceNotification : IDisposable
 {
     public enum Action
@@ -13,12 +15,6 @@ internal class DeviceNotification : IDisposable
 
     public DeviceNotification()
     {
-        if (_channel != null)
-        {
-            // TODO solve the singleton in a better way
-            throw new Exception("Only one instance of DeviceNotification is supported");
-        }
-
         var channelOptions = new BoundedChannelOptions(16);
         channelOptions.FullMode = BoundedChannelFullMode.DropOldest;
         channelOptions.SingleReader = true;
@@ -31,7 +27,8 @@ internal class DeviceNotification : IDisposable
     {
         if (_notification != null)
         {
-            throw new Exception("Device notification already registered");
+            // Already registered, nothing to do
+            return;
         }
 
         CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
@@ -46,7 +43,7 @@ internal class DeviceNotification : IDisposable
         }
     }
 
-    static unsafe uint DeviceCallback(HCMNOTIFICATION notification, void* context,
+    unsafe uint DeviceCallback(HCMNOTIFICATION notification, void* context,
         CM_NOTIFY_ACTION action, CM_NOTIFY_EVENT_DATA* evt, uint eventDataSize)
     {
         if (evt->FilterType != CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE)
@@ -96,6 +93,6 @@ internal class DeviceNotification : IDisposable
         }
     }
 
-    static Channel<Action>? _channel;
+    Channel<Action>? _channel;
     CM_Unregister_NotificationSafeHandle? _notification;
 }

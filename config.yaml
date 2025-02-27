@@ -1,6 +1,7 @@
 version: 1
 
 device-type: keyboard
+log-level: debug
 
 monitors:
   - description: Dell S2722QC(HDMI1)

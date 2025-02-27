@@ -15,7 +15,8 @@ Release Automation
 Misc
 ====
 
-- log file, add log messages everywhere
+- device changes after a reboot/reconnect, don't use it
+   - try to get display serial number or similar
 - merge device-class and device-type to device, it's really confusing
 
 Configuration UI

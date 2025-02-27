@@ -2,6 +2,8 @@ using Microsoft.Win32.SafeHandles;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 
+namespace ShadowKVM;
+
 internal class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     public SafePhysicalMonitorHandle(HANDLE preexistingHandle, bool ownsHandle)
