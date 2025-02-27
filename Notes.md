@@ -1,14 +1,13 @@
 Configuration Persistence
 =========================
 
-- command line params to specify config file
+- command line params to specify data directory
 - generate config file if it does not exist
     - detect if 0x60 looks correct (it has valid values)
 
 Release Automation
 ==================
 
-- installer (include Apache 2.0 license because icon)
 - ci/cd, releases
 - investigate unit tests in C#
 
