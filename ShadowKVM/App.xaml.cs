@@ -18,11 +18,11 @@ public partial class App : Application
         Directory.CreateDirectory(dataDirectory);
 
         // Set up logger
-        var logPath = Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
+        _logPath = Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
         var loggingLevelSwitch = new LoggingLevelSwitch();
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.ControlledBy(loggingLevelSwitch)
-            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .WriteTo.File(_logPath, rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         // Set up exception logging
@@ -54,14 +54,25 @@ public partial class App : Application
 
     void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
     {
+        var error = (args.ExceptionObject as Exception)?.Message ?? args.ExceptionObject.ToString();
+        var message = $"Shadow KVM encountered an error and needs to close.\n\n"
+            + $"{error}\n\nSee {Path.GetDirectoryName(_logPath)} for details";
+
+        MessageBox.Show(message, "Fatal error", MessageBoxButton.OK, MessageBoxImage.Error);
+
         Log.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
     }
 
     void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs args)
     {
+        var message = $"Shadow KVM encountered an error and needs to close.\n\n"
+            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(_logPath)} for details";
+        MessageBox.Show(message, "Fatal error", MessageBoxButton.OK, MessageBoxImage.Error);
+
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
     TaskbarIcon? _notifyIcon;
     BackgroundTask? _backgroundTask;
+    string? _logPath;
 }
