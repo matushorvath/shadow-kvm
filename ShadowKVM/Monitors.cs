@@ -42,12 +42,6 @@ internal class MonitorDevice : IDisposable
 
 internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
 {
-    struct LParamData
-    {
-        public List<MonitorDevice> monitors;
-        public Exception exception;
-    }
-
     public unsafe void Refresh()
     {
         foreach (var monitor in _monitors)
@@ -56,75 +50,69 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
         }
         _monitors.Clear();
 
-        // The lParamData variable is fixed, because it's a local variable in unsafe context
-        var lParamData = new LParamData { monitors = _monitors };
+        // This exception is set inside MonitorCallback and checked after EnumDisplayMonitors returns
+        Exception? exception = null;
 
-#pragma warning disable CS8500 // take address of a managed type
-        BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, (nint)(&lParamData));
-#pragma warning restore CS8500
+        unsafe BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lParam)
+        {
+            BOOL success;
+
+            var monitorInfoEx = new MONITORINFOEXW();
+            monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
+
+            success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
+            if (!success)
+            {
+                exception = new Exception("Getting monitor information failed");
+                return true;
+            }
+
+            uint numberOfPhysicalMonitors;
+            success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
+            if (!success)
+            {
+                exception = new Exception("Getting physical monitor number failed");
+                return true;
+            }
+
+            if (numberOfPhysicalMonitors == 0)
+            {
+                return true;
+            }
+
+            var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
+            success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
+            if (!success)
+            {
+                exception = new Exception("Getting physical monitor information failed");
+                return true;
+            }
+
+            foreach (var physicalMonitor in physicalMonitors)
+            {
+                var device = monitorInfoEx.szDevice.ToString();
+                var description = physicalMonitor.szPhysicalMonitorDescription.ToString();
+                var handle = new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true);
+                var monitor = new MonitorDevice(device, handle, description);
+
+                _monitors.Add(monitor);
+                Log.Debug("Discovered physical monitor: description \"{Description}\" device \"{Device}\"", description, device);
+            }
+
+            return true;
+        }
+
+        BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
+
+        if (exception != null)
+        {
+            throw exception;
+        }
 
         if (!success)
         {
             throw new Exception("Monitor enumeration failed");
         }
-
-        if (lParamData.exception != null)
-        {
-            throw lParamData.exception;
-        }
-    }
-
-    static unsafe BOOL MonitorCallback(HMONITOR hMonitor, HDC hDc, RECT* rect, LPARAM lParam)
-    {
-#pragma warning disable CS8500 // declares a pointer to a managed type
-        var lParamData = *(LParamData*)lParam.Value;
-#pragma warning restore CS8500
-
-        BOOL success;
-
-        var monitorInfoEx = new MONITORINFOEXW();
-        monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
-
-        success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
-        if (!success)
-        {
-            lParamData.exception = new Exception("Getting monitor information failed");
-            return true;
-        }
-
-        uint numberOfPhysicalMonitors;
-        success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
-        if (!success)
-        {
-            lParamData.exception = new Exception("Getting physical monitor number failed");
-            return true;
-        }
-
-        if (numberOfPhysicalMonitors == 0)
-        {
-            return true;
-        }
-
-        var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
-        success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
-        if (!success)
-        {
-            lParamData.exception = new Exception("Getting physical monitor information failed");
-            return true;
-        }
-
-        foreach (var physicalMonitor in physicalMonitors)
-        {
-            var device = monitorInfoEx.szDevice.ToString();
-            var description = physicalMonitor.szPhysicalMonitorDescription.ToString();
-            var handle = new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true);
-            var monitor = new MonitorDevice(device, handle, description);
-
-            lParamData.monitors.Add(monitor);
-            Log.Debug("Discovered physical monitor: description \"{Description}\" device \"{Device}\"", description, device);
-        }
-
-        return true;
     }
 
     public IEnumerator<MonitorDevice> GetEnumerator()
