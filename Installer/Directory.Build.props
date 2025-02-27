@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BaseOutputPath>..\bin</BaseOutputPath>
+    <BaseIntermediateOutputPath>..\obj\Installer</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,20 @@
+<Project Sdk="WixToolset.Sdk/5.0.1">
+  <PropertyGroup>
+    <OutputName>ShadowKVM</OutputName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShadowKVM\ShadowKVM.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Netfx.wixext">
+      <Version>5.0.2</Version>
+      <Version>5.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="WixToolset.UI.wixext">
+      <Version>5.0.2</Version>
+      <Version>5.0.2</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>

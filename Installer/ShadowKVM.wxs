@@ -1,0 +1,79 @@
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package
+      Name="Shadow KVM"
+      Manufacturer="Matúš Horváth"
+      Version="0.0.1"
+      Language="1033"
+      UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
+
+    <Icon Id="Icon" SourceFile="..\ShadowKVM\Icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="Icon" />
+
+    <Launch
+        Condition="Installed OR (VersionNT >= 602)"
+        Message="This application requires Windows 8 or newer." />
+
+    <netfx:DotNetCompatibilityCheck
+        Property="DOTNETRUNTIMECHECK"
+        RollForward="major"
+        RuntimeType="desktop"
+        Platform="x64"
+        Version="9.0.0" />
+
+    <Launch
+        Condition="Installed OR DOTNETRUNTIMECHECK"
+        Message="This application requires .NET 9.x or newer." />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
+        <Component Id="ApplicationComponent" Guid="db013685-97a1-456f-afce-f75e747f4d98">
+          <File Source="CommunityToolkit.Mvvm.dll" />
+          <File Source="H.GeneratedIcons.System.Drawing.dll" />
+          <File Source="H.NotifyIcon.dll" />
+          <File Source="H.NotifyIcon.Wpf.dll" />
+          <File Source="Serilog.dll" />
+          <File Source="Serilog.Sinks.File.dll" />
+          <File Source="ShadowKVM.dll" />
+          <File Source="ShadowKVM.exe" />
+          <File Source="ShadowKVM.runtimeconfig.json" />
+          <File Source="YamlDotNet.dll" />
+
+          <File Source="APACHE-LICENSE-2.0.txt" />
+          <File Source="..\LICENSE.txt" />
+          <File Source="NOTICE.md" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="StartMenuFolder">
+      <Component Id="StartMenuComponent" Guid="edbfe029-242e-431d-9766-de6d3b7701c7">
+        <Shortcut
+            Id="StartMenuShortcut" 
+            Name="!(bind.Property.ProductName)"
+            Description="Shadow KVM"
+            Target="[INSTALLFOLDER]ShadowKVM.exe"
+            WorkingDirectory="INSTALLFOLDER" />
+
+        <RegistryValue
+            Root="HKCU"
+            Key="Software\!(bind.Property.Manufacturer)\!(bind.Property.ProductName)"
+            Name="Installed"
+            Type="integer"
+            Value="1"
+            KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <Feature Id="Main">
+      <ComponentRef Id="ApplicationComponent" />
+      <ComponentRef Id="StartMenuComponent" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" /> <!-- same text as ../LICENSE.txt -->
+  </Package>
+</Wix>
