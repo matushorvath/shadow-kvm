@@ -33,10 +33,10 @@ The tray icon handling code is partly based on an
 that is part of H.NotifyIcon source code.
 
 This project includes the [Shadow Icon](https://icon-icons.com/icon/shadow/264912) by Mingcute,
-licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 The icon was modified by inverting the colors.
 
 ## License
 
-[MIT License](https://choosealicense.com/licenses/mit/) (everything except the icon)  
-[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) (icon artwork only)  
+[MIT License](https://opensource.org/license/mit)  
+(see [NOTICE.md](Installer/Notice.md) for details)
