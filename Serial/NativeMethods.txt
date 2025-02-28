@@ -1,0 +1,7 @@
+DestroyPhysicalMonitor
+EnumDisplayDevices
+EnumDisplayMonitors
+GetMonitorInfo
+GetNumberOfPhysicalMonitorsFromHMONITOR
+GetPhysicalMonitorsFromHMONITOR
+MONITORINFOEXW
