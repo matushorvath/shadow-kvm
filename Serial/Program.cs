@@ -63,36 +63,40 @@ unsafe
     }
 }
 
-uint index = 0;
+uint adapterIndex = 0;
 while (true)
 {
     var displayDevice = new DISPLAY_DEVICEW();
     displayDevice.cb = (uint)Marshal.SizeOf(displayDevice);
 
-    success = PInvoke.EnumDisplayDevices(null, index++, ref displayDevice, 1 /* 1 = EDD_GET_DEVICE_INTERFACE_NAME */);
+    success = PInvoke.EnumDisplayDevices(null, adapterIndex++, ref displayDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
     if (!success)
     {
         break;
     }
 
     // Console.WriteLine($"Adapter:");
-    // Console.WriteLine($"    id {displayDevice.DeviceID.ToString()}");
-    // Console.WriteLine($"    key {displayDevice.DeviceKey.ToString()}");
-    // Console.WriteLine($"    name {displayDevice.DeviceName.ToString()}");
-    // Console.WriteLine($"    string {displayDevice.DeviceString.ToString()}");
+    // Console.WriteLine($"    id {displayDevice.DeviceID}");
+    // Console.WriteLine($"    key {displayDevice.DeviceKey}");
+    // Console.WriteLine($"    name {displayDevice.DeviceName}");
+    // Console.WriteLine($"    string {displayDevice.DeviceString}");
 
-    var deviceName = displayDevice.DeviceName.ToString();
-    success = PInvoke.EnumDisplayDevices(deviceName, 0, ref displayDevice, 1 /* 1 = EDD_GET_DEVICE_INTERFACE_NAME */);
-    if (!success)
+    uint monitorIndex = 0;
+    while (true)
     {
-        continue;
-    }
+        var deviceName = displayDevice.DeviceName.ToString();
+        success = PInvoke.EnumDisplayDevices(deviceName, monitorIndex++, ref displayDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+        if (!success)
+        {
+            break;
+        }
 
-    Console.WriteLine($"Monitor:");
-    Console.WriteLine($"    id {displayDevice.DeviceID.ToString()}");
-    Console.WriteLine($"    key {displayDevice.DeviceKey.ToString()}");
-    Console.WriteLine($"    name {displayDevice.DeviceName.ToString()}");
-    Console.WriteLine($"    string {displayDevice.DeviceString.ToString()}");
+        Console.WriteLine($"Monitor:");
+        Console.WriteLine($"    id {displayDevice.DeviceID}");
+        Console.WriteLine($"    key {displayDevice.DeviceKey}");
+        Console.WriteLine($"    name {displayDevice.DeviceName}");
+        Console.WriteLine($"    string {displayDevice.DeviceString}");
+    }
 }
 
 ManagementObjectSearcher wmiSearcher = new ManagementObjectSearcher("root\\wmi", "SELECT * FROM WMIMonitorID");
@@ -105,70 +109,3 @@ foreach (var monitorId in monitorIds)
 
     Console.WriteLine($"WMI Monitor: instance {monitorId["InstanceName"]} serial {serial}");
 }
-
-
-//     Msgbox (A_Clipboard:=MonitorGetName(A_Index))
-
-// While EnumDisplayDevices(A_Index-1, &DISPLAY_DEVICEA)    {
-//     if !DISPLAY_DEVICEA["StateFlags"]
-//         continue
-//     tp:=""
-//     For k,v in DISPLAY_DEVICEA
-//         tp.=k " : " v "`n"
-//     Msgbox (A_Clipboard:=tp)
-// }
-
-// WmiMonitorInfos:=GetWmiMonitorInfos()
-// Loop WmiMonitorInfos.Count    {
-//     tp:=""
-//     For k,v in WmiMonitorInfos[A_Index]
-//         tp.=k " : " v "`n"
-//     Msgbox (A_Clipboard:=tp)
-// }
-// ExitApp
-
-
-
-// /*
-// EnumDisplayDevicesW function (winuser.h)
-//     https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumdisplaydevicesw
-// DISPLAY_DEVICEA structure (wingdi.h)
-//     https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-display_devicea
-// Get display name that matches that found in display settings
-//     https://stackoverflow.com/questions/7486485/get-display-name-that-matches-that-found-in-display-settings
-// Secondary Monitor
-//     https://www.autohotkey.com/board/topic/20084-secondary-monitor/
-// */
-// EnumDisplayDevices(iDevNum, &DISPLAY_DEVICEA)    {
-//     Static   EDD_GET_DEVICE_INTERFACE_NAME := 0x00000001
-//             ,byteCount              := 4+4+((32+128+128+128)*2)
-//             ,offset_cb              := 0
-//             ,offset_DeviceName      := 4                            ,length_DeviceName      := 32
-//             ,offset_DeviceString    := 4+(32*2)                     ,length_DeviceString    := 128
-//             ,offset_StateFlags      := 4+((32+128)*2)
-//             ,offset_DeviceID        := 4+4+((32+128)*2)             ,length_DeviceID        := 128
-//             ,offset_DeviceKey       := 4+4+((32+128+128)*2)         ,length_DeviceKey       := 128
-
-
-//     DISPLAY_DEVICEA:=Map("cb",0,"DeviceName","","DisplayAdapter","","DisplayMonitor","","StateFlags",0,"DeviceID","","DeviceKey","")
-//     lpDisplayDevice:=Buffer(byteCount,0)
-//     Numput("UInt",byteCount,lpDisplayDevice,offset_cb)
-//     if !DllCall("EnumDisplayDevices", "Ptr",0, "UInt",iDevNum, "Ptr",lpDisplayDevice.Ptr, "UInt",0)
-//         return false
-//     For k in DISPLAY_DEVICEA    {
-//         Switch k
-//         {
-//             case "cb","StateFlags":         DISPLAY_DEVICEA[k]:=NumGet(lpDisplayDevice, offset_%k%,"UInt")
-//             case "DisplayAdapter":          DISPLAY_DEVICEA[k]:=StrGet(lpDisplayDevice.Ptr+offset_DeviceString,length_DeviceString)
-//             case "DisplayMonitor":          continue
-//             default:                        DISPLAY_DEVICEA[k]:=StrGet(lpDisplayDevice.Ptr+offset_%k%,length_%k%)
-//         }
-//     }
-//     lpDisplayDevice:=Buffer(byteCount,0)
-//     Numput("UInt",byteCount,lpDisplayDevice,offset_cb)
-//     lpDevice:=Buffer(length_DeviceString*2,0)
-//     StrPut(DISPLAY_DEVICEA["DeviceName"],lpDevice,length_DeviceString)
-//     DllCall("EnumDisplayDevices", "Ptr",lpDevice.Ptr, "UInt",0, "Ptr",lpDisplayDevice.Ptr, "UInt",EDD_GET_DEVICE_INTERFACE_NAME)
-//     DISPLAY_DEVICEA["DisplayMonitor"]:=StrGet(lpDisplayDevice.Ptr+offset_DeviceString,length_DeviceString)
-//     return true
-// }

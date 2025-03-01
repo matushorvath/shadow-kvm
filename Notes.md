@@ -46,3 +46,5 @@ https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmimonitorid?redirec
 https://learn.microsoft.com/en-us/windows/win32/api/_display/
 https://learn.microsoft.com/en-us/uwp/api/windows.devices.display.displaymonitor?view=winrt-26100
 https://ofekshilon.com/2011/11/13/reading-monitor-physical-dimensions-or-getting-the-edid-the-right-way/
+https://www.autohotkey.com/boards/viewtopic.php?t=116104
+https://gist.github.com/texus/3212ebc1ed1502ecd265cc7cf1322b02
