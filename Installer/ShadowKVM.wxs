@@ -35,7 +35,11 @@
     <ComponentGroup Id="ApplicationComponent">
       <File Source="ShadowKVM.exe" />
       <File Source="ShadowKVM.runtimeconfig.json" />
-      <Files Include="!(bindpath.ShadowKVM)\*.dll" />
+      <File Source="runtimes\win\lib\net9.0\System.Management.dll" />
+
+      <Files Include="!(bindpath.ShadowKVM)\*.dll">
+        <Exclude Files="!(bindpath.ShadowKVM)\System.Management.dll" />
+      </Files>
 
       <File Source="APACHE-LICENSE-2.0.txt" />
       <File Source="..\LICENSE.txt" />
