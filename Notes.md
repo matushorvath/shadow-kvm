@@ -15,6 +15,7 @@ Misc
 ====
 
 - merge device-class and device-type to device, it's really confusing
+- start application on login
 
 Configuration UI
 ================
