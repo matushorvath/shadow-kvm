@@ -1,6 +1,7 @@
 CM_Register_Notification
 CM_Unregister_Notification
 DestroyPhysicalMonitor
+EnumDisplayDevices
 EnumDisplayMonitors
 GetMonitorInfo
 GetNumberOfPhysicalMonitorsFromHMONITOR

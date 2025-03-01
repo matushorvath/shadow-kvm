@@ -70,7 +70,9 @@ internal class Config
 internal class MonitorConfig
 {
     public string? Description { get; set; }
-    public string? Device { get; set; }
+    public string? Adapter { get; set; }
+    public string? SerialNumber { get; set; }
+
     public ActionConfig? Attach { get; set; }
     public ActionConfig? Detach { get; set; }
 }
