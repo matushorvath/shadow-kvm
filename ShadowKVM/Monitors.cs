@@ -3,6 +3,7 @@ using System.Collections;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
@@ -12,13 +13,6 @@ namespace ShadowKVM;
 
 internal class Monitor : IDisposable
 {
-    public Monitor(string device, SafePhysicalMonitorHandle handle, string description)
-    {
-        Device = device;
-        Handle = handle;
-        Description = description;
-    }
-
     public void Dispose()
     {
         Dispose(true);
@@ -37,33 +31,30 @@ internal class Monitor : IDisposable
         }
     }
 
-    public string Device { get; }
-    public SafePhysicalMonitorHandle Handle { get; }
-    public string Description { get; }
+    public required string Device { get; set; }
+    public required SafePhysicalMonitorHandle Handle { get; set; }
+    public required string Description { get; set; }
+
+    public string? Adapter { get; set; }
+    public string? SerialNumber { get; set; }
 };
 
-internal class Monitors : IEnumerable<Monitor>, IDisposable
+internal partial class Monitors : IEnumerable<Monitor>, IDisposable
 {
     public void Refresh()
     {
-        foreach (var monitor in _monitors)
-        {
-            monitor.Dispose();
-        }
-        _monitors.Clear();
-
         var physicalMonitors = LoadPhysicalMonitors();
         var displayDevices = LoadDisplayDevices();
         var wmiMonitorIds = LoadWmiMonitorIds();
 
-        
+        ConnectMonitorData(physicalMonitors, displayDevices, wmiMonitorIds);
     }
 
-    struct PhysicalMonitor
+    class PhysicalMonitor
     {
-        public string device;
-        public HANDLE handle;
-        public string description;
+        public required string Device { get; set; }
+        public required HANDLE Handle { get; set; }
+        public required string Description { get; set; }
     }
 
     unsafe List<PhysicalMonitor> LoadPhysicalMonitors()
@@ -112,15 +103,14 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
             {
                 var monitor = new PhysicalMonitor
                 {
-                    device = monitorInfoEx.szDevice.ToString(),
-                    description = physicalMonitor.szPhysicalMonitorDescription.ToString(),
-                    handle = physicalMonitor.hPhysicalMonitor, 
+                    Device = monitorInfoEx.szDevice.ToString(),
+                    Description = physicalMonitor.szPhysicalMonitorDescription.ToString(),
+                    Handle = physicalMonitor.hPhysicalMonitor, 
                 };
 
                 monitors.Add(monitor);
 
-                Log.Debug("Physical monitor: description \"{Description}\" device \"{Device}\"",
-                    monitor.description, monitor.device);
+                Log.Debug("Physical monitor: {@Monitor}", monitor);
             }
 
             return true;
@@ -141,12 +131,11 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
         return monitors;
     }
 
-    struct DisplayDevice
+    class DisplayDevice
     {
-        public string id;
-        public string name;
-        public string adapterString;
-        public string monitorString;
+        public required string Id { get; set; }
+        public required string Name { get; set; }
+        public required string Adapter { get; set; }
     }
 
     List<DisplayDevice> LoadDisplayDevices()
@@ -182,26 +171,24 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
 
                 var device = new DisplayDevice
                 {
-                    id = monitorDevice.DeviceID.ToString(),
-                    name = adapterDevice.DeviceName.ToString(),
-                    adapterString = adapterDevice.DeviceString.ToString(),
-                    monitorString = monitorDevice.DeviceString.ToString()
+                    Id = monitorDevice.DeviceID.ToString(),
+                    Name = adapterDevice.DeviceName.ToString(),
+                    Adapter = adapterDevice.DeviceString.ToString()
                 };
 
                 devices.Add(device);
 
-                Log.Debug("Display device: adapter \"{AdapterString}\" monitor \"{MonitorString}\" name \"{Name}\" id \"{Id}\"",
-                    device.adapterString, device.monitorString, device.name, device.id);
+                Log.Debug("Display device: {@Device}", device);
             }
         }
 
         return devices;
     }
 
-    struct WmiMonitorId
+    class WmiMonitorId
     {
-        public string instanceName;
-        public string serialNumber;
+        public required string InstanceName { get; set; }
+        public required string SerialNumber { get; set; }
     }
 
     List<WmiMonitorId> LoadWmiMonitorIds()
@@ -220,17 +207,106 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
 
             var wmiMonitorId = new WmiMonitorId
             {
-                instanceName = monitorId["InstanceName"]?.ToString() ?? string.Empty,
-                serialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray())
+                InstanceName = monitorId["InstanceName"]?.ToString() ?? string.Empty,
+                SerialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray())
             };
 
             wmiMonitorIds.Add(wmiMonitorId);
 
-            Log.Debug("WMI monitor id: instance \"{InstanceName}\" serial number \"{SerialNumber}\"",
-                wmiMonitorId.instanceName, wmiMonitorId.serialNumber);
+            Log.Debug("WMI monitor id: {@WmiMonitorId}", wmiMonitorId);
         }
 
         return wmiMonitorIds;
+    }
+
+    void ConnectMonitorData(List<PhysicalMonitor> physicalMonitors, List<DisplayDevice> displayDevices, List<WmiMonitorId> wmiMonitorIds)
+    {
+        foreach (var monitor in _monitors)
+        {
+            monitor.Dispose();
+        }
+        _monitors.Clear();
+
+        foreach (var physicalMonitor in physicalMonitors)
+        {
+            // Include each physical monitor
+            var monitor = new Monitor
+            {
+                Device = physicalMonitor.Device,
+                Description = physicalMonitor.Description,
+                Handle = new SafePhysicalMonitorHandle(physicalMonitor.Handle, true)
+            };
+
+            // Find display device for this physical monitor, if available
+            var displayDevice = (
+                from dd in displayDevices
+                where dd.Name == physicalMonitor.Device
+                select dd
+            ).SingleOrDefault();
+
+            if (displayDevice == null)
+            {
+                Log.Debug("Could not find display device for \"{Device}\"", physicalMonitor.Device);
+            }
+            else
+            {
+                // Load additional information from the display device
+                monitor.Adapter = displayDevice.Adapter;
+
+                // Find WMI monitor id for this display device, if available
+                var wmiMonitorId = (
+                    from wdi in wmiMonitorIds
+                    where MatchDeviceId(displayDevice.Id, wdi.InstanceName)
+                    select wdi
+                ).SingleOrDefault();
+
+                if (wmiMonitorId == null)
+                {
+                    Log.Debug("Could not find WMI monitor id for \"{Id}\"", displayDevice.Id);
+                }
+                else
+                {
+                    // Load additional information from the display device
+                    monitor.SerialNumber = wmiMonitorId.SerialNumber;
+                }
+            }
+
+            Log.Debug("Monitor: {@Monitor}", monitor);
+
+            _monitors.Add(monitor);
+        }
+    }
+
+    // TODO use ^$
+    [GeneratedRegex(@"\\\\\?\\DISPLAY#([^#]+)#([^#]+)#{[-0-9a-f]+}", RegexOptions.IgnoreCase)]
+    private static partial Regex DevIdRegex();
+
+    [GeneratedRegex(@"DISPLAY\\([^\\]+)\\([^_]+)_\d+", RegexOptions.IgnoreCase)]
+    private static partial Regex WmiIdRegex();
+
+    static bool MatchDeviceId(string devId, string wmiId)
+    {
+        // The DisplayDevice object and the WMI Monitor ID object contain the same id,
+        // but it's formatted slightly differently:
+        // devId: "\\?\DISPLAY#DELA1CE#5&fc538b4&0&UID4354#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}"
+        // wmiId: "DISPLAY\DELA1CE\5&fc538b4&0&UID4354_0"
+
+        var devMatch = DevIdRegex().Match(devId);
+        if (!devMatch.Success)
+        {
+            Log.Warning("Could not parse display device \"{DevId}\"", devId);
+            return false;
+        }
+
+        var wmiMatch = WmiIdRegex().Match(wmiId);
+        if (!devMatch.Success)
+        {
+            Log.Warning("Could not parse WMI monitor id \"{WmiId}\"", wmiId);
+            return false;
+        }
+
+        return devMatch.Groups[1].Value == wmiMatch.Groups[1].Value
+            && devMatch.Groups[2].Value == wmiMatch.Groups[2].Value;
     }
 
     public IEnumerator<Monitor> GetEnumerator()
