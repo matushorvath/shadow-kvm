@@ -29,28 +29,21 @@
         Message="This application requires .NET 9.x or newer." />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
-        <Component Id="ApplicationComponent" Guid="db013685-97a1-456f-afce-f75e747f4d98">
-          <File Source="CommunityToolkit.Mvvm.dll" />
-          <File Source="H.GeneratedIcons.System.Drawing.dll" />
-          <File Source="H.NotifyIcon.dll" />
-          <File Source="H.NotifyIcon.Wpf.dll" />
-          <File Source="Serilog.dll" />
-          <File Source="Serilog.Sinks.File.dll" />
-          <File Source="ShadowKVM.dll" />
-          <File Source="ShadowKVM.exe" />
-          <File Source="ShadowKVM.runtimeconfig.json" />
-          <File Source="YamlDotNet.dll" />
-
-          <File Source="APACHE-LICENSE-2.0.txt" />
-          <File Source="..\LICENSE.txt" />
-          <File Source="NOTICE.md" />
-        </Component>
-      </Directory>
+      <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" />
     </StandardDirectory>
 
+    <ComponentGroup Id="ApplicationComponent">
+      <File Source="ShadowKVM.exe" />
+      <File Source="ShadowKVM.runtimeconfig.json" />
+      <Files Include="!(bindpath.ShadowKVM)\*.dll" />
+
+      <File Source="APACHE-LICENSE-2.0.txt" />
+      <File Source="..\LICENSE.txt" />
+      <File Source="NOTICE.md" />
+    </ComponentGroup>
+
     <StandardDirectory Id="StartMenuFolder">
-      <Component Id="StartMenuComponent" Guid="edbfe029-242e-431d-9766-de6d3b7701c7">
+      <Component Id="StartMenuComponent">
         <Shortcut
             Id="StartMenuShortcut" 
             Name="!(bind.Property.ProductName)"
@@ -67,11 +60,6 @@
             KeyPath="yes" />
       </Component>
     </StandardDirectory>
-
-    <Feature Id="Main">
-      <ComponentRef Id="ApplicationComponent" />
-      <ComponentRef Id="StartMenuComponent" />
-    </Feature>
 
     <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" /> <!-- same text as ../LICENSE.txt -->
