@@ -1,6 +1,8 @@
 using Serilog;
 using System.Collections;
+using System.Management;
 using System.Runtime.InteropServices;
+using System.Text;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
@@ -42,13 +44,29 @@ internal class MonitorDevice : IDisposable
 
 internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
 {
-    public unsafe void Refresh()
+    public void Refresh()
     {
         foreach (var monitor in _monitors)
         {
             monitor.Dispose();
         }
         _monitors.Clear();
+
+        var physicalMonitors = LoadPhysicalMonitors();
+        var displayDevices = LoadDisplayDevices();
+        var wmiMonitorIds = LoadWmiMonitorIds();
+    }
+
+    struct PhysicalMonitor
+    {
+        public string device;
+        public HANDLE handle;
+        public string description;
+    }
+
+    unsafe List<PhysicalMonitor> LoadPhysicalMonitors()
+    {
+        var monitors = new List<PhysicalMonitor>();
 
         // This exception is set inside MonitorCallback and checked after EnumDisplayMonitors returns
         Exception? exception = null;
@@ -90,13 +108,17 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
 
             foreach (var physicalMonitor in physicalMonitors)
             {
-                var device = monitorInfoEx.szDevice.ToString();
-                var description = physicalMonitor.szPhysicalMonitorDescription.ToString();
-                var handle = new SafePhysicalMonitorHandle(physicalMonitor.hPhysicalMonitor, true);
-                var monitor = new MonitorDevice(device, handle, description);
+                var monitor = new PhysicalMonitor
+                {
+                    device = monitorInfoEx.szDevice.ToString(),
+                    description = physicalMonitor.szPhysicalMonitorDescription.ToString(),
+                    handle = physicalMonitor.hPhysicalMonitor, 
+                };
 
-                _monitors.Add(monitor);
-                Log.Debug("Discovered physical monitor: description \"{Description}\" device \"{Device}\"", description, device);
+                monitors.Add(monitor);
+
+                Log.Debug("Physical monitor: description \"{Description}\" device \"{Device}\"",
+                    monitor.description, monitor.device);
             }
 
             return true;
@@ -113,6 +135,100 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
         {
             throw new Exception("Monitor enumeration failed");
         }
+
+        return monitors;
+    }
+
+    struct DisplayDevice
+    {
+        public string id;
+        public string name;
+        public string adapterString;
+        public string monitorString;
+    }
+
+    List<DisplayDevice> LoadDisplayDevices()
+    {
+        var devices = new List<DisplayDevice>();
+
+        BOOL success;
+
+        var adapterDevice = new DISPLAY_DEVICEW();
+        adapterDevice.cb = (uint)Marshal.SizeOf(adapterDevice);
+
+        var monitorDevice = new DISPLAY_DEVICEW();
+        monitorDevice.cb = (uint)Marshal.SizeOf(monitorDevice);
+
+        uint adapterIndex = 0;
+        while (true)
+        {
+            success = PInvoke.EnumDisplayDevices(null, adapterIndex++, ref adapterDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            if (!success)
+            {
+                break;
+            }
+
+            uint monitorIndex = 0;
+            while (true)
+            {
+                var deviceName = adapterDevice.DeviceName.ToString();
+                success = PInvoke.EnumDisplayDevices(deviceName, monitorIndex++, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+                if (!success)
+                {
+                    break;
+                }
+
+                var device = new DisplayDevice
+                {
+                    id = monitorDevice.DeviceID.ToString(),
+                    name = adapterDevice.DeviceName.ToString(),
+                    adapterString = adapterDevice.DeviceString.ToString(),
+                    monitorString = monitorDevice.DeviceString.ToString()
+                };
+
+                devices.Add(device);
+
+                Log.Debug("Display device: adapter \"{AdapterString}\" monitor \"{MonitorString}\" name \"{Name}\" id \"{Id}\"",
+                    device.adapterString, device.monitorString, device.name, device.id);
+            }
+        }
+
+        return devices;
+    }
+
+    struct WmiMonitorId
+    {
+        public string instanceName;
+        public string serialNumber;
+    }
+
+    List<WmiMonitorId> LoadWmiMonitorIds()
+    {
+        var wmiMonitorIds = new List<WmiMonitorId>();
+
+        ManagementObjectSearcher wmiSearcher = new ManagementObjectSearcher("root\\wmi", "SELECT * FROM WMIMonitorID");
+        ManagementObjectCollection monitorIds = wmiSearcher.Get();
+
+        foreach (var monitorId in monitorIds)
+        {
+            var serialNumberBytes =
+                from ch in (monitorId["SerialNumberID"] as ushort[]) ?? []
+                where ch != 0
+                select (byte)ch;
+
+            var wmiMonitorId = new WmiMonitorId
+            {
+                instanceName = monitorId["InstanceName"]?.ToString() ?? string.Empty,
+                serialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray())
+            };
+
+            wmiMonitorIds.Add(wmiMonitorId);
+
+            Log.Debug("WMI monitor id: instance \"{InstanceName}\" serial number \"{SerialNumber}\"",
+                wmiMonitorId.instanceName, wmiMonitorId.serialNumber);
+        }
+
+        return wmiMonitorIds;
     }
 
     public IEnumerator<MonitorDevice> GetEnumerator()
