@@ -10,9 +10,9 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM;
 
-internal class MonitorDevice : IDisposable
+internal class Monitor : IDisposable
 {
-    public MonitorDevice(string device, SafePhysicalMonitorHandle handle, string description)
+    public Monitor(string device, SafePhysicalMonitorHandle handle, string description)
     {
         Device = device;
         Handle = handle;
@@ -42,7 +42,7 @@ internal class MonitorDevice : IDisposable
     public string Description { get; }
 };
 
-internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
+internal class Monitors : IEnumerable<Monitor>, IDisposable
 {
     public void Refresh()
     {
@@ -55,6 +55,8 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
         var physicalMonitors = LoadPhysicalMonitors();
         var displayDevices = LoadDisplayDevices();
         var wmiMonitorIds = LoadWmiMonitorIds();
+
+        
     }
 
     struct PhysicalMonitor
@@ -231,7 +233,7 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
         return wmiMonitorIds;
     }
 
-    public IEnumerator<MonitorDevice> GetEnumerator()
+    public IEnumerator<Monitor> GetEnumerator()
     {
         return _monitors.GetEnumerator();
     }
@@ -259,5 +261,5 @@ internal class MonitorDevices : IEnumerable<MonitorDevice>, IDisposable
         }
     }
 
-    List<MonitorDevice> _monitors = new List<MonitorDevice>();
+    List<Monitor> _monitors = new List<Monitor>();
 }

@@ -48,9 +48,9 @@ internal class BackgroundTask(Config config) : IDisposable
     {
         Log.Debug("Received device notification, action {Action}", action);
 
-        using (var monitorDevices = new MonitorDevices())
+        using (var monitors = new Monitors())
         {
-            monitorDevices.Refresh();
+            monitors.Refresh();
 
             foreach (var monitorConfig in config.Monitors)
             {
@@ -63,19 +63,19 @@ internal class BackgroundTask(Config config) : IDisposable
                 }
 
                 // Find a device to match this config item
-                var monitorDevice = (
-                        from device in monitorDevices
+                var monitor = (
+                        from device in monitors
                         where device.Description == monitorConfig.Description
                             && device.Device == monitorConfig.Device
                         select device
                     ).SingleOrDefault();
 
-                if (monitorDevice == null)
+                if (monitor == null)
                 {
                     Log.Warning("Did not find monitor for description \"{ConfigDescription}\" device \"{ConfigDevice}\"",
                         monitorConfig.Description, monitorConfig.Device);
-                    var existingMonitors = from md in monitorDevices
-                        select new { Description = md.Description, Device = md.Device };
+                    var existingMonitors = from m in monitors
+                        select new { Description = m.Description, Device = m.Device };
                     Log.Debug("Following monitors exist: {@Monitors}", existingMonitors.ToArray());
 
                     continue;
@@ -85,7 +85,7 @@ internal class BackgroundTask(Config config) : IDisposable
                     monitorConfig.Description, monitorConfig.Device);
 
                 // Execute the action for this monitor
-                PInvoke.SetVCPFeature(monitorDevice.Handle, actionConfig.Code, actionConfig.Value);
+                PInvoke.SetVCPFeature(monitor.Handle, actionConfig.Code, actionConfig.Value);
 
                 Log.Debug("Executed action, code 0x{Code:X} value 0x{Value:X}", actionConfig.Code, actionConfig.Value);
             }
