@@ -5,7 +5,7 @@ log-level: debug
 
 monitors:
   - description: Dell S2722QC(HDMI1)
-    device: \\.\DISPLAY1
+    serial-number: 9XTRLD3
     attach:
       code: 0x60
       value: 0x11
@@ -14,7 +14,7 @@ monitors:
       value: 0x12
 
   - description: Dell S2722QC(HDMI1)
-    device: \\.\DISPLAY2
+    serial-number: 51TRLD3
     attach:
       code: 0x60
       value: 0x11

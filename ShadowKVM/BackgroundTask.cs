@@ -56,38 +56,34 @@ internal class BackgroundTask(Config config) : IDisposable
             {
                 // Find the action config for this device action
                 var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;
-
                 if (actionConfig == null)
                 {
                     continue;
                 }
 
-                // Find a device to match this config item
-                var monitor = (
-                        from device in monitors
-                        where device.Description == monitorConfig.Description
-                            && device.Device == monitorConfig.Device
-                        select device
-                    ).SingleOrDefault();
+                Log.Debug("Processing config {@MonitorConfig}", monitorConfig);
 
-                if (monitor == null)
+                // Execute the action for matching monitors
+                var matchingMonitors =
+                    from device in monitors
+                    where (monitorConfig.Adapter == null || monitorConfig.Adapter == device.Adapter)
+                        && (monitorConfig.Description == null || monitorConfig.Description == device.Description)
+                        && (monitorConfig.SerialNumber == null || monitorConfig.SerialNumber == device.SerialNumber)
+                    select device;
+
+                if (matchingMonitors.Count() == 0)
                 {
-                    Log.Warning("Did not find monitor for description \"{ConfigDescription}\" device \"{ConfigDevice}\"",
-                        monitorConfig.Description, monitorConfig.Device);
-                    var existingMonitors = from m in monitors
-                        select new { Description = m.Description, Device = m.Device };
-                    Log.Debug("Following monitors exist: {@Monitors}", existingMonitors.ToArray());
+                    Log.Warning("Did not find any monitors for config {@MonitorConfig}", monitorConfig);
+                    Log.Debug("Following monitors exist: {@Monitors}", monitors);
 
                     continue;
                 }
 
-                Log.Debug("Found monitor for description \"{ConfigDescription}\" device \"{ConfigDevice}\"",
-                    monitorConfig.Description, monitorConfig.Device);
-
-                // Execute the action for this monitor
-                PInvoke.SetVCPFeature(monitor.Handle, actionConfig.Code, actionConfig.Value);
-
-                Log.Debug("Executed action, code 0x{Code:X} value 0x{Value:X}", actionConfig.Code, actionConfig.Value);
+                foreach (var matchingMonitor in matchingMonitors)
+                {
+                    PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
+                    Log.Debug("Executed action, code 0x{Code:X} value 0x{Value:X}", actionConfig.Code, actionConfig.Value);
+                }
             }
         }
 

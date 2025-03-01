@@ -14,8 +14,6 @@ Release Automation
 Misc
 ====
 
-- device changes after a reboot/reconnect, don't use it
-   - try to get display serial number or similar
 - merge device-class and device-type to device, it's really confusing
 
 Configuration UI
@@ -28,23 +26,3 @@ Configuration UI
 See https://github.com/HavenDV/H.NotifyIcon/tree/master/src/apps/H.NotifyIcon.Apps.Wpf for example how to trigger a window from the tray icon
 
 MCCS 2.2: https://milek7.pl/ddcbacklight/mccs.pdf
-
-Monitor Serial Number
-=====================
-
-Get-WmiObject WmiMonitorID -Namespace root\wmi |
-  ForEach-Object {
-    $Manufacturer   = [System.Text.Encoding]::ASCII.GetString($_.ManufacturerName).Trim(0x00)
-    $Name           = [System.Text.Encoding]::ASCII.GetString($_.UserFriendlyName).Trim(0x00)
-    $Serial         = [System.Text.Encoding]::ASCII.GetString($_.SerialNumberID).Trim(0x00)
-    "{0}, {1}, {2}" -f $Manufacturer,$Name,$Serial
-  }
-
-https://learn.microsoft.com/en-us/answers/questions/216983/how-to-get-the-serial-number-of-the-monitors-using
-https://learn.microsoft.com/en-us/windows/win32/wmicoreprov/wmimonitorid?redirectedfrom=MSDN
-
-https://learn.microsoft.com/en-us/windows/win32/api/_display/
-https://learn.microsoft.com/en-us/uwp/api/windows.devices.display.displaymonitor?view=winrt-26100
-https://ofekshilon.com/2011/11/13/reading-monitor-physical-dimensions-or-getting-the-edid-the-right-way/
-https://www.autohotkey.com/boards/viewtopic.php?t=116104
-https://gist.github.com/texus/3212ebc1ed1502ecd265cc7cf1322b02
