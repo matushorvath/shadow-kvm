@@ -1,9 +1,5 @@
 using HandlebarsDotNet;
 using System.IO;
-using System.Text;
-using Windows.Win32;
-using Windows.Win32.Devices.Display;
-using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
@@ -11,8 +7,8 @@ internal class ConfigGenerator
 {
     class Data
     {
-        public required Monitor Device { get; set; }
-        public required string SelectedInput { get; set; }
+        public required Monitor Monitor { get; set; }
+        public required MonitorInputs Inputs { get; set; }
     }
 
     public unsafe static string Generate()
@@ -24,54 +20,25 @@ internal class ConfigGenerator
 
         using (var monitors = new Monitors())
         {
-            monitors.Refresh();
+            monitors.Load();
 
             foreach (var monitor in monitors)
             {
-                int result;
+                // Determine input sources for this monitor
+                var inputs = new MonitorInputsForConfigTemplate();
+                inputs.Load(monitor.Handle);
 
-                // Find out which inputs are supported by this monitor
-                uint capabilitiesLength;
-
-                result = PInvoke.GetCapabilitiesStringLength(monitor.Handle, out capabilitiesLength);
-                if (result != 1)
-                {
-                    // TODO include the monitor but comment it out
-                    continue;
-                }
-
-                var capabilitiesBuffer = new byte[capabilitiesLength];
-                fixed (byte* capabilitiesPtr = &capabilitiesBuffer[0])
-                {
-                    result = PInvoke.CapabilitiesRequestAndCapabilitiesReply(monitor.Handle, new PSTR(capabilitiesPtr), capabilitiesLength);
-                    if (result != 1)
-                    {
-                        // TODO include the monitor but comment it out
-                        continue;
-                    }
-                }
-                var capabilities = Encoding.ASCII.GetString(capabilitiesBuffer);
-
-                // Find out which input is currently selected for this monitor
-                var vct = new MC_VCP_CODE_TYPE();
-                uint selectedInput;
-
-                result = PInvoke.GetVCPFeatureAndVCPFeatureReply(monitor.Handle, 0x60, &vct, out selectedInput, null);
-                if (result != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
-                {
-                    // TODO include the monitor but comment it out
-                    continue;
-                }
-                selectedInput = selectedInput & 0xff;
-
-                data.Add(new Data
-                {
-                    Device = monitor,
-                    SelectedInput = $"0x{selectedInput:X2}"
-                });
+                // TODO if !MonitorInputs.SupportsInputs, include the monitor but comment it out
+                data.Add(new Data { Monitor = monitor, Inputs = inputs });
             }
+        };
 
-            return template(new { Monitors = data });
-        }
+        return template(new { Monitors = data });
     }
+}
+
+// MonitorInputs with additional properties needed by the template
+internal class MonitorInputsForConfigTemplate : MonitorInputs
+{
+    public string SelectedInputHexString => $"0x{SelectedInput:X2}";
 }

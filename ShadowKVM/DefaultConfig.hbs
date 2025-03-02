@@ -32,12 +32,12 @@ log-level: information
 
 monitors:
 {{#each Monitors}}
-  - description: {{Device.Description}}
-    adapter: {{Device.Adapter}}
-    serial-number: {{Device.SerialNumber}}
+  - description: {{Monitor.Description}}
+    adapter: {{Monitor.Adapter}}
+    serial-number: {{Monitor.SerialNumber}}
     attach:
       code: 0x60
-      value: {{SelectedInput}}
+      value: {{Inputs.SelectedInputHexString}}
     detach:
       code: 0x60
       value: 0x12

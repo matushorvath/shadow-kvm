@@ -49,7 +49,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
         using (var monitors = new Monitors())
         {
-            monitors.Refresh();
+            monitors.Load();
 
             foreach (var monitorConfig in config.Monitors)
             {
