@@ -14,15 +14,9 @@ internal static class CapabilitiesParser
     {
     }
 
-    public class VcpCode
-    {
-        public required byte Code { get; set; }
-        public required ImmutableArray<byte> Values { get; set; }
-    }
-
     public class VcpComponent : Component
     {
-        public required ImmutableArray<VcpCode> Codes { get; set; }
+        public required ImmutableDictionary<byte, ImmutableArray<byte>> Codes { get; set; }
     }
 
     public static VcpComponent? Parse(string input)
@@ -90,18 +84,18 @@ internal static class CapabilitiesParser
     static readonly Parser<char, ImmutableArray<byte>> _vcpValues =
         _byte.Many().Select(values => ImmutableArray.CreateRange(values));
 
-    static readonly Parser<char, VcpCode> _vcpCode =
+    static readonly Parser<char, KeyValuePair<byte, ImmutableArray<byte>>> _vcpCode =
         Map(
-            (code, values) => new VcpCode { Code = code, Values = values },
+            (code, values) => KeyValuePair.Create(code, values),
             _byte,
             _openParen
                 .Then(_vcpValues).Before(_closeParen)
                 .Or(Return(ImmutableArray<byte>.Empty))
         );
 
-    static readonly Parser<char, ImmutableArray<VcpCode>> _vcpCodes =
+    static readonly Parser<char, ImmutableDictionary<byte, ImmutableArray<byte>>> _vcpCodes =
         _openParen
-        .Then(_vcpCode.Many().Select(codes => ImmutableArray.CreateRange(codes)))
+        .Then(_vcpCode.Many().Select(codes => ImmutableDictionary.CreateRange(codes)))
         .Before(_closeParen);
 
     static readonly Parser<char, VcpComponent> _vcpComponent =
