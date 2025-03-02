@@ -3,7 +3,6 @@ Configuration Persistence
 
 - command line params to specify data directory
 - generate config file if it does not exist
-    - detect if 0x60 looks correct (it has valid values)
 
 Release Automation
 ==================

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
@@ -30,7 +31,7 @@ internal class MonitorInputs
 
     unsafe void LoadCapabilities(SafePhysicalMonitorHandle physicalMonitorHandle)
     {
-        Inputs.Clear();
+        ValidInputs.Clear();
 
         int result;
 
@@ -62,8 +63,27 @@ internal class MonitorInputs
     void ParseCapabilities(string capabilities)
     {
         var component = CapabilitiesParser.Parse(capabilities);
+        if (component == null)
+        {
+            SupportsInputs = false;
+            return;
+        }
 
-        // TODO check if 0x60 looks sane, store supported inputs in Inputs
+        ImmutableArray<byte> inputs;
+        if (!component.Codes.TryGetValue(0x60, out inputs))
+        {
+            // TODO log that code 0x60 was not found
+            SupportsInputs = false;
+            return;
+        }
+        if (inputs.Length == 0)
+        {
+            // TODO log no supported inputs found
+            SupportsInputs = false;
+            return;
+        }
+
+        ValidInputs.AddRange(inputs);
     }
 
     unsafe void LoadInputSource(SafePhysicalMonitorHandle physicalMonitorHandle)
@@ -85,6 +105,6 @@ internal class MonitorInputs
     }
 
     public bool SupportsInputs { get; private set; }
-    public IList<byte> Inputs { get; } = new List<byte>();
+    public List<byte> ValidInputs { get; } = new List<byte>();
     public byte? SelectedInput { get; private set; }
 }

@@ -29,7 +29,10 @@ internal class ConfigGenerator
                 inputs.Load(monitor.Handle);
 
                 // TODO if !MonitorInputs.SupportsInputs, include the monitor but comment it out
-                data.Add(new Data { Monitor = monitor, Inputs = inputs });
+                if (inputs.SupportsInputs)
+                {
+                    data.Add(new Data { Monitor = monitor, Inputs = inputs });
+                }
             }
         };
 
@@ -41,4 +44,34 @@ internal class ConfigGenerator
 internal class MonitorInputsForConfigTemplate : MonitorInputs
 {
     public string SelectedInputHexString => $"0x{SelectedInput:X2}";
+
+    public string UnselectedInputHexStringAndComment
+    {
+        get
+        {
+            // Choose a random input that wasn't selected
+            var unselectedInputs = (
+                from input in ValidInputs
+                where input != SelectedInput
+                select input
+            ).ToArray();
+
+            if (unselectedInputs.Length == 0)
+            {
+                // There is just one input; use that, although it doesn't make much sense
+                return $"0x{SelectedInput:X2}    # single valid input source found";
+            }
+            else if (unselectedInputs.Length == 1)
+            {
+                // There is exactly one other input
+                return $"0x{unselectedInputs[0]:X2}    # no other input sources found";
+            }
+            else
+            {
+                // Multiple other inputs, use the first one and comment the rest
+                var rest = string.Join(' ', unselectedInputs.Skip(1).Select(i => $"0x{i:X2}"));
+                return $"0x{unselectedInputs[0]:X2}    # other input sources: {rest}";
+            }
+        }
+    }
 }
