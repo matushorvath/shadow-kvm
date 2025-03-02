@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using System.Windows;
 using Windows.Win32;
 
 namespace ShadowKVM;
@@ -50,7 +49,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
         using (var monitors = new Monitors())
         {
-            monitors.Refresh();
+            monitors.Load();
 
             foreach (var monitorConfig in config.Monitors)
             {

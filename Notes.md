@@ -3,7 +3,6 @@ Configuration Persistence
 
 - command line params to specify data directory
 - generate config file if it does not exist
-    - detect if 0x60 looks correct (it has valid values)
 
 Release Automation
 ==================
@@ -27,3 +26,4 @@ Configuration UI
 See https://github.com/HavenDV/H.NotifyIcon/tree/master/src/apps/H.NotifyIcon.Apps.Wpf for example how to trigger a window from the tray icon
 
 MCCS 2.2: https://milek7.pl/ddcbacklight/mccs.pdf
+https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys

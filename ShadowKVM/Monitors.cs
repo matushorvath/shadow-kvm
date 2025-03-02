@@ -41,7 +41,7 @@ internal class Monitor : IDisposable
 
 internal partial class Monitors : IEnumerable<Monitor>, IDisposable
 {
-    public void Refresh()
+    public void Load()
     {
         var physicalMonitors = LoadPhysicalMonitors();
         var displayDevices = LoadDisplayDevices();
