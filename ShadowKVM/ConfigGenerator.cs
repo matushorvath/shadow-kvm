@@ -1,7 +1,9 @@
 using HandlebarsDotNet;
 using System.IO;
+using System.Text;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
+using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
@@ -26,15 +28,36 @@ internal class ConfigGenerator
 
             foreach (var monitor in monitors)
             {
+                int result;
+
                 // Find out which inputs are supported by this monitor
-                // TODO
+                uint capabilitiesLength;
+
+                result = PInvoke.GetCapabilitiesStringLength(monitor.Handle, out capabilitiesLength);
+                if (result != 1)
+                {
+                    // TODO include the monitor but comment it out
+                    continue;
+                }
+
+                var capabilitiesBuffer = new byte[capabilitiesLength];
+                fixed (byte* capabilitiesPtr = &capabilitiesBuffer[0])
+                {
+                    result = PInvoke.CapabilitiesRequestAndCapabilitiesReply(monitor.Handle, new PSTR(capabilitiesPtr), capabilitiesLength);
+                    if (result != 1)
+                    {
+                        // TODO include the monitor but comment it out
+                        continue;
+                    }
+                }
+                var capabilities = Encoding.ASCII.GetString(capabilitiesBuffer);
 
                 // Find out which input is currently selected for this monitor
                 var vct = new MC_VCP_CODE_TYPE();
                 uint selectedInput;
 
-                int success = PInvoke.GetVCPFeatureAndVCPFeatureReply(monitor.Handle, 0x60, &vct, out selectedInput, null);
-                if (success != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
+                result = PInvoke.GetVCPFeatureAndVCPFeatureReply(monitor.Handle, 0x60, &vct, out selectedInput, null);
+                if (result != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
                 {
                     // TODO include the monitor but comment it out
                     continue;

@@ -1,8 +1,10 @@
+CapabilitiesRequestAndCapabilitiesReply
 CM_Register_Notification
 CM_Unregister_Notification
 DestroyPhysicalMonitor
 EnumDisplayDevices
 EnumDisplayMonitors
+GetCapabilitiesStringLength
 GetMonitorInfo
 GetNumberOfPhysicalMonitorsFromHMONITOR
 GetPhysicalMonitorsFromHMONITOR
