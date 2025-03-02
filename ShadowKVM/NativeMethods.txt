@@ -6,6 +6,7 @@ EnumDisplayMonitors
 GetMonitorInfo
 GetNumberOfPhysicalMonitorsFromHMONITOR
 GetPhysicalMonitorsFromHMONITOR
+GetVCPFeatureAndVCPFeatureReply
 GUID_DEVINTERFACE_KEYBOARD
 GUID_DEVINTERFACE_MOUSE
 MONITORINFOEXW

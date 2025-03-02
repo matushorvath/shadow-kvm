@@ -31,13 +31,13 @@ log-level: information
 #   value: varies based on the monitor’s supported inputs
 
 monitors:
-{{#each monitors}}
-  - description: {{Description}}
-    adapter: {{Adapter}}
-    serial-number: {{SerialNumber}}
+{{#each Monitors}}
+  - description: {{Device.Description}}
+    adapter: {{Device.Adapter}}
+    serial-number: {{Device.SerialNumber}}
     attach:
       code: 0x60
-      value: 0x11
+      value: {{SelectedInput}}
     detach:
       code: 0x60
       value: 0x12

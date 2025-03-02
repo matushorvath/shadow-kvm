@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using System.Windows;
 using Windows.Win32;
 
 namespace ShadowKVM;
