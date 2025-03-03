@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <ApplicationIcon>UserInterface/Icon.ico</ApplicationIcon>
     <AssemblyTitle>Shadow KVM: Sync your monitor inputs with a USB switch for seamless multi-PC control</AssemblyTitle>
     <Authors>Matúš Horváth</Authors>
     <Copyright>© 2025 Matúš Horváth. All rights reserved.</Copyright>
@@ -35,8 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="DefaultConfig.hbs" />
-    <Resource Include="Icon.ico" />
+    <ApplicationDefinition Include="UserInterface/App.xaml" />
+    <Resource Include="Config/DefaultConfig.hbs" />
+    <Resource Include="UserInterface/Icon.ico" />
   </ItemGroup>
 
 </Project>

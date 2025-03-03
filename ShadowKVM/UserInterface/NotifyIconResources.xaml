@@ -30,7 +30,7 @@
     <tb:TaskbarIcon
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
-        IconSource="pack://application:,,,/Icon.ico"
+        IconSource="pack://application:,,,/UserInterface/Icon.ico"
         LeftClickCommand="{Binding ConfigureCommand}"
         MenuActivation="LeftOrRightClick"
         NoLeftClickDelay="True"
