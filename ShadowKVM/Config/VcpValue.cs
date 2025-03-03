@@ -17,6 +17,8 @@ internal class VcpValue
         Value = value;
     }
 
+    public static implicit operator byte(VcpValue vcpValue) => vcpValue.Value;
+
     public enum ValueEnum : byte
     {
         Analog1 = 0x01,

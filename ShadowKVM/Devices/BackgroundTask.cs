@@ -80,7 +80,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
                 foreach (var matchingMonitor in matchingMonitors)
                 {
-                    PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code.Code, actionConfig.Value.Value);
+                    PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
                     Log.Information("Executed action, code 0x{Code:X} value 0x{Value:X} monitor {@Monitor}",
                         actionConfig.Code, actionConfig.Value, matchingMonitor);
                 }

@@ -17,6 +17,8 @@ internal class VcpCode
         Code = code;
     }
 
+    public static implicit operator byte(VcpCode vcpCode) => vcpCode.Code;
+
     public enum CodeEnum : byte
     {
         InputSelect = 0x60

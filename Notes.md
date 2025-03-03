@@ -5,7 +5,6 @@ Configuration
 - generate config file if it does not exist
 - use YamlDotNet naming conventions when reading/writing enums
    - also ConfigGenerator should use enums in the output when possible
-- actionConfig.Code.Code, actionConfig.Value.Value are ugly
 
 Release Automation
 ==================
