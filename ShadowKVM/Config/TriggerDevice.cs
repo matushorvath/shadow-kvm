@@ -7,8 +7,6 @@ namespace ShadowKVM;
 
 internal class TriggerDevice
 {
-    public enum DeviceTypeEnum { Keyboard, Mouse }
-
     public TriggerDevice(DeviceTypeEnum deviceType)
     {
         DeviceType = deviceType;
@@ -18,6 +16,8 @@ internal class TriggerDevice
     {
         Guid = guid;
     }
+
+    public enum DeviceTypeEnum { Keyboard, Mouse }
 
     DeviceTypeEnum? _deviceType;
     public DeviceTypeEnum? DeviceType

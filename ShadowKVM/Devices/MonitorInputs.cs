@@ -25,7 +25,7 @@ internal class MonitorInputs
         // Don't try to load input source if capabilities look suspicious
         if (SupportsInputs)
         {
-            LoadInputSource(physicalMonitorHandle);
+            LoadInputSelect(physicalMonitorHandle);
         }
     }
 
@@ -86,7 +86,7 @@ internal class MonitorInputs
         ValidInputs.AddRange(inputs);
     }
 
-    unsafe void LoadInputSource(SafePhysicalMonitorHandle physicalMonitorHandle)
+    unsafe void LoadInputSelect(SafePhysicalMonitorHandle physicalMonitorHandle)
     {
         SelectedInput = null;
 

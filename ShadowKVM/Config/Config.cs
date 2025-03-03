@@ -21,6 +21,8 @@ internal class Config
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(HyphenatedNamingConvention.Instance)
                 .WithTypeConverter(new TriggerDeviceConverter())
+                .WithTypeConverter(new VcpCodeConverter())
+                .WithTypeConverter(new VcpValueConverter())
                 .Build();
 
             Config config;
@@ -61,6 +63,6 @@ internal class MonitorConfig
 
 internal class ActionConfig
 {
-    public byte Code { get; set; }
-    public byte Value { get; set; }
+    public VcpCode Code { get; set; } = new VcpCode((byte)0);
+    public VcpValue Value { get; set; } = new VcpValue((byte)0);
 }

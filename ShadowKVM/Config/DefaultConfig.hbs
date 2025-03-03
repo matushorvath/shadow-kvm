@@ -27,8 +27,19 @@ log-level: information
 #
 # When a trigger device is attached or detached, ShadowKVM sends a DDC/CI command to the monitor
 # to change its input source. The DDC/CI command has a command code and a value:
-#   code: usually 0x60 for input source selection
+#   code: usually input-select (0x60) for input source selection
 #   value: varies based on the monitor’s supported inputs
+#
+# Bot DDC/CI command code and value can be specified as either a string or as an 8-bit number
+#
+# Supported command codes are:
+#   input-select (0x60)
+#
+# Supported command values are:
+#   analog-1 (1), analog-2 (2), dvi-1 (3), dvi-2 (4), composite-1 (5), composite-2 (6),
+#   s-video-1 (7), s-video-2 (8), tuner-1 = (9), tuner-2 = (10), tuner-3 = (11),
+#   component-1 (12),  component-2 (13), component-4 (14),
+#   displayport-1 (15), displayport-2 = (16), hdmi-1 (17), hdmi-2 (18)
 
 monitors:
 {{#each Monitors}}
@@ -36,10 +47,10 @@ monitors:
     adapter: {{Monitor.Adapter}}
     serial-number: {{Monitor.SerialNumber}}
     attach:
-      code: 0x60
+      code: input-select
       value: {{Inputs.SelectedInputHexString}}
     detach:
-      code: 0x60
+      code: input-select
       value: {{Inputs.UnselectedInputHexStringAndComment}}
 
 {{/each}}
