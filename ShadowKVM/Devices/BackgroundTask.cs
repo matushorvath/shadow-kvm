@@ -19,7 +19,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
         using (var notification = new DeviceNotification())
         {
-            notification.Register(config.TriggerDevice.Guid);
+            notification.Register(config.TriggerDevice);
 
             try
             {

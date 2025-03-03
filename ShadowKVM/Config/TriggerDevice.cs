@@ -1,95 +1,35 @@
 using Windows.Win32;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Core.Events;
 
 namespace ShadowKVM;
 
-internal class TriggerDevice
+internal class TriggerDevice : OpenEnum<TriggerDevice.DeviceTypeEnum, Guid>
 {
-    public TriggerDevice(DeviceTypeEnum deviceType)
+    public TriggerDevice()
     {
-        DeviceType = deviceType;
     }
 
-    public TriggerDevice(Guid guid)
+    public TriggerDevice(DeviceTypeEnum enumValue)
     {
-        Guid = guid;
+        Enum = enumValue;
     }
 
     public enum DeviceTypeEnum { Keyboard, Mouse }
 
-    DeviceTypeEnum? _deviceType;
-    public DeviceTypeEnum? DeviceType
+    protected override Guid ConvertEnumToRaw(DeviceTypeEnum enumValue)
     {
-        get => _deviceType;
-        set
+        switch (enumValue)
         {
-            _deviceType = value;
-
-            switch (_deviceType)
-            {
-                case DeviceTypeEnum.Keyboard:
-                    _guid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
-                    break;
-                case DeviceTypeEnum.Mouse:
-                    _guid = PInvoke.GUID_DEVINTERFACE_MOUSE;
-                    break;
-                default:
-                    throw new ConfigException($"Invalid trigger device type {value} in configuration file");
-            }
-        }
-    }
-
-    Guid _guid;
-    public Guid Guid
-    {
-        get => _guid;
-        set
-        {
-            _guid = value;
-            _deviceType = null;
+            case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+            case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
+            default: throw new ConfigException($"Invalid trigger device type {enumValue} in configuration file");
         }
     }
 }
 
-internal class TriggerDeviceConverter : IYamlTypeConverter
+internal class TriggerDeviceConverter : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDevice.DeviceTypeEnum, Guid>
 {
-    public bool Accepts(Type type) => type == typeof(TriggerDevice);
-
-    public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
+    protected override bool TryConvertStringToRaw(string str, out Guid rawValue)
     {
-        var startMark = parser.Current?.Start ?? Mark.Empty;
-        var endMark = parser.Current?.End ?? Mark.Empty;
-
-        var value = parser.Consume<Scalar>().Value;
-
-        TriggerDevice.DeviceTypeEnum deviceType;
-        if (Enum.TryParse(value, true, out deviceType))
-        {
-            return new TriggerDevice(deviceType);
-        }
-
-        Guid guid;
-        if (Guid.TryParse(value, out guid))
-        {
-            return new TriggerDevice(guid);
-        }
-
-        throw new YamlException(startMark, endMark, $"Invalid trigger device \"{value}\"");
-    }
-
-    public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
-    {
-        var triggerDevice = (TriggerDevice)value!;
-
-        if (triggerDevice.DeviceType != null)
-        {
-            emitter.Emit(new Scalar(triggerDevice.DeviceType?.ToString() ?? string.Empty));
-        }
-        else
-        {
-            emitter.Emit(new Scalar(triggerDevice.Guid.ToString("D")));
-        }
+        return Guid.TryParse(str, out rawValue);
     }
 }
