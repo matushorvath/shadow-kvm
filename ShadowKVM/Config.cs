@@ -2,10 +2,11 @@ using Serilog;
 using Serilog.Events;
 using System.IO;
 using System.Text;
+using Windows.Win32;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Windows.Win32;
+using YamlDotNet.Core.Events;
 
 namespace ShadowKVM;
 
@@ -22,6 +23,7 @@ internal class Config
         {
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(HyphenatedNamingConvention.Instance)
+                .WithTypeConverter(new TriggerDeviceConverter())
                 .Build();
 
             Config config;
@@ -43,28 +45,100 @@ internal class Config
         }
     }
 
-    public Guid DeviceClassGuid
+    public int Version { get; set; }
+    public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
+    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDevice.DeviceTypeEnum.Keyboard);
+
+    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
+}
+
+internal class TriggerDevice
+{
+    public enum DeviceTypeEnum { Keyboard, Mouse }
+
+    public TriggerDevice(DeviceTypeEnum deviceType)
     {
-        get
+        DeviceType = deviceType;
+    }
+
+    public TriggerDevice(Guid guid)
+    {
+        Guid = guid;
+    }
+
+    DeviceTypeEnum? _deviceType;
+    public DeviceTypeEnum? DeviceType
+    {
+        get => _deviceType;
+        set
         {
-            switch (DeviceType)
+            _deviceType = value;
+
+            switch (_deviceType)
             {
-                case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
-                case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
-                default: return DeviceClass ?? throw new ConfigException("Either device-type or device-class must be set");
+                case DeviceTypeEnum.Keyboard:
+                    _guid = PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+                    break;
+                case DeviceTypeEnum.Mouse:
+                    _guid = PInvoke.GUID_DEVINTERFACE_MOUSE;
+                    break;
+                default:
+                    throw new ConfigException($"Invalid trigger device type {value} in configuration file");
             }
         }
     }
 
-    public int Version { get; set; }
-    public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
+    Guid _guid;
+    public Guid Guid
+    {
+        get => _guid;
+        set
+        {
+            _guid = value;
+            _deviceType = null;
+        }
+    }
+}
 
-    // TODO require one or the other
-    public enum DeviceTypeEnum { Keyboard, Mouse }
-    public DeviceTypeEnum? DeviceType { get; set; }
-    public Guid? DeviceClass { get; set; }
+internal class TriggerDeviceConverter : IYamlTypeConverter
+{
+    public bool Accepts(Type type) => type == typeof(TriggerDevice);
 
-    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
+    public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
+    {
+        var startMark = parser.Current?.Start ?? Mark.Empty;
+        var endMark = parser.Current?.End ?? Mark.Empty;
+
+        var value = parser.Consume<Scalar>().Value;
+
+        TriggerDevice.DeviceTypeEnum deviceType;
+        if (Enum.TryParse(value, true, out deviceType))
+        {
+            return new TriggerDevice(deviceType);
+        }
+
+        Guid guid;
+        if (Guid.TryParse(value, out guid))
+        {
+            return new TriggerDevice(guid);
+        }
+
+        throw new YamlException(startMark, endMark, $"Invalid trigger device \"{value}\"");
+    }
+
+    public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
+    {
+        var triggerDevice = (TriggerDevice)value!;
+
+        if (triggerDevice.DeviceType != null)
+        {
+            emitter.Emit(new Scalar(triggerDevice.DeviceType?.ToString() ?? string.Empty));
+        }
+        else
+        {
+            emitter.Emit(new Scalar(triggerDevice.Guid.ToString("D")));
+        }
+    }
 }
 
 internal class MonitorConfig

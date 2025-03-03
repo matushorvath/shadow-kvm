@@ -13,8 +13,10 @@ Release Automation
 Misc
 ====
 
-- merge device-class and device-type to device, it's really confusing
 - start application on login
+   - https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys
+   - https://docs.firegiant.com/wix3/howtos/files_and_registry/write_a_registry_entry/
+- split Config.cs
 
 Configuration UI
 ================

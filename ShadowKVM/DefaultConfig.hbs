@@ -6,8 +6,8 @@ version: 1
 # the monitor to HDMI2.
 
 # Trigger device; defines which device type will trigger monitor switching
-# options: keyboard or mouse
-device-type: keyboard
+# options: keyboard or mouse (or one of the GUID_DEVINTERFACE_* guids)
+trigger-device: keyboard
 
 # Log level; controls the level of detail in the log files
 # options: information (default) or debug
@@ -46,4 +46,3 @@ monitors:
 
 {{! TODO filter out missing serial number and missing adapter }}
 {{! TODO filter out or comment out monitors that don't support DDC/CI }}
-{{! TODO select correct value for attach/detach, comment all valid values }}
