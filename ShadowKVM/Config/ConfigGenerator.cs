@@ -13,7 +13,7 @@ internal class ConfigGenerator
 
     public unsafe static string Generate()
     {
-        var resource = App.GetResourceStream(new Uri("pack://application:,,,/DefaultConfig.hbs"));
+        var resource = App.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
         var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
 
         var data = new List<Data>();
@@ -29,6 +29,7 @@ internal class ConfigGenerator
                 inputs.Load(monitor.Handle);
 
                 // TODO if !MonitorInputs.SupportsInputs, include the monitor but comment it out
+                // TODO in the template, filter out missing display name, serial number or adapter
                 if (inputs.SupportsInputs)
                 {
                     data.Add(new Data { Monitor = monitor, Inputs = inputs });

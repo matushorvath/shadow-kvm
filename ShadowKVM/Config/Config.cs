@@ -9,11 +9,9 @@ namespace ShadowKVM;
 
 internal class Config
 {
-    public static Config Load(string dataDirectory)
+    public static Config Load(string configPath)
     {
         // TODO handle missing config, create it automatically/display config window
-
-        var configPath = Path.Combine(dataDirectory, "config.yaml");
         Log.Information("Loading configuration from {ConfigPath}", configPath);
 
         try

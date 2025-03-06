@@ -2,9 +2,8 @@ Configuration
 =============
 
 - command line params to specify data directory
-- generate config file if it does not exist
 - use YamlDotNet naming conventions when reading/writing enums
-   - also ConfigGenerator should use enums in the output when possible
+- ConfigGenerator should use enums in the output when possible
 
 Release Automation
 ==================
