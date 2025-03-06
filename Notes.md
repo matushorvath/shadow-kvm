@@ -3,7 +3,6 @@ Configuration
 
 - command line params to specify data directory
 - use YamlDotNet naming conventions when reading/writing enums
-- ConfigGenerator should use enums in the output when possible
 
 Release Automation
 ==================

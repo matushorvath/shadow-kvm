@@ -1,5 +1,6 @@
 using HandlebarsDotNet;
 using System.IO;
+using System.Reflection;
 
 namespace ShadowKVM;
 
@@ -44,9 +45,9 @@ internal class ConfigGenerator
 // MonitorInputs with additional properties needed by the template
 internal class MonitorInputsForConfigTemplate : MonitorInputs
 {
-    public string SelectedInputHexString => $"0x{SelectedInput:X2}";
+    public string SelectedInputString => FormatInputString(SelectedInput);
 
-    public string UnselectedInputHexStringAndComment
+    public string UnselectedInputStringAndComment
     {
         get
         {
@@ -60,19 +61,43 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
             if (unselectedInputs.Length == 0)
             {
                 // There is just one input; use that, although it doesn't make much sense
-                return $"0x{SelectedInput:X2}    # single valid input source found";
+                return $"{FormatInputString(SelectedInput ?? 0)}    # single valid input source found";
             }
             else if (unselectedInputs.Length == 1)
             {
                 // There is exactly one other input
-                return $"0x{unselectedInputs[0]:X2}    # no other input sources found";
+                return $"{FormatInputString(unselectedInputs[0])}    # no other input sources found";
             }
             else
             {
                 // Multiple other inputs, use the first one and comment the rest
-                var rest = string.Join(' ', unselectedInputs.Skip(1).Select(i => $"0x{i:X2}"));
-                return $"0x{unselectedInputs[0]:X2}    # other input sources: {rest}";
+                var rest = string.Join(' ', unselectedInputs.Skip(1).Select(i => FormatInputString(i)));
+                return $"{FormatInputString(unselectedInputs[0])}    # other input sources: {rest}";
             }
+        }
+    }
+
+    static string FormatInputString(byte? inputByte)
+    {
+        if (inputByte == null)
+        {
+            return "(no input)";
+        }
+
+        var inputEnum = (
+            from field in typeof(VcpValueEnum).GetFields()
+            where (field.Attributes & FieldAttributes.SpecialName) == 0
+                && field.GetRawConstantValue()!.Equals(inputByte)
+            select field.Name
+        ).SingleOrDefault();
+
+        if (inputEnum != null)
+        {
+            return inputEnum;
+        }
+        else
+        {
+            return $"0x{inputByte:X2}";
         }
     }
 }
