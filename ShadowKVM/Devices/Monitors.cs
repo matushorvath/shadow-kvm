@@ -249,11 +249,10 @@ internal partial class Monitors : IEnumerable<Monitor>, IDisposable
         }
     }
 
-    // TODO use ^$
-    [GeneratedRegex(@"\\\\\?\\DISPLAY#([^#]+)#([^#]+)#{[-0-9a-f]+}", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^\\\\\?\\DISPLAY#([^#]+)#([^#]+)#{[-0-9a-f]+}$", RegexOptions.IgnoreCase)]
     private static partial Regex DevIdRegex();
 
-    [GeneratedRegex(@"DISPLAY\\([^\\]+)\\([^_]+)_\d+", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^DISPLAY\\([^\\]+)\\([^_]+)_\d+$", RegexOptions.IgnoreCase)]
     private static partial Regex WmiIdRegex();
 
     static bool MatchDeviceId(string devId, string wmiId)
