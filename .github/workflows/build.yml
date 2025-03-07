@@ -1,0 +1,42 @@
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3
+        with:
+          versionSpec: 6.0.x
+
+      - name: Determine Version
+        id: version_step
+        uses: gittools/actions/gitversion/execute@v3
+
+      - name: Build sources
+        run: dotnet build --configuration Release
+
+      - name: Prepare installer
+        working-directory: bin/Release
+        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{steps.version_step.outputs.fullSemVer}}.msi
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: bin/Release/ShadowKVM-*.msi
+          if-no-files-found: error

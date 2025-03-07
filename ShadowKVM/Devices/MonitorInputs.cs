@@ -4,8 +4,6 @@ using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 
-// TODO input naming service, translate value to input description
-
 namespace ShadowKVM;
 
 internal class MonitorInputs

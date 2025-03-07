@@ -1,7 +1,6 @@
 Release Automation
 ==================
 
-- ci/cd, releases
 - investigate unit tests in C#
 
 Misc

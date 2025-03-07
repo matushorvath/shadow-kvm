@@ -8,6 +8,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="6.1.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="WixToolset.Netfx.wixext">
       <Version>5.0.2</Version>
       <Version>5.0.2</Version>
@@ -17,4 +21,10 @@
       <Version>5.0.2</Version>
     </PackageReference>
   </ItemGroup>
+
+  <Target Name="PassGitVersionToWiX" AfterTargets="GenerateGitVersionInformation">
+    <PropertyGroup>
+      <DefineConstants>MajorMinorPatch=$(GitVersion_MajorMinorPatch)</DefineConstants>
+    </PropertyGroup>
+  </Target>
 </Project>
