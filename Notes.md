@@ -1,8 +1,3 @@
-Configuration
-=============
-
-- command line params to specify data directory
-
 Release Automation
 ==================
 
@@ -15,6 +10,7 @@ Misc
 - start application on login
    - https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys
    - https://docs.firegiant.com/wix3/howtos/files_and_registry/write_a_registry_entry/
+- command line params to specify data directory
 
 Configuration UI
 ================

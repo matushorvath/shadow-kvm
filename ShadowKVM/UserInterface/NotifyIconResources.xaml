@@ -9,23 +9,15 @@
         x:Key="TrayMenu"
         x:Shared="false"
         >
-        <!-- <MenuItem
+        <MenuItem
             Header="Configure"
             Command="{Binding ConfigureCommand}"
-            /> -->
+            />
         <MenuItem
             Header="Exit"
             Command="{Binding ExitCommand}"
             />
     </ContextMenu>
-
-    <!-- TODO apply some of these properties
-        ToolTipText="ToolTip"
-        ContextMenu="{StaticResource TrayMenu}"
-        TrayPopup="{StaticResource TrayStatusPopup}"
-        PopupActivation="DoubleClick"
-        TrayToolTip="{StaticResource TrayToolTip}"
-    -->
 
     <tb:TaskbarIcon
         x:Key="NotifyIcon"
@@ -34,7 +26,7 @@
         LeftClickCommand="{Binding ConfigureCommand}"
         MenuActivation="LeftOrRightClick"
         NoLeftClickDelay="True"
-        ToolTipText="ToolTip TODO"
+        ToolTipText="Shadow KVM"
         >
         <tb:TaskbarIcon.DataContext>
             <local:NotifyIconViewModel />

@@ -9,52 +9,52 @@ namespace ShadowKVM;
 
 public partial class App : Application
 {
+    public App()
+    {
+        // Set up data directory
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        _dataDirectory = Path.Combine(appData, "Shadow KVM");
+
+        _configPath = Path.Combine(_dataDirectory, "config.yaml");
+        _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
+
+        _loggingLevelSwitch = new LoggingLevelSwitch();
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        // Set up data directory
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var dataDirectory = Path.Combine(appData, "Shadow KVM");
-        Directory.CreateDirectory(dataDirectory);
+        Directory.CreateDirectory(_dataDirectory);
 
-        // Set up logger
-        _logPath = Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
-        var loggingLevelSwitch = new LoggingLevelSwitch();
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.ControlledBy(loggingLevelSwitch)
-            .WriteTo.File(_logPath, rollingInterval: RollingInterval.Day)
-            .CreateLogger();
-
-        // Set up exception logging
-        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
-
-        // Load the config file
-        var configPath = Path.Combine(dataDirectory, "config.yaml");
-        var config = LoadConfig(configPath);
-        if (config == null)
-        {
-            return;
-        }
-
-        // Set up logging level based on config file
-        loggingLevelSwitch.MinimumLevel = config.LogLevel;
+        InitLogger();
 
         Log.Information("Initializing");
 
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
 
-        _backgroundTask = new BackgroundTask(config);
-        _backgroundTask.Start();
+        InitConfig();
     }
 
-    Config? LoadConfig(string configPath)
+    void InitLogger()
+    {
+        // Set up logger
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.ControlledBy(_loggingLevelSwitch)
+            .WriteTo.File(_logPath, rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        // Set up exception logging
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+    }
+
+    void InitConfig()
     {
         try
         {
-            return Config.Load(configPath);
+            ReloadConfig(); // TODO this no longer throws when config is invalid
         }
         catch (FileNotFoundException)
         {
@@ -63,18 +63,18 @@ public partial class App : Application
             if (result != MessageBoxResult.Yes)
             {
                 Shutdown();
-                return null;
+                return;
             }
 
             // Create a new config file
             var configText = ConfigGenerator.Generate();
-            using (var output = new StreamWriter(configPath))
+            using (var output = new StreamWriter(_configPath))
             {
                 output.Write(configText);
             }
 
-            // Edit the config and retry loading
-            return EditAndLoadConfig(configPath);
+            EditConfig();
+            ReloadConfig(message: true);
         }
         catch (ConfigFileException exception)
         {
@@ -84,31 +84,61 @@ public partial class App : Application
             if (result != MessageBoxResult.Yes)
             {
                 Shutdown();
-                return null;
+                return;
             }
 
-            // Edit the config and retry loading
-            return EditAndLoadConfig(configPath);
+            EditConfig();
+            ReloadConfig(message: true);
         }
     }
 
-    Config EditAndLoadConfig(string configPath)
+    // TODO find a way to use EditConfigAsync instead for OnStartup
+    public void EditConfig()
     {
         // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", configPath);
+        var process = Process.Start("notepad.exe", _configPath);
         if (process == null)
         {
             throw new Exception("Failed to start notepad");
         }
+
         process.WaitForExit();
+    }
 
-        // Try to load the new config
-        var config = Config.Load(configPath);
+    public async Task EditConfigAsync()
+    {
+        // Open notepad to edit the config file and wait for it to close
+        var process = Process.Start("notepad.exe", _configPath);
+        if (process == null)
+        {
+            throw new Exception("Failed to start notepad");
+        }
 
-        MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
-            MessageBoxButton.OK, MessageBoxImage.Information);
+        await process.WaitForExitAsync();
+    }
 
-        return config;
+    public void ReloadConfig(bool message = false)
+    {
+        _config = Config.Load(_configPath);
+
+        if (message)
+        {
+            MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // Set up logging level based on config file
+        _loggingLevelSwitch.MinimumLevel = _config.LogLevel;
+
+        // Restart the background task
+        if (_backgroundTask != null)
+        {
+            _backgroundTask.Dispose();
+            _backgroundTask = null;
+        }
+
+        _backgroundTask = new BackgroundTask(_config);
+        _backgroundTask.Start();
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -143,5 +173,11 @@ public partial class App : Application
 
     TaskbarIcon? _notifyIcon;
     BackgroundTask? _backgroundTask;
-    string? _logPath;
+
+    string _dataDirectory;
+    string _configPath;
+    string _logPath;
+
+    Config? _config;
+    LoggingLevelSwitch _loggingLevelSwitch;
 }
