@@ -10,6 +10,10 @@
       Language="1033"
       UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
 
+    <MajorUpgrade
+      AllowSameVersionUpgrades="yes"
+      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
     <Icon Id="Icon" SourceFile="..\ShadowKVM\UserInterface\Icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="Icon" />
 
