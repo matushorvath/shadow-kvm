@@ -131,7 +131,7 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
         }
         else
         {
-            return $"0x{inputByte:x2}";
+            return inputByte.ToString() ?? string.Empty;
         }
     }
 }
