@@ -6,22 +6,18 @@ namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
 {
-    // [ObservableProperty]
-    // [NotifyCanExecuteChangedFor(nameof(ConfigureCommand))]
-    // public bool canExecuteConfigure = true;
-
-    // [RelayCommand(CanExecute = nameof(CanExecuteConfigure))]
-    // public void Configure()
-    // {
-    //     Application.Current.MainWindow ??= new MainWindow();
-    //     Application.Current.MainWindow.Show(disableEfficiencyMode: true);
-    //     CanExecuteConfigure = false;
-    //     // TODO set CanExecuteConfigure to true once configuration is closed
-    // }
+    [RelayCommand(FlowExceptionsToTaskScheduler = true)]
+    public async Task Configure()
+    {
+        await App.EditConfig();
+        App.ReloadConfig(message: true);
+    }
 
     [RelayCommand]
     public void Exit()
     {
         Application.Current.Shutdown();
     }
+
+    App App => (App)Application.Current;
 }

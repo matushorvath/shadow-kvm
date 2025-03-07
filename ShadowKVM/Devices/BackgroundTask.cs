@@ -39,8 +39,6 @@ internal class BackgroundTask(Config config) : IDisposable
                 Log.Debug("Background task stopped");
             }
         }
-
-        // TODO either restart the background task or notify main thread to exit the app
     }
 
     void ProcessNotification(DeviceNotification.Action action)
@@ -82,7 +80,7 @@ internal class BackgroundTask(Config config) : IDisposable
                 {
                     PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
                     Log.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
-                        actionConfig.Code, actionConfig.Value, matchingMonitor);
+                        actionConfig.Code.Raw, actionConfig.Value.Raw, matchingMonitor);
                 }
             }
         }

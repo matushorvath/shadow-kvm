@@ -1,43 +1,18 @@
-version: 1
-
 # ShadowKVM automatically switches your monitor’s input source when you attach or detach
 # a keyboard or mouse. For example, when you connect a keyboard to your computer, ShadowKVM
 # can switch your monitor to HDMI1, and when you disconnect the keyboard, it can switch 
 # the monitor to HDMI2.
 
-# Trigger device; defines which device type will trigger monitor switching
+# Trigger device: Defines which device type will trigger monitor switching
 # options: keyboard or mouse (or one of the GUID_DEVINTERFACE_* guids)
 trigger-device: keyboard
 
-# Log level; controls the level of detail in the log files
-# options: information (default) or debug
-log-level: information
-
-# Monitor Identification
-# 
-# You can specify monitors using one or more of these attributes:
-#   description: Monitor model name as recognized by Windows
-#   adapter: The graphics adapter associated with the monitor
-#   serial-number: A unique identifier for the monitor (recommended if you have identical monitors)
+# Monitor actions: When a trigger device is attached or detached, ShadowKVM sends a
+# DDC/CI command to the monitor to change its input source.
 #
-# If Shadow KVM can detect your monitor's serial number, using it is the most reliable way
-# to ensure ShadowKVM targets the correct display.
-
-# Monitor Actions
-#
-# When a trigger device is attached or detached, ShadowKVM sends a DDC/CI command to the monitor
-# to change its input source. The DDC/CI command has a command code and a value:
-#   code: usually input-select (0x60) for input source selection
+# The DDC/CI command has a command code and a value:
+#   code: usually input-select for input source selection
 #   value: varies based on the monitor’s supported inputs
-#
-# Bot DDC/CI command code and value can be specified as either a string or as an 8-bit number
-#
-# Supported command codes are:
-{{Common.AllCodes}}
-#
-# Supported command values are:
-{{Common.AllValues}}
-
 monitors:
 {{#each Monitors}}
   - description: {{Monitor.Description}}
@@ -51,3 +26,27 @@ monitors:
       value: {{Inputs.UnselectedInputStringAndComment}}
 
 {{/each}}
+
+# Monitor Identification
+#
+# You can specify monitors using one or more of these attributes:
+#   description: Monitor model name as recognized by Windows
+#   adapter: The graphics adapter associated with the monitor
+#   serial-number: A unique identifier for the monitor (recommended if you have identical monitors)
+#
+# If Shadow KVM can detect your monitor's serial number, using it is the most reliable way
+# to ensure ShadowKVM targets the correct display.
+
+# Both DDC/CI command code and value can be specified either as a string or as an 8-bit number
+#
+# Supported command code strings are:
+{{Common.AllCodes}}
+#
+# Supported command value strings are:
+{{Common.AllValues}}
+
+# Log level: Controls the level of detail in the log files
+# options: information (default) or debug
+log-level: information
+
+version: 1
