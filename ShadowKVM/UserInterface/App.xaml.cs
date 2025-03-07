@@ -52,7 +52,11 @@ public partial class App : Application
 
     void InitConfig()
     {
-        var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
+
+
+// TODO remove
+GenerateConfigWithProgress();
+
 
         try
         {
@@ -75,6 +79,7 @@ public partial class App : Application
                 output.Write(configText);
             }
 
+            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
         catch (ConfigFileException exception)
@@ -88,8 +93,24 @@ public partial class App : Application
                 return;
             }
 
+            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
+    }
+
+    void GenerateConfigWithProgress()
+    {
+        ProgressWindow.Execute(progress =>
+        {
+            Thread.Sleep(1000);
+            progress.Report(25);
+            Thread.Sleep(1000);
+            progress.Report(50);
+            Thread.Sleep(1000);
+            progress.Report(75);
+            Thread.Sleep(1000);
+            progress.Report(100);
+        });
     }
 
     public async Task EditConfig()
