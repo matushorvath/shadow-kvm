@@ -1,0 +1,27 @@
+name: Build and Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Build sources
+        run: dotnet build --configuration Release
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: bin/Release/ShadowKVM.msi
+          if-no-files-found: error
