@@ -1,4 +1,4 @@
-using H.NotifyIcon;
+﻿using H.NotifyIcon;
 using System.IO;
 using System.Windows;
 using Serilog;
@@ -93,11 +93,10 @@ public partial class App : Application
         ProgressWindow.Execute(progress =>
         {
             var configText = ConfigGenerator.Generate(progress);
-            // TODO enable
-            // using (var output = new StreamWriter(_configPath))
-            // {
-            //     output.Write(configText);
-            // }
+            using (var output = new StreamWriter(_configPath))
+            {
+                output.Write(configText);
+            }
         });
     }
 

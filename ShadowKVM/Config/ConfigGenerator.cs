@@ -9,7 +9,7 @@ namespace ShadowKVM;
 public class ConfigGeneratorStatus
 {
     public int Current { get; set; }
-    public int Total { get; set; }
+    public int Maximum { get; set; }
 }
 
 internal class ConfigGenerator
@@ -31,7 +31,7 @@ internal class ConfigGenerator
         {
             monitors.Load();
 
-            var status = new ConfigGeneratorStatus { Current = 0, Total = monitors.Count() };
+            var status = new ConfigGeneratorStatus { Current = 0, Maximum = monitors.Count() };
             progress?.Report(status);
 
             foreach (var monitor in monitors)

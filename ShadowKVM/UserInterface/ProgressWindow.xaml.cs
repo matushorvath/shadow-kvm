@@ -16,8 +16,11 @@ public partial class ProgressWindow : Window
 
         window.Loaded += (_, args) =>
         {
-            var progress = new Progress<ConfigGeneratorStatus>(
-                status => window.progressTextBox.Text = $"{100 * status.Current/status.Total}%");
+            var progress = new Progress<ConfigGeneratorStatus>(status =>
+            {
+                window.progressBar.Maximum = status.Maximum;
+                window.progressBar.Value = status.Current;
+            });
 
             BackgroundWorker worker = new BackgroundWorker();
 
