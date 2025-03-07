@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using System.Windows;
 using Windows.Win32;
 
 namespace ShadowKVM;
@@ -20,7 +19,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
         using (var notification = new DeviceNotification())
         {
-            notification.Register(config.DeviceClassGuid);
+            notification.Register(config.TriggerDevice);
 
             try
             {
@@ -50,7 +49,7 @@ internal class BackgroundTask(Config config) : IDisposable
 
         using (var monitors = new Monitors())
         {
-            monitors.Refresh();
+            monitors.Load();
 
             foreach (var monitorConfig in config.Monitors)
             {
@@ -82,7 +81,7 @@ internal class BackgroundTask(Config config) : IDisposable
                 foreach (var matchingMonitor in matchingMonitors)
                 {
                     PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
-                    Log.Information("Executed action, code 0x{Code:X} value 0x{Value:X} monitor {@Monitor}",
+                    Log.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
                         actionConfig.Code, actionConfig.Value, matchingMonitor);
                 }
             }

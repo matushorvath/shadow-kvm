@@ -11,37 +11,9 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM;
 
-internal class Monitor : IDisposable
-{
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            if (!Handle.IsInvalid)
-            {
-                Handle.Dispose();
-                Handle.SetHandleAsInvalid();
-            }
-        }
-    }
-
-    public required string Device { get; set; }
-    public required SafePhysicalMonitorHandle Handle { get; set; }
-    public required string Description { get; set; }
-
-    public string? Adapter { get; set; }
-    public string? SerialNumber { get; set; }
-};
-
 internal partial class Monitors : IEnumerable<Monitor>, IDisposable
 {
-    public void Refresh()
+    public void Load()
     {
         var physicalMonitors = LoadPhysicalMonitors();
         var displayDevices = LoadDisplayDevices();
@@ -338,4 +310,32 @@ internal partial class Monitors : IEnumerable<Monitor>, IDisposable
     }
 
     List<Monitor> _monitors = new List<Monitor>();
+}
+
+internal class Monitor : IDisposable
+{
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (!Handle.IsInvalid)
+            {
+                Handle.Dispose();
+                Handle.SetHandleAsInvalid();
+            }
+        }
+    }
+
+    public required string Device { get; set; }
+    public required SafePhysicalMonitorHandle Handle { get; set; }
+    public required string Description { get; set; }
+
+    public string? Adapter { get; set; }
+    public string? SerialNumber { get; set; }
 }
