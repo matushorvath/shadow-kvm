@@ -1,4 +1,4 @@
-﻿using H.NotifyIcon;
+using H.NotifyIcon;
 using System.IO;
 using System.Windows;
 using Serilog;
@@ -52,12 +52,6 @@ public partial class App : Application
 
     void InitConfig()
     {
-
-
-// TODO remove
-GenerateConfigWithProgress();
-
-
         try
         {
             ReloadConfig();
@@ -73,11 +67,7 @@ GenerateConfigWithProgress();
             }
 
             // Create a new config file
-            var configText = ConfigGenerator.Generate();
-            using (var output = new StreamWriter(_configPath))
-            {
-                output.Write(configText);
-            }
+            GenerateConfigWithProgress();
 
             var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
@@ -102,14 +92,12 @@ GenerateConfigWithProgress();
     {
         ProgressWindow.Execute(progress =>
         {
-            Thread.Sleep(1000);
-            progress.Report(25);
-            Thread.Sleep(1000);
-            progress.Report(50);
-            Thread.Sleep(1000);
-            progress.Report(75);
-            Thread.Sleep(1000);
-            progress.Report(100);
+            var configText = ConfigGenerator.Generate(progress);
+            // TODO enable
+            // using (var output = new StreamWriter(_configPath))
+            // {
+            //     output.Write(configText);
+            // }
         });
     }
 

@@ -10,13 +10,14 @@ public partial class ProgressWindow : Window
         InitializeComponent();
     }
 
-    public static void Execute(Action<IProgress<int>> work)
+    public static void Execute(Action<IProgress<ConfigGeneratorStatus>> work)
     {
         var window = new ProgressWindow();
 
         window.Loaded += (_, args) =>
         {
-            Progress<int> progress = new Progress<int>(percent => window.progressTextBox.Text = $"{percent}%");
+            var progress = new Progress<ConfigGeneratorStatus>(
+                status => window.progressTextBox.Text = $"{100 * status.Current/status.Total}%");
 
             BackgroundWorker worker = new BackgroundWorker();
 
