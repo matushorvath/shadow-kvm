@@ -6,6 +6,12 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
+public class ConfigGeneratorStatus
+{
+    public int Current { get; set; }
+    public int Maximum { get; set; }
+}
+
 internal class ConfigGenerator
 {
     class Data
@@ -14,7 +20,7 @@ internal class ConfigGenerator
         public required MonitorInputs Inputs { get; set; }
     }
 
-    public unsafe static string Generate()
+    public unsafe static string Generate(IProgress<ConfigGeneratorStatus>? progress)
     {
         var resource = App.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
         var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
@@ -25,11 +31,18 @@ internal class ConfigGenerator
         {
             monitors.Load();
 
+            var status = new ConfigGeneratorStatus { Current = 0, Maximum = monitors.Count() };
+            progress?.Report(status);
+
             foreach (var monitor in monitors)
             {
                 // Determine input sources for this monitor
+                // TODO each inputs.Load takes 2 seconds, do them in parallel
                 var inputs = new MonitorInputsForConfigTemplate();
                 inputs.Load(monitor.Handle);
+
+                status.Current++;
+                progress?.Report(status);
 
                 // TODO if !MonitorInputs.SupportsInputs, include the monitor but comment it out
                 // TODO in the template, filter out missing display name, serial number or adapter

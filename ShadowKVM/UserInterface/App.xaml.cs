@@ -52,8 +52,6 @@ public partial class App : Application
 
     void InitConfig()
     {
-        var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
-
         try
         {
             ReloadConfig();
@@ -69,12 +67,9 @@ public partial class App : Application
             }
 
             // Create a new config file
-            var configText = ConfigGenerator.Generate();
-            using (var output = new StreamWriter(_configPath))
-            {
-                output.Write(configText);
-            }
+            GenerateConfigWithProgress();
 
+            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
         catch (ConfigFileException exception)
@@ -88,8 +83,21 @@ public partial class App : Application
                 return;
             }
 
+            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
+    }
+
+    void GenerateConfigWithProgress()
+    {
+        ConfigGeneratorWindow.Execute(progress =>
+        {
+            var configText = ConfigGenerator.Generate(progress);
+            using (var output = new StreamWriter(_configPath))
+            {
+                output.Write(configText);
+            }
+        });
     }
 
     public async Task EditConfig()
