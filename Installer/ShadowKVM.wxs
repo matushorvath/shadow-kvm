@@ -6,7 +6,7 @@
   <Package
       Name="Shadow KVM"
       Manufacturer="Matúš Horváth"
-      Version="0.0.1"
+      Version="$(MajorMinorPatch)"
       Language="1033"
       UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
 
