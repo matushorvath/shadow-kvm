@@ -15,7 +15,6 @@ Misc
 Configuration UI
 ================
 
-- menu option to edit config with notepad
 - list 0x60 valid values in UI, give them string descriptions
 - show which display is which in case they have same names
 - about box, with link to page, licenses

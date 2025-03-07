@@ -52,9 +52,11 @@ public partial class App : Application
 
     void InitConfig()
     {
+        var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
+
         try
         {
-            ReloadConfig(); // TODO this no longer throws when config is invalid
+            ReloadConfig();
         }
         catch (FileNotFoundException)
         {
@@ -73,8 +75,7 @@ public partial class App : Application
                 output.Write(configText);
             }
 
-            EditConfig();
-            ReloadConfig(message: true);
+            viewModel.ConfigureCommand.Execute(null);
         }
         catch (ConfigFileException exception)
         {
@@ -87,25 +88,11 @@ public partial class App : Application
                 return;
             }
 
-            EditConfig();
-            ReloadConfig(message: true);
+            viewModel.ConfigureCommand.Execute(null);
         }
     }
 
-    // TODO find a way to use EditConfigAsync instead for OnStartup
-    public void EditConfig()
-    {
-        // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", _configPath);
-        if (process == null)
-        {
-            throw new Exception("Failed to start notepad");
-        }
-
-        process.WaitForExit();
-    }
-
-    public async Task EditConfigAsync()
+    public async Task EditConfig()
     {
         // Open notepad to edit the config file and wait for it to close
         var process = Process.Start("notepad.exe", _configPath);
