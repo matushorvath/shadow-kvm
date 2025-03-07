@@ -90,7 +90,7 @@ public partial class App : Application
 
     void GenerateConfigWithProgress()
     {
-        ProgressWindow.Execute(progress =>
+        ConfigGeneratorWindow.Execute(progress =>
         {
             var configText = ConfigGenerator.Generate(progress);
             using (var output = new StreamWriter(_configPath))

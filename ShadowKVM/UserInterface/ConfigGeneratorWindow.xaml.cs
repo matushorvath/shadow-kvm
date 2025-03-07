@@ -3,16 +3,16 @@ using System.Windows;
 
 namespace ShadowKVM;
 
-public partial class ProgressWindow : Window
+public partial class ConfigGeneratorWindow : Window
 {
-    public ProgressWindow()
+    public ConfigGeneratorWindow()
     {
         InitializeComponent();
     }
 
     public static void Execute(Action<IProgress<ConfigGeneratorStatus>> work)
     {
-        var window = new ProgressWindow();
+        var window = new ConfigGeneratorWindow();
 
         window.Loaded += (_, args) =>
         {
