@@ -33,13 +33,10 @@ log-level: information
 # Bot DDC/CI command code and value can be specified as either a string or as an 8-bit number
 #
 # Supported command codes are:
-#   input-select (0x60)
+{{Common.AllCodes}}
 #
 # Supported command values are:
-#   analog-1 (1), analog-2 (2), dvi-1 (3), dvi-2 (4), composite-1 (5), composite-2 (6),
-#   s-video-1 (7), s-video-2 (8), tuner-1 = (9), tuner-2 = (10), tuner-3 = (11),
-#   component-1 (12),  component-2 (13), component-4 (14),
-#   displayport-1 (15), displayport-2 = (16), hdmi-1 (17), hdmi-2 (18)
+{{Common.AllValues}}
 
 monitors:
 {{#each Monitors}}

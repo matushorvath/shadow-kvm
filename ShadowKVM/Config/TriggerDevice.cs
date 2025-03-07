@@ -1,4 +1,5 @@
 using Windows.Win32;
+using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
 
@@ -26,7 +27,8 @@ internal class TriggerDevice : OpenEnum<TriggerDevice.DeviceTypeEnum, Guid>
     }
 }
 
-internal class TriggerDeviceConverter : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDevice.DeviceTypeEnum, Guid>
+internal class TriggerDeviceConverter(INamingConvention namingConvention)
+        : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDevice.DeviceTypeEnum, Guid>(namingConvention)
 {
     protected override bool TryConvertStringToRaw(string str, out Guid rawValue)
     {

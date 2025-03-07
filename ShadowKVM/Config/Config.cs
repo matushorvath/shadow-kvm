@@ -16,11 +16,13 @@ internal class Config
 
         try
         {
+            var namingConvention = HyphenatedNamingConvention.Instance;
+
             var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(HyphenatedNamingConvention.Instance)
-                .WithTypeConverter(new TriggerDeviceConverter())
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpCodeEnum>())
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>())
+                .WithNamingConvention(namingConvention)
+                .WithTypeConverter(new TriggerDeviceConverter(namingConvention))
+                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpCodeEnum>(namingConvention))
+                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
                 .Build();
 
             Config config;
@@ -68,8 +70,8 @@ internal enum VcpValueEnum : byte
 {
     Analog1 = 0x01,
     Analog2 = 0x02,
-    DVI1 = 0x03,
-    DVI2 = 0x04,
+    Dvi1 = 0x03,
+    Dvi2 = 0x04,
     Composite1 = 0x05,
     Composite2 = 0x06,
     SVideo1 = 0x07,
@@ -82,8 +84,8 @@ internal enum VcpValueEnum : byte
     Component3 = 0x0E,
     DisplayPort1 = 0x0F,
     DisplayPort2 = 0x10,
-    HDMI1 = 0x11,
-    HDMI2 = 0x12
+    Hdmi1 = 0x11,
+    Hdmi2 = 0x12
 }
 
 internal class ActionConfig

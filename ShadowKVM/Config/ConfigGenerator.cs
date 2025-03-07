@@ -1,6 +1,8 @@
 using HandlebarsDotNet;
 using System.IO;
 using System.Reflection;
+using System.Text;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
@@ -38,7 +40,39 @@ internal class ConfigGenerator
             }
         };
 
-        return template(new { Monitors = data });
+        var common = new CommonDataForConfigTemplate();
+        return template(new { Common = common, Monitors = data });
+    }
+}
+
+internal class CommonDataForConfigTemplate
+{
+    public string AllCodes => FormatAllEnumValues<VcpCodeEnum>();
+    public string AllValues => FormatAllEnumValues<VcpValueEnum>();
+
+    string FormatAllEnumValues<TEnum>()
+    {
+        var values =
+            from field in typeof(TEnum).GetFields()
+            where (field.Attributes & FieldAttributes.SpecialName) == 0
+            select $"{HyphenatedNamingConvention.Instance.Apply(field.Name)} ({field.GetRawConstantValue()})";
+
+        var builders = new List<StringBuilder>();
+        foreach (var value in values)
+        {
+            if (builders.LastOrDefault() == null || builders.Last().Length + value.Length > 90)
+            {
+                builders.Add(new StringBuilder());
+                builders.Last().Append("#   ");
+            }
+            else
+            {
+                builders.Last().Append(' ');
+            }
+            builders.Last().Append(value);
+        }
+
+        return string.Join('\n', builders.Select(b => b.ToString()));
     }
 }
 
@@ -93,11 +127,11 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
 
         if (inputEnum != null)
         {
-            return inputEnum;
+            return HyphenatedNamingConvention.Instance.Apply(inputEnum);
         }
         else
         {
-            return $"0x{inputByte:X2}";
+            return $"0x{inputByte:x2}";
         }
     }
 }

@@ -53,7 +53,7 @@ internal abstract class OpenEnum<TEnum, TRaw>
     protected abstract TRaw ConvertEnumToRaw(TEnum enumValue);
 }
 
-internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw> : IYamlTypeConverter
+internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingConvention namingConvention) : IYamlTypeConverter
     where TOpenEnum : OpenEnum<TEnum, TRaw>, new()
     where TEnum : struct, Enum
 {
@@ -64,11 +64,11 @@ internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw> : IYam
         var startMark = parser.Current?.Start ?? Mark.Empty;
         var endMark = parser.Current?.End ?? Mark.Empty;
 
-        // TODO use naming convention
-        var scalar = parser.Consume<Scalar>().Value.Replace("-", string.Empty);
+        var scalar = parser.Consume<Scalar>().Value;
+        var reversedScalar = namingConvention.Reverse(scalar);
 
         TEnum enumValue;
-        if (Enum.TryParse(scalar, true, out enumValue))
+        if (Enum.TryParse(reversedScalar, out enumValue))
         {
             var openEnum = new TOpenEnum();
             openEnum.Enum = enumValue;
@@ -92,8 +92,8 @@ internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw> : IYam
 
         if (openEnum.Enum != null)
         {
-            // TODO use naming convention
-            emitter.Emit(new Scalar(openEnum.Enum?.ToString() ?? string.Empty));
+            var yamlEnumValue = namingConvention.Apply(openEnum.Enum?.ToString() ?? string.Empty);
+            emitter.Emit(new Scalar(yamlEnumValue));
         }
         else
         {

@@ -1,4 +1,5 @@
 using System.Globalization;
+using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
 
@@ -16,7 +17,8 @@ internal class OpenEnumByte<TEnum> : OpenEnum<TEnum, byte>
     }
 }
 
-internal class OpenEnumByteYamlTypeConverter<TEnum> : OpenEnumYamlTypeConverter<OpenEnumByte<TEnum>, TEnum, byte>
+internal class OpenEnumByteYamlTypeConverter<TEnum>(INamingConvention namingConvention)
+        : OpenEnumYamlTypeConverter<OpenEnumByte<TEnum>, TEnum, byte>(namingConvention)
     where TEnum : struct, Enum
 {
     protected override bool TryConvertStringToRaw(string str, out byte rawValue)
