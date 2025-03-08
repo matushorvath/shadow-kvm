@@ -3,11 +3,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: nuget
+  - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-  - package-ecosystem: github-actions
-    directory: /ShadowKVM
+  - package-ecosystem: nuget
+    directories:
+      - /Installer
+      - /ShadowKVM
     schedule:
       interval: weekly
