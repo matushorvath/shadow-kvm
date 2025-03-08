@@ -1,4 +1,5 @@
 <Project Sdk="WixToolset.Sdk/5.0.1">
+
   <PropertyGroup>
     <OutputName>ShadowKVM</OutputName>
   </PropertyGroup>
@@ -27,4 +28,5 @@
       <DefineConstants>MajorMinorPatch=$(GitVersion_MajorMinorPatch)</DefineConstants>
     </PropertyGroup>
   </Target>
+
 </Project>
