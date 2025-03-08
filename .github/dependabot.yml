@@ -8,8 +8,6 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-    directories:
-      - Installer
-      - ShadowKVM
+    directory: /ShadowKVM
     schedule:
       interval: weekly
