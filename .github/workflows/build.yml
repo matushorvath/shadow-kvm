@@ -6,7 +6,7 @@ on:
     branches:
       - main
     tags:
-      - release/*
+      - v[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
 
 permissions:
@@ -50,7 +50,7 @@ jobs:
     name: Release
     runs-on: windows-2022
     needs: build
-    if: startsWith(github.ref, 'refs/tags/release/')
+    if: startsWith(github.ref, 'refs/tags/v')
 
     permissions:
       contents: write
@@ -60,7 +60,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = $GITHUB_REF_NAME -Replace "^release/", ""
+          $version = $GITHUB_REF_NAME -Replace "^v", ""
           gh release create "$GITHUB_REF_NAME" `
             --title "Shadow KVM ${version}" `
             --draft `
