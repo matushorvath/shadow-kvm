@@ -3,15 +3,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: dotnet-sdk
-    directory: /
-    schedule:
-      interval: weekly
   - package-ecosystem: nuget
     directory: /
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - Installer
+      - ShadowKVM
     schedule:
       interval: weekly
