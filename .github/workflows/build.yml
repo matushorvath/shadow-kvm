@@ -60,8 +60,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = $GITHUB_REF_NAME -Replace "^v", ""
-          gh release create "$GITHUB_REF_NAME" `
+          $version = "${{ github.ref_name }}" -Replace "^v", ""
+          gh release create "${{ github.ref_name }}" `
             --title "Shadow KVM ${version}" `
             --draft `
             --generate-notes `
@@ -79,4 +79,4 @@ jobs:
         run: |
           $msi = Get-ChildItem -Path installer -Filter "ShadowKVM-*.msi" `
             | Select-Object -ExpandProperty FullName
-          gh release upload "$GITHUB_REF_NAME" "$msi"
+          gh release upload "${{ github.ref_name }}" "$msi"
