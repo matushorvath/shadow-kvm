@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <OutputName>ShadowKVM</OutputName>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
 
   <ItemGroup>
