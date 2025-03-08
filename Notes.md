@@ -5,10 +5,12 @@ Backlog
    - filter out missing display name, serial number or adapter when generating config
    - add installation and usage to README.md
    - about box, with link to page, licenses
+   - check installer behavior when the application is running already
 
 - useful
    - investigate unit tests in C#
    - start application on login
+   - ask start the application after installation
    - real configuration UI
       - show which display is which in case they have same names
 
@@ -17,6 +19,7 @@ Backlog
    - commented out unsupported monitors in ConfigGenerator
    - parallelize inputs.Load in ConfigGenerator
    - command line params to specify data directory
+   - add a way to check for updates
 
 Useful Links
 ============
