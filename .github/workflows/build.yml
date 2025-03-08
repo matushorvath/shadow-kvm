@@ -5,10 +5,15 @@ on:
   push:
     branches:
       - main
+    tags:
+      - release/*
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  test:
+  build:
     name: Build and Test
     runs-on: windows-2022
 
@@ -32,7 +37,7 @@ jobs:
 
       - name: Prepare installer
         working-directory: bin/Release
-        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{steps.version_step.outputs.fullSemVer}}.msi
+        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
@@ -40,3 +45,39 @@ jobs:
           name: installer
           path: bin/Release/ShadowKVM-*.msi
           if-no-files-found: error
+
+  release:
+    name: Release
+    runs-on: windows-2022
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/release/')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = $GITHUB_REF_NAME -Replace "^release/", ""
+          gh release create "$GITHUB_REF_NAME" `
+            --title "Shadow KVM ${version}" `
+            --draft `
+            --fail-on-no-commits `
+            --generate-notes `
+            --verify-tag
+
+      - name: Download installer
+        uses: actions/download-artifact@v4
+        with:
+          name: installer
+          path: installer
+
+      - name: Upload installer to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $msi = Get-ChildItem -Path installer -Filter "ShadowKVM-*.msi" `
+            | Select-Object -ExpandProperty FullName
+          gh release upload "$GITHUB_REF_NAME" "$msi"
