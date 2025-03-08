@@ -8,8 +8,6 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: nuget
-    directories:
-      - /Installer
-      - /ShadowKVM
+    directory: /ShadowKVM
     schedule:
       interval: weekly
