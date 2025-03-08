@@ -36,6 +36,20 @@ This project includes the [Shadow Icon](https://icon-icons.com/icon/shadow/26491
 licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 The icon was modified by inverting the colors.
 
+## Release Process
+
+1. Prepare the release in `main` branch.
+1. Tag the commit with the version number.
+   ```sh
+   $ git tag v0.1.0 main
+   ```
+1. Push the tag to GitHub.
+   ```sh
+   $ git push origin tag v0.1.0
+   ```
+1. GitHub Actions will run and prepare a release draft for the tag.
+1. Edit the release draft to add release notes and publish the release.
+
 ## License
 
 [MIT License](https://opensource.org/license/mit)  
