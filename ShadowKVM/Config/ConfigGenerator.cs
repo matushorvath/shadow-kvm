@@ -44,12 +44,8 @@ internal class ConfigGenerator
                 status.Current++;
                 progress?.Report(status);
 
-                // TODO if !MonitorInputs.SupportsInputs, include the monitor but comment it out
                 // TODO in the template, filter out missing display name, serial number or adapter
-                if (inputs.SupportsInputs)
-                {
-                    data.Add(new Data { Monitor = monitor, Inputs = inputs });
-                }
+                data.Add(new Data { Monitor = monitor, Inputs = inputs });
             }
         };
 
@@ -92,6 +88,8 @@ internal class CommonDataForConfigTemplate
 // MonitorInputs with additional properties needed by the template
 internal class MonitorInputsForConfigTemplate : MonitorInputs
 {
+    public string CommentUnsupported => SupportsInputs ? "  " : "# ";
+
     public string SelectedInputString => FormatInputString(SelectedInput);
 
     public string UnselectedInputStringAndComment
@@ -105,21 +103,25 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
                 select input
             ).ToArray();
 
-            if (unselectedInputs.Length == 0)
+            if (SelectedInput == null && unselectedInputs.Length == 0)
+            {
+                return $"{FormatInputString(null)}";
+            }
+            else if (unselectedInputs.Length == 0)
             {
                 // There is just one input; use that, although it doesn't make much sense
-                return $"{FormatInputString(SelectedInput ?? 0)}    # single valid input source found";
+                return $"{FormatInputString(SelectedInput)}    # warning: only one input source found for this monitor";
             }
             else if (unselectedInputs.Length == 1)
             {
                 // There is exactly one other input
-                return $"{FormatInputString(unselectedInputs[0])}    # no other input sources found";
+                return $"{FormatInputString(unselectedInputs[0])}";
             }
             else
             {
                 // Multiple other inputs, use the first one and comment the rest
                 var rest = string.Join(' ', unselectedInputs.Skip(1).Select(i => FormatInputString(i)));
-                return $"{FormatInputString(unselectedInputs[0])}    # other input sources: {rest}";
+                return $"{FormatInputString(unselectedInputs[0])}    # other options: {rest}";
             }
         }
     }
@@ -128,7 +130,7 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
     {
         if (inputByte == null)
         {
-            return "(no input)";
+            return "# warning: no input sources found for this monitor";
         }
 
         var inputEnum = (

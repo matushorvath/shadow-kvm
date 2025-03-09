@@ -15,18 +15,17 @@ trigger-device: keyboard
 #   value: varies based on the monitor’s supported inputs
 monitors:
 {{#each Monitors}}
-  - description: {{Monitor.Description}}
-    adapter: {{Monitor.Adapter}}
-    serial-number: {{Monitor.SerialNumber}}
-    attach:
-      code: input-select
-      value: {{Inputs.SelectedInputString}}
-    detach:
-      code: input-select
-      value: {{Inputs.UnselectedInputStringAndComment}}
+{{{Inputs.CommentUnsupported}}}- description: {{{Monitor.Description}}}
+{{{Inputs.CommentUnsupported}}}  adapter: {{{Monitor.Adapter}}}
+{{{Inputs.CommentUnsupported}}}  serial-number: {{{Monitor.SerialNumber}}}
+{{{Inputs.CommentUnsupported}}}  attach:
+{{{Inputs.CommentUnsupported}}}    code: input-select
+{{{Inputs.CommentUnsupported}}}    value: {{{Inputs.SelectedInputString}}}
+{{{Inputs.CommentUnsupported}}}  detach:
+{{{Inputs.CommentUnsupported}}}    code: input-select
+{{{Inputs.CommentUnsupported}}}    value: {{{Inputs.UnselectedInputStringAndComment}}}
 
 {{/each}}
-
 # Monitor Identification
 #
 # You can specify monitors using one or more of these attributes:
@@ -40,10 +39,10 @@ monitors:
 # Both DDC/CI command code and value can be specified either as a string or as an 8-bit number
 #
 # Supported command code strings are:
-{{Common.AllCodes}}
+{{{Common.AllCodes}}}
 #
 # Supported command value strings are:
-{{Common.AllValues}}
+{{{Common.AllValues}}}
 
 # Log level: Controls the level of detail in the log files
 # options: information (default) or debug
