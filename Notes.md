@@ -4,7 +4,6 @@ Backlog
 - required
    - add installation and usage to README.md
    - about box, with link to page, licenses
-   - check installer behavior when the application is running already
 
 - useful
    - investigate unit tests in C#

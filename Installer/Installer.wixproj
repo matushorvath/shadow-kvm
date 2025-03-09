@@ -14,14 +14,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="WixToolset.Netfx.wixext">
-      <Version>5.0.2</Version>
-      <Version>5.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="WixToolset.UI.wixext">
-      <Version>5.0.2</Version>
-      <Version>5.0.2</Version>
-    </PackageReference>
+    <PackageReference Include="WixToolset.Netfx.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
   </ItemGroup>
 
   <Target Name="PassGitVersionToWiX" AfterTargets="GenerateGitVersionInformation">

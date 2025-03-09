@@ -1,10 +1,14 @@
 CapabilitiesRequestAndCapabilitiesReply
 CM_Register_Notification
 CM_Unregister_Notification
+CreateWindowEx
+DefWindowProc
 DestroyPhysicalMonitor
+DestroyWindow
 EnumDisplayDevices
 EnumDisplayMonitors
 GetCapabilitiesStringLength
+GetModuleHandle
 GetMonitorInfo
 GetNumberOfPhysicalMonitorsFromHMONITOR
 GetPhysicalMonitorsFromHMONITOR
@@ -13,8 +17,11 @@ GetWindowLong
 GUID_DEVINTERFACE_KEYBOARD
 GUID_DEVINTERFACE_MOUSE
 MONITORINFOEXW
+RegisterClass
 SetVCPFeature
 SetWindowLong
 WIN32_ERROR
 WINDOW_LONG_PTR_INDEX
 WINDOW_STYLE
+WM_CLOSE
+WNDCLASSW
