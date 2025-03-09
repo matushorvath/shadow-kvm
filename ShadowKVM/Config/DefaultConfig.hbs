@@ -16,8 +16,12 @@ trigger-device: keyboard
 monitors:
 {{#each Monitors}}
 {{{Inputs.CommentUnsupported}}}- description: {{{Monitor.Description}}}
+{{#if Monitor.Adapter}}
 {{{Inputs.CommentUnsupported}}}  adapter: {{{Monitor.Adapter}}}
+{{/if}}
+{{#if Monitor.SerialNumber}}
 {{{Inputs.CommentUnsupported}}}  serial-number: {{{Monitor.SerialNumber}}}
+{{/if}}
 {{{Inputs.CommentUnsupported}}}  attach:
 {{{Inputs.CommentUnsupported}}}    code: input-select
 {{{Inputs.CommentUnsupported}}}    value: {{{Inputs.SelectedInputString}}}

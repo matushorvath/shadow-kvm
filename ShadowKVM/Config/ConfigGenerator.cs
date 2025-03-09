@@ -44,7 +44,6 @@ internal class ConfigGenerator
                 status.Current++;
                 progress?.Report(status);
 
-                // TODO in the template, filter out missing display name, serial number or adapter
                 data.Add(new Data { Monitor = monitor, Inputs = inputs });
             }
         };

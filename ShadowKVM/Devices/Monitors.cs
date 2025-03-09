@@ -177,10 +177,16 @@ internal partial class Monitors : IEnumerable<Monitor>, IDisposable
                 where ch != 0
                 select (byte)ch;
 
+            var serialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray());
+            if (serialNumber == "0")
+            {
+                serialNumber = string.Empty;
+            }
+
             var wmiMonitorId = new WmiMonitorId
             {
                 InstanceName = monitorId["InstanceName"]?.ToString() ?? string.Empty,
-                SerialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray())
+                SerialNumber = serialNumber
             };
 
             wmiMonitorIds.Add(wmiMonitorId);
