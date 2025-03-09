@@ -1,3 +1,4 @@
+using Serilog;
 using System.Collections.Immutable;
 using System.Text;
 using Windows.Win32;
@@ -70,13 +71,13 @@ internal class MonitorInputs
         ImmutableArray<byte> inputs;
         if (!component.Codes.TryGetValue(0x60, out inputs))
         {
-            // TODO log that code 0x60 was not found
+            Log.Warning("Monitor does not support selecting input source (VCP code 0x60)");
             SupportsInputs = false;
             return;
         }
         if (inputs.Length == 0)
         {
-            // TODO log no supported inputs found
+            Log.Warning("Monitor does not define a list of supported input sources (VCP code 0x60)");
             SupportsInputs = false;
             return;
         }
