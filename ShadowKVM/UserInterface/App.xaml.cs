@@ -31,6 +31,9 @@ public partial class App : Application
 
         Log.Information("Initializing");
 
+        _hiddenWindow = new HiddenWindow();
+        _hiddenWindow.Create();
+
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
 
@@ -143,6 +146,8 @@ public partial class App : Application
         _backgroundTask?.Dispose();
         _notifyIcon?.Dispose();
 
+        _hiddenWindow?.Dispose();
+
         base.OnExit(e);
     }
 
@@ -175,4 +180,6 @@ public partial class App : Application
 
     Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
+
+    HiddenWindow? _hiddenWindow;
 }

@@ -1,7 +1,8 @@
 <Wix
     xmlns="http://wixtoolset.org/schemas/v4/wxs"
     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx"
-    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <Package
       Name="Shadow KVM"
@@ -9,10 +10,6 @@
       Version="$(MajorMinorPatch)"
       Language="1033"
       UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
-
-    <MajorUpgrade
-      AllowSameVersionUpgrades="yes"
-      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
     <MediaTemplate EmbedCab="yes" />
 
@@ -33,6 +30,12 @@
     <Launch
         Condition="Installed OR DOTNETRUNTIMECHECK"
         Message="This application requires .NET 9.x or newer." />
+
+    <MajorUpgrade
+       AllowSameVersionUpgrades="yes"
+       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <util:CloseApplication Target="ShadowKVM.exe" CloseMessage="yes" RebootPrompt="no" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" />
