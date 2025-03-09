@@ -16,7 +16,6 @@ Backlog
 
 - nice to have
    - add missing logs (see TODOs in code)
-   - commented out unsupported monitors in ConfigGenerator
    - parallelize inputs.Load in ConfigGenerator
    - command line params to specify data directory
    - add a way to check for updates
