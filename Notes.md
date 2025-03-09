@@ -13,7 +13,6 @@ Backlog
    - real configuration UI
 
 - nice to have
-   - add missing logs (see TODOs in code)
    - parallelize inputs.Load in ConfigGenerator
    - command line params to specify data directory
    - add a way to check for updates

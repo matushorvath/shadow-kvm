@@ -1,6 +1,7 @@
 using Pidgin;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
+using Serilog;
 using System.Collections.Immutable;
 
 // Capabilities string format:
@@ -24,7 +25,7 @@ internal static class CapabilitiesParser
         var result = _capabilities.Parse(input);
         if (!result.Success)
         {
-            // TODO log error
+            Log.Warning("Failed to parse capabilities string: {Error}", result.Error);
             return null;
         }
 
@@ -36,7 +37,7 @@ internal static class CapabilitiesParser
 
         if (components.Length != 1)
         {
-            // TODO log error
+            Log.Warning("Expected exactly one VCP component in capabilities, but found {Count}", components.Length);
             return null;
         }
 
