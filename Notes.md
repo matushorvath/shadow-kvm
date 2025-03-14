@@ -8,7 +8,6 @@ Backlog
 - useful
    - investigate unit tests in C#
    - start application on login
-   - ask to start the application after installation
    - real configuration UI
 
 - nice to have

@@ -42,7 +42,7 @@
     </StandardDirectory>
 
     <ComponentGroup Id="ApplicationComponent">
-      <File Source="ShadowKVM.exe" />
+      <File Id="EXECUTABLE" Source="ShadowKVM.exe" />
       <File Source="ShadowKVM.runtimeconfig.json" />
       <File Source="runtimes\win\lib\net9.0\System.Management.dll" />
 
@@ -74,7 +74,32 @@
       </Component>
     </StandardDirectory>
 
-    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
     <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" /> <!-- same text as ../LICENSE.txt -->
+
+    <SetProperty
+        Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+        Value="Launch [ProductName]."
+        After="FindRelatedProducts"
+        Sequence="ui" />
+
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/> <!-- checkbox is checked by default -->
+
+    <UI>
+      <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+      <Publish Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="LaunchApplication"
+          Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+
+    <Property Id="WixShellExecTarget" Value="[#EXECUTABLE]"/>
+    <CustomAction
+        Id="LaunchApplication"
+        BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+        DllEntry="WixShellExec"
+        Impersonate="yes" />
+
   </Package>
 </Wix>
