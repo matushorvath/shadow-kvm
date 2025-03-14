@@ -9,6 +9,7 @@ Backlog
 - useful
    - investigate unit tests in C#
    - real configuration UI
+   - log version number on startup
 
 - nice to have
    - parallelize inputs.Load in ConfigGenerator
@@ -23,7 +24,3 @@ https://github.com/HavenDV/H.NotifyIcon/tree/master/src/apps/H.NotifyIcon.Apps.W
 
 MCCS 2.2:
 https://milek7.pl/ddcbacklight/mccs.pdf
-
-Start after logon:
-https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys
-https://docs.firegiant.com/wix3/howtos/files_and_registry/write_a_registry_entry/
