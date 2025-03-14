@@ -4,6 +4,7 @@ Backlog
 - required
    - add installation and usage to README.md
    - about box, with link to page, licenses
+   - test installer on a machine without .NET 9.0
 
 - useful
    - investigate unit tests in C#
