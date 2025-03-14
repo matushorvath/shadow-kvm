@@ -11,11 +11,13 @@
       Language="1033"
       UpgradeCode="c650e88c-395f-4e1a-9afc-e8d98821c26f">
 
+    <!-- Create a standalone .msi that does not require a separate .cab -->
     <MediaTemplate EmbedCab="yes" />
 
     <Icon Id="Icon" SourceFile="..\ShadowKVM\UserInterface\Icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="Icon" />
 
+    <!-- Check for Windows 8 or newer, .NET 9.0 or newer -->
     <Launch
         Condition="Installed OR (VersionNT >= 602)"
         Message="This application requires Windows 8 or newer." />
@@ -31,10 +33,12 @@
         Condition="Installed OR DOTNETRUNTIMECHECK"
         Message="This application requires .NET 9.x or newer." />
 
+    <!-- Always replace installed package when updating -->
     <MajorUpgrade
        AllowSameVersionUpgrades="yes"
        DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
+    <!-- Send WM_CLOSE to ShadowKVM.exe if it is running, to allow replacing the file -->
     <util:CloseApplication Target="ShadowKVM.exe" CloseMessage="yes" RebootPrompt="no" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
@@ -42,8 +46,10 @@
     </StandardDirectory>
 
     <ComponentGroup Id="ApplicationComponent">
-      <File Source="ShadowKVM.exe" />
+      <File Id="EXECUTABLE" Source="ShadowKVM.exe" />
       <File Source="ShadowKVM.runtimeconfig.json" />
+
+      <!-- The System.Management.dll in output directory is just a stub, use the real one -->
       <File Source="runtimes\win\lib\net9.0\System.Management.dll" />
 
       <Files Include="!(bindpath.ShadowKVM)\*.dll">
@@ -64,6 +70,7 @@
             Target="[INSTALLFOLDER]ShadowKVM.exe"
             WorkingDirectory="INSTALLFOLDER" />
 
+        <!-- This key should match the key used in the application -->
         <RegistryValue
             Root="HKCU"
             Key="Software\!(bind.Property.Manufacturer)\!(bind.Property.ProductName)"
@@ -74,7 +81,37 @@
       </Component>
     </StandardDirectory>
 
-    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
-    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" /> <!-- same text as ../LICENSE.txt -->
+    <!-- MIT license text to be displayed by the installer -->
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
+
+    <!-- Display a Launch checbox on the last screen of the installer -->
+    <SetProperty
+        Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+        Value="Launch [ProductName]."
+        After="FindRelatedProducts"
+        Sequence="ui" />
+
+    <!-- Launch checkbox is checked by default -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+
+    <UI>
+      <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+      <!-- Launch the application after clicking Finish, if the Launch checbox was checked -->
+      <Publish Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="LaunchApplication"
+          Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed" />
+    </UI>
+
+    <!-- Custom action to launch the application from the installer -->
+    <Property Id="WixShellExecTarget" Value="[#EXECUTABLE]"/>
+    <CustomAction
+        Id="LaunchApplication"
+        BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+        DllEntry="WixShellExec"
+        Impersonate="yes" />
+
   </Package>
 </Wix>

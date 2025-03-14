@@ -6,6 +6,11 @@ namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
 {
+    public NotifyIconViewModel()
+    {
+        IsAutostartEnabled = Autostart.IsEnabled();
+    }
+
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public async Task Configure()
     {
@@ -17,6 +22,14 @@ public partial class NotifyIconViewModel : ObservableObject
     public void Exit()
     {
         Application.Current.Shutdown();
+    }
+
+    [ObservableProperty]
+    private bool isAutostartEnabled;
+
+    partial void OnIsAutostartEnabledChanged(bool value)
+    {
+        Autostart.SetEnabled(value);
     }
 
     App App => (App)Application.Current;

@@ -31,6 +31,13 @@ public partial class App : Application
 
         Log.Information("Initializing");
 
+        // Enable autostart if this is the first time we run for this user
+        // Needs to happen before initializing the notify icon
+        if (!Autostart.IsConfigured())
+        {
+            Autostart.SetEnabled(true);
+        }
+
         _hiddenWindow = new HiddenWindow();
         _hiddenWindow.Create();
 
@@ -117,6 +124,12 @@ public partial class App : Application
 
     public void ReloadConfig(bool message = false)
     {
+        if (_config != null && !_config.HasChanged(_configPath))
+        {
+            Log.Information("Configuration file has not changed, skipping reload");
+            return;
+        }
+
         _config = Config.Load(_configPath);
 
         if (message)

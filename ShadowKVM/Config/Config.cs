@@ -1,6 +1,7 @@
 using Serilog;
 using Serilog.Events;
 using System.IO;
+using System.Security.Cryptography;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -35,6 +36,12 @@ internal class Config
                 throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
             }
 
+            using (var md5 = MD5.Create())
+            using (var stream = File.OpenRead(configPath))
+            {
+                config._loadedChecksum = md5.ComputeHash(stream);
+            }
+
             return config;
         }
         catch (YamlException exception)
@@ -48,6 +55,22 @@ internal class Config
     public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDevice.DeviceTypeEnum.Keyboard);
 
     public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
+
+    byte[]? _loadedChecksum;
+
+    public bool HasChanged(string configPath)
+    {
+        if (_loadedChecksum == null)
+        {
+            return true;
+        }
+
+        using (var md5 = MD5.Create())
+        using (var stream = File.OpenRead(configPath))
+        {
+            return !_loadedChecksum.SequenceEqual(md5.ComputeHash(stream));
+        }
+    }
 }
 
 internal class MonitorConfig
