@@ -9,10 +9,20 @@
         x:Key="TrayMenu"
         x:Shared="false"
         >
+
         <MenuItem
             Header="Configure"
+            FontWeight="Bold"
             Command="{Binding ConfigureCommand}"
             />
+        <MenuItem
+            Header="Start automatically"
+            IsCheckable="True"
+            IsChecked="{Binding IsAutostartEnabled, Mode=TwoWay}"
+            />
+
+        <Separator/>
+
         <MenuItem
             Header="Exit"
             Command="{Binding ExitCommand}"
@@ -23,7 +33,7 @@
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
         IconSource="pack://application:,,,/UserInterface/Icon.ico"
-        LeftClickCommand="{Binding ConfigureCommand}"
+        DoubleClickCommand="{Binding ConfigureCommand}"
         MenuActivation="LeftOrRightClick"
         NoLeftClickDelay="True"
         ToolTipText="Shadow KVM"

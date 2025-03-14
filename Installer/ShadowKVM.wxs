@@ -70,6 +70,7 @@
             Target="[INSTALLFOLDER]ShadowKVM.exe"
             WorkingDirectory="INSTALLFOLDER" />
 
+        <!-- This key should match the key used in the application -->
         <RegistryValue
             Root="HKCU"
             Key="Software\!(bind.Property.Manufacturer)\!(bind.Property.ProductName)"
