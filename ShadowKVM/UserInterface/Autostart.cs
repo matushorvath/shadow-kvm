@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using Serilog;
 
 namespace ShadowKVM;
 
@@ -31,6 +32,8 @@ internal static class Autostart
         }
 
         Registry.CurrentUser.CreateSubKey(ConfiguredRegistryKey, true).SetValue(ConfiguredRegistryValue, 1);
+
+        Log.Information("Autostart is now {Value}", value ? "enabled" : "disabled");
     }
 
     // Have we already configured autostart for this user in the past?
