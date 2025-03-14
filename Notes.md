@@ -5,7 +5,6 @@ Backlog
    - add installation and usage to README.md
    - about box, with link to page, licenses
    - test installer on a machine without .NET 9.0
-   - only display reload notification if config file time is changed
 
 - useful
    - investigate unit tests in C#
@@ -13,7 +12,6 @@ Backlog
 
 - nice to have
    - parallelize inputs.Load in ConfigGenerator
-   - command line params to specify data directory
    - add a way to check for updates
    - show which display is which in case they have same names
 

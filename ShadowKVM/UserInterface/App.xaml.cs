@@ -124,6 +124,12 @@ public partial class App : Application
 
     public void ReloadConfig(bool message = false)
     {
+        if (_config != null && !_config.HasChanged(_configPath))
+        {
+            Log.Information("Configuration file has not changed, skipping reload");
+            return;
+        }
+
         _config = Config.Load(_configPath);
 
         if (message)
