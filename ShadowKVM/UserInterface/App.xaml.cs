@@ -15,10 +15,10 @@ public partial class App : Application
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         _dataDirectory = Path.Combine(appData, "Shadow KVM");
 
-        _configPath = Path.Combine(_dataDirectory, "config.yaml");
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
-
         _loggingLevelSwitch = new LoggingLevelSwitch();
+
+        _configService = new ConfigService(_dataDirectory);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -103,7 +103,7 @@ public partial class App : Application
         ConfigGeneratorWindow.Execute(progress =>
         {
             var configText = ConfigGenerator.Generate(progress);
-            using (var output = new StreamWriter(_configPath))
+            using (var output = new StreamWriter(_configService.ConfigPath))
             {
                 output.Write(configText);
             }
@@ -113,7 +113,7 @@ public partial class App : Application
     public async Task EditConfig()
     {
         // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", _configPath);
+        var process = Process.Start("notepad.exe", _configService.ConfigPath);
         if (process == null)
         {
             throw new Exception("Failed to start notepad");
@@ -124,13 +124,13 @@ public partial class App : Application
 
     public void ReloadConfig(bool message = false)
     {
-        if (_config != null && !_config.HasChanged(_configPath))
+        if (_config != null && _configService.NeedReloadConfig(_config))
         {
             Log.Information("Configuration file has not changed, skipping reload");
             return;
         }
 
-        _config = Config.Load(_configPath);
+        _config = _configService.LoadConfig();
 
         if (message)
         {
@@ -188,9 +188,9 @@ public partial class App : Application
     BackgroundTask? _backgroundTask;
 
     string _dataDirectory;
-    string _configPath;
     string _logPath;
 
+    ConfigService _configService;
     Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
 
