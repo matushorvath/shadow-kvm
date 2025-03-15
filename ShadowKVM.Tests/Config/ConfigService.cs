@@ -101,7 +101,7 @@ public class ConfigServiceTests
         var config = configService.LoadConfig();
 
         Assert.Equal(1, config.Version);
-        Assert.Collection(config.Monitors, monitor =>
+        Assert.Collection(config.Monitors ?? [], monitor =>
         {
             Assert.Equal("mOnItOr 1", monitor.Description);
         });
@@ -127,7 +127,7 @@ public class ConfigServiceTests
         var config = configService.LoadConfig();
 
         Assert.Equal(1, config.Version);
-        Assert.Collection(config.Monitors, monitor =>
+        Assert.Collection(config.Monitors ?? [], monitor =>
         {
             Assert.Equal("mOnItOr 1", monitor.Description);
         });

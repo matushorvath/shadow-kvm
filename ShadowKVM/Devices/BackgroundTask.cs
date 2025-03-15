@@ -49,7 +49,7 @@ internal class BackgroundTask(Config config) : IDisposable
         {
             monitors.Load();
 
-            foreach (var monitorConfig in config.Monitors)
+            foreach (var monitorConfig in config.Monitors ?? [])
             {
                 // Find the action config for this device action
                 var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;

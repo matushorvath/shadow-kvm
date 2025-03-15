@@ -61,10 +61,7 @@ internal class ConfigService
                 config = deserializer.Deserialize<Config>(input);
             }
 
-            if (config.Version != 1)
-            {
-                throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
-            }
+            ValidateConfig(config);
 
             using (var stream = FileSystem.File.OpenRead(ConfigPath))
             using (var md5 = MD5.Create())
@@ -77,6 +74,27 @@ internal class ConfigService
         catch (YamlException exception)
         {
             throw new ConfigFileException(ConfigPath, exception);
+        }
+    }
+
+    void ValidateConfig(Config config)
+    {
+        if (config.Version != 1)
+        {
+            throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
+        }
+
+        if (config.Monitors == null || config.Monitors.Count == 0)
+        {
+            throw new ConfigException($"At least one monitor needs to be specified in configuration");
+        }
+
+        foreach (var monitor in config.Monitors ?? [])
+        {
+            if (monitor.Description == null && monitor.Adapter == null && monitor.SerialNumber == null)
+            {
+                throw new ConfigException($"Each monitor must be identified using either description, adapter or serial-number");
+            }
         }
     }
 }

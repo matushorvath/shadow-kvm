@@ -8,7 +8,7 @@ internal class Config
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
     public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDeviceType.Keyboard);
 
-    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
+    public List<MonitorConfig>? Monitors { get; set; }
 
     // MD5 checksum of the loaded configuration file
     public byte[]? LoadedChecksum { get; set; }

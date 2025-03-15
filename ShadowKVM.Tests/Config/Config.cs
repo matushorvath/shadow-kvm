@@ -222,10 +222,157 @@ public class ConfigTests
         Assert.Equal("Invalid trigger device type -1 in configuration file", exception.Message);
     }
 
+    [Fact]
+    public void LoadConfig_ThrowsWithMissingMonitors()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+
+        Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
+    }
+
+    [Fact]
+    public void LoadConfig_ThrowsWithZeroMonitors()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+
+        Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
+    }
+
+    [Fact]
+    public void LoadConfig_ThrowsWithNoMonitorId()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                  - attach:
+                      code: input-select
+                      value: hdmi1
+                    detach:
+                      code: input-select
+                      value: hdmi2
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+
+        Assert.Equal(@"Each monitor must be identified using either description, adapter or serial-number", exception.Message);
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithDescription()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                - description: dEsCrIpTiOn 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
+            Assert.Null(monitor.Adapter);
+            Assert.Null(monitor.SerialNumber);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithAdapter()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                - adapter: aDaPtEr 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.Null(monitor.Description);
+            Assert.Equal("aDaPtEr 1", monitor.Adapter);
+            Assert.Null(monitor.SerialNumber);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithSerialNumber()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                - serial-number: sErIaLnUmBeR 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.Null(monitor.Description);
+            Assert.Null(monitor.Adapter);
+            Assert.Equal("sErIaLnUmBeR 1", monitor.SerialNumber);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithAllIds()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                - description: dEsCrIpTiOn 1
+                  adapter: aDaPtEr 1
+                  serial-number: sErIaLnUmBeR 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
+            Assert.Equal("aDaPtEr 1", monitor.Adapter);
+            Assert.Equal("sErIaLnUmBeR 1", monitor.SerialNumber);
+        });
+    }
+
     // TODO
-    // fail with no monitors
-    // test with description/adapter/serial missing
-    // fail with all three missing
     // test with three monitors
     // test with no actions, attach or detach, both
     // test with all valid vcp values, vcp codes
