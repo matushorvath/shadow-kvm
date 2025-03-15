@@ -1,6 +1,7 @@
 using Serilog;
 using Serilog.Events;
 using System.IO;
+using System.IO.Abstractions;
 using System.Security.Cryptography;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
@@ -11,6 +12,11 @@ namespace ShadowKVM;
 internal class Config
 {
     public static Config Load(string configPath)
+    {
+        return Load(configPath, new FileSystem());
+    }
+
+    public static Config Load(string configPath, IFileSystem fileSystem)
     {
         Log.Information("Loading configuration from {ConfigPath}", configPath);
 
@@ -26,7 +32,9 @@ internal class Config
                 .Build();
 
             Config config;
-            using (var input = new StreamReader(configPath))
+
+            using (var stream = fileSystem.File.OpenRead(configPath))
+            using (var input = new StreamReader(stream))
             {
                 config = deserializer.Deserialize<Config>(input);
             }
@@ -36,8 +44,8 @@ internal class Config
                 throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
             }
 
+            using (var stream = fileSystem.File.OpenRead(configPath))
             using (var md5 = MD5.Create())
-            using (var stream = File.OpenRead(configPath))
             {
                 config._loadedChecksum = md5.ComputeHash(stream);
             }
@@ -60,13 +68,18 @@ internal class Config
 
     public bool HasChanged(string configPath)
     {
+        return HasChanged(configPath, new FileSystem());
+    }
+
+    public bool HasChanged(string configPath, IFileSystem fileSystem)
+    {
         if (_loadedChecksum == null)
         {
             return true;
         }
 
+        using (var stream = fileSystem.File.OpenRead(configPath))
         using (var md5 = MD5.Create())
-        using (var stream = File.OpenRead(configPath))
         {
             return !_loadedChecksum.SequenceEqual(md5.ComputeHash(stream));
         }
