@@ -1,89 +1,17 @@
-using Serilog;
 using Serilog.Events;
-using System.IO;
-using System.IO.Abstractions;
-using System.Security.Cryptography;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
 internal class Config
 {
-    public static Config Load(string configPath)
-    {
-        return Load(configPath, new FileSystem());
-    }
-
-    public static Config Load(string configPath, IFileSystem fileSystem)
-    {
-        Log.Information("Loading configuration from {ConfigPath}", configPath);
-
-        try
-        {
-            var namingConvention = HyphenatedNamingConvention.Instance;
-
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(namingConvention)
-                .WithTypeConverter(new TriggerDeviceConverter(namingConvention))
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpCodeEnum>(namingConvention))
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
-                .Build();
-
-            Config config;
-
-            using (var stream = fileSystem.File.OpenRead(configPath))
-            using (var input = new StreamReader(stream))
-            {
-                config = deserializer.Deserialize<Config>(input);
-            }
-
-            if (config.Version != 1)
-            {
-                throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
-            }
-
-            using (var stream = fileSystem.File.OpenRead(configPath))
-            using (var md5 = MD5.Create())
-            {
-                config._loadedChecksum = md5.ComputeHash(stream);
-            }
-
-            return config;
-        }
-        catch (YamlException exception)
-        {
-            throw new ConfigFileException(configPath, exception);
-        }
-    }
-
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
     public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDevice.DeviceTypeEnum.Keyboard);
 
     public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
 
-    byte[]? _loadedChecksum;
-
-    public bool HasChanged(string configPath)
-    {
-        return HasChanged(configPath, new FileSystem());
-    }
-
-    public bool HasChanged(string configPath, IFileSystem fileSystem)
-    {
-        if (_loadedChecksum == null)
-        {
-            return true;
-        }
-
-        using (var stream = fileSystem.File.OpenRead(configPath))
-        using (var md5 = MD5.Create())
-        {
-            return !_loadedChecksum.SequenceEqual(md5.ComputeHash(stream));
-        }
-    }
+    // MD5 checksum of the loaded configuration file
+    public byte[]? LoadedChecksum { get; set; }
 }
 
 internal class MonitorConfig
