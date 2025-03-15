@@ -93,7 +93,12 @@ internal class ConfigService
         {
             if (monitor.Description == null && monitor.Adapter == null && monitor.SerialNumber == null)
             {
-                throw new ConfigException($"Each monitor must be identified using either description, adapter or serial-number");
+                throw new ConfigException($"Either description, adapter or serial-number needs to be specified for each monitor");
+            }
+
+            if (monitor.Attach == null && monitor.Detach == null)
+            {
+                throw new ConfigException($"Either attach or detach action needs to be specified for each monitor");
             }
         }
     }

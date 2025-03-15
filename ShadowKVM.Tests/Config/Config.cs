@@ -12,7 +12,10 @@ public class ConfigTests
         {
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -30,7 +33,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 987
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -48,7 +54,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -66,7 +75,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -96,7 +108,10 @@ public class ConfigTests
                 version: 1
                 log-level: {enumString}
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -115,7 +130,10 @@ public class ConfigTests
                 version: 1
                 log-level: iNvAlIdLoGlEvEl
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -133,7 +151,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -160,7 +181,10 @@ public class ConfigTests
                 version: 1
                 trigger-device: {enumString}
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -180,7 +204,10 @@ public class ConfigTests
                 version: 1
                 trigger-device: '{266976bd-7ba2-4d38-b21c-85bd406917bd}'
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -200,7 +227,10 @@ public class ConfigTests
                 version: 1
                 trigger-device: iNvAlIdDeViCe
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -266,16 +296,13 @@ public class ConfigTests
                   - attach:
                       code: input-select
                       value: hdmi1
-                    detach:
-                      code: input-select
-                      value: hdmi2
             ") }
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
 
-        Assert.Equal(@"Each monitor must be identified using either description, adapter or serial-number", exception.Message);
+        Assert.Equal(@"Either description, adapter or serial-number needs to be specified for each monitor", exception.Message);
     }
 
     [Fact]
@@ -286,7 +313,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: dEsCrIpTiOn 1
+                  - description: dEsCrIpTiOn 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -309,7 +339,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - adapter: aDaPtEr 1
+                  - adapter: aDaPtEr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -332,7 +365,10 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - serial-number: sErIaLnUmBeR 1
+                  - serial-number: sErIaLnUmBeR 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -355,9 +391,12 @@ public class ConfigTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: dEsCrIpTiOn 1
-                  adapter: aDaPtEr 1
-                  serial-number: sErIaLnUmBeR 1
+                  - description: dEsCrIpTiOn 1
+                    adapter: aDaPtEr 1
+                    serial-number: sErIaLnUmBeR 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -372,12 +411,111 @@ public class ConfigTests
         });
     }
 
+    [Fact]
+    public void LoadConfig_ThrowsWithMissingActions()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                  - description: dEsCrIpTiOn 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+
+        Assert.Equal(@"Either attach or detach action needs to be specified for each monitor", exception.Message);
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithAttach()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                  - description: dEsCrIpTiOn 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.NotNull(monitor.Attach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Attach.Code.Enum);
+            Assert.Null(monitor.Detach);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithDetach()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                  - description: dEsCrIpTiOn 1
+                    detach:
+                      code: input-select
+                      value: hdmi1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.Null(monitor.Attach);
+            Assert.NotNull(monitor.Detach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Detach.Code.Enum);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsMonitorWithAttachAndDetach()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                  - description: dEsCrIpTiOn 1
+                    attach:
+                      code: 0x42
+                      value: hdmi2
+                    detach:
+                      code: input-select
+                      value: hdmi1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Collection(config.Monitors ?? [], monitor =>
+        {
+            Assert.NotNull(monitor.Attach);
+            Assert.Equal(0x42, monitor.Attach.Code.Raw);
+            Assert.NotNull(monitor.Detach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Detach.Code.Enum);
+        });
+    }
+
     // TODO
-    // test with three monitors
-    // test with no actions, attach or detach, both
     // test with all valid vcp values, vcp codes
     // fail with invalid string vcpvalue, vcp code
     // test with numeric vcp value, vcp code
     // test with > 256 vcp value, vcp code, also with < 0
     // test also serialization of vcp value/code, or disable the code
+    // test with three monitors
 }

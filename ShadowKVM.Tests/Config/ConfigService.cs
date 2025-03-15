@@ -93,7 +93,10 @@ public class ConfigServiceTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
@@ -117,9 +120,12 @@ public class ConfigServiceTests
                 version: 1 # cOmMeNt2
                 # cOmMeNt3
                 monitors:
-                # cOmMeNt4
-                - description: mOnItOr 1 # cOmMeNt5
-                # cOmMeNt6
+                  # cOmMeNt4
+                  - description: mOnItOr 1 # cOmMeNt5
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                  # cOmMeNt6
             ") }
         });
 
@@ -141,14 +147,18 @@ public class ConfigServiceTests
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
                 monitors:
-                - description: mOnItOr 1
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
             ") }
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var config = configService.LoadConfig();
 
-        byte[]? correctChecksum = [0x3c, 0xc3, 0xeb, 0xfc, 0xb0, 0x5, 0xa3, 0x2, 0x68, 0x26, 0x5a, 0x74, 0x4b, 0xb1, 0xac, 0x28];
+        // generate: String.Join(", ", config.LoadedChecksum.Select(x => $"0x{x:x}"))
+        byte[]? correctChecksum = [0x66, 0x38, 0xb4, 0x5a, 0x49, 0xee, 0xc4, 0xa0, 0x83, 0x8c, 0x66, 0x9, 0xcc, 0x80, 0x89, 0xf2];
         Assert.Equal(correctChecksum, config.LoadedChecksum);
     }
 }
