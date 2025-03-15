@@ -17,6 +17,9 @@ jobs:
     name: Build and Test
     runs-on: windows-2022
 
+    permissions:
+      pull-requests: write
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -37,41 +40,8 @@ jobs:
 
       - name: Run unit tests
         run: |
-          dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory coverage
+          dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory coverage
           Move-Item coverage/*/coverage.cobertura.xml coverage/
-
-      - name: Upload unit test coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage/coverage.cobertura.xml
-          if-no-files-found: error
-
-      - name: Prepare installer
-        working-directory: bin/Release
-        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
-
-      - name: Upload installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer
-          path: bin/Release/ShadowKVM-*.msi
-          if-no-files-found: error
-
-  coverage-report:
-    name: Create Coverage Report
-    runs-on: ubuntu-24.04 # these steps do not support Windows
-    needs: build
-
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Download coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage
-          path: coverage
 
       - name: Generate Coverage Report
         uses: clearlyip/code-coverage-report-action@v4
@@ -91,6 +61,17 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+
+      - name: Prepare installer
+        working-directory: bin/Release
+        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: bin/Release/ShadowKVM-*.msi
+          if-no-files-found: error
 
   release:
     name: Release
