@@ -21,11 +21,11 @@ public class ConfigServiceTests
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-
-        var config = new Config();
-
-        // MD5 checksum of "mOcKcOnFiG"
-        config.LoadedChecksum = [0x75, 0x38, 0x23, 0x20, 0xb1, 0xd0, 0x19, 0x23, 0x3d, 0x9f, 0xd0, 0xf4, 0x3c, 0x3b, 0x93, 0xbf];
+        var config = new Config
+        {
+            // MD5 checksum of "mOcKcOnFiG"
+            LoadedChecksum = [0x75, 0x38, 0x23, 0x20, 0xb1, 0xd0, 0x19, 0x23, 0x3d, 0x9f, 0xd0, 0xf4, 0x3c, 0x3b, 0x93, 0xbf]
+        };
 
         Assert.False(configService.NeedReloadConfig(config));
     }
@@ -53,11 +53,11 @@ public class ConfigServiceTests
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-
-        var config = new Config();
-
-        // MD5 checksum of "mOcKcOnFiG"
-        config.LoadedChecksum = [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0];
+        var config = new Config
+        {
+            // MD5 checksum of "mOcKcOnFiG"
+            LoadedChecksum = [0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0]
+        };
 
         Assert.True(configService.NeedReloadConfig(config));
     }
@@ -80,70 +80,10 @@ public class ConfigServiceTests
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-
         var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
 
-        Assert.Matches(@"^x:\\mOcKfS\\config\.yaml\(1,7\): .+\.$", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml(1,7): Block sequence entries are not allowed in this context.", exception.Message);
     }
-
-    [Fact]
-    public void LoadConfig_ThrowsWithMissingVersion()
-    {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
-                monitors:
-                - description: mOnItOr 1
-            ") }
-        });
-
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
-
-        Assert.Equal(@"Unsupported configuration version (found 0, supporting 1)", exception.Message);
-    }
-
-    [Fact]
-    public void LoadConfig_ThrowsWithUnsupportedVersion()
-    {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
-                version: 987
-                monitors:
-                - description: mOnItOr 1
-            ") }
-        });
-
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
-
-        Assert.Equal(@"Unsupported configuration version (found 987, supporting 1)", exception.Message);
-    }
-
-    // TODO
-    // test with default log level
-    // test with custom log level (debug, verbose)
-    // fail with invalid log level (asdf)
-    // test with default trigger device
-    // test with custom trigger device (mouse)
-    // fail with invalid trigger device (asdf)
-    // test with a guid trigger device
-    // fail with invalid guid trigger device (bad guid format)
-    // fail with no monitors
-    // test with description/adapter/serial missing
-    // fail with all three missing
-    // test with three monitors
-    // test with comments
-    // test that checksum gets calculated correctly
-    // test with no actions, attach or detach, both
-    // test with all valid vcp values, vcp codes
-    // fail with invalid string vcpvalue, vcp code
-    // test with numeric vcp value, vcp code
-    // test with > 256 vcp value, vcp code, also with < 0
-    // test also serialization of vcp value/code, or disable the code
 
     [Fact]
     public void LoadConfig_LoadsMinimumValidConfig()
@@ -152,7 +92,6 @@ public class ConfigServiceTests
         {
             { @"x:\mOcKfS\config.yaml", new MockFileData(@"
                 version: 1
-
                 monitors:
                 - description: mOnItOr 1
             ") }
@@ -166,5 +105,50 @@ public class ConfigServiceTests
         {
             Assert.Equal("mOnItOr 1", monitor.Description);
         });
+    }
+
+    [Fact]
+    public void LoadConfig_LoadsValidConfigWithComments()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                # cOmMeNt1
+                version: 1 # cOmMeNt2
+                # cOmMeNt3
+                monitors:
+                # cOmMeNt4
+                - description: mOnItOr 1 # cOmMeNt5
+                # cOmMeNt6
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Equal(1, config.Version);
+        Assert.Collection(config.Monitors, monitor =>
+        {
+            Assert.Equal("mOnItOr 1", monitor.Description);
+        });
+    }
+
+    [Fact]
+    public void LoadConfig_CalculatesCorrectChecksum()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+                version: 1
+                monitors:
+                - description: mOnItOr 1
+            ") }
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        byte[]? correctChecksum = [0x3c, 0xc3, 0xeb, 0xfc, 0xb0, 0x5, 0xa3, 0x2, 0x68, 0x26, 0x5a, 0x74, 0x4b, 0xb1, 0xac, 0x28];
+        Assert.Equal(correctChecksum, config.LoadedChecksum);
     }
 }

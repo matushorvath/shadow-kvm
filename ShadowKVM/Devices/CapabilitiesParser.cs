@@ -11,11 +11,11 @@ namespace ShadowKVM;
 
 internal static class CapabilitiesParser
 {
-    public abstract class Component
+    internal abstract class Component
     {
     }
 
-    public class VcpComponent : Component
+    internal class VcpComponent : Component
     {
         public required ImmutableDictionary<byte, ImmutableArray<byte>> Codes { get; set; }
     }

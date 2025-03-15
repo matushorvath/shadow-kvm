@@ -6,7 +6,7 @@ internal class Config
 {
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
-    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDevice.DeviceTypeEnum.Keyboard);
+    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDeviceType.Keyboard);
 
     public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
 
@@ -24,12 +24,12 @@ internal class MonitorConfig
     public ActionConfig? Detach { get; set; }
 }
 
-internal enum VcpCodeEnum : byte
+public enum VcpCodeEnum : byte
 {
     InputSelect = 0x60
 }
 
-internal enum VcpValueEnum : byte
+public enum VcpValueEnum : byte
 {
     Analog1 = 0x01,
     Analog2 = 0x02,

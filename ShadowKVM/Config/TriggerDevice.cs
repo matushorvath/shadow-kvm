@@ -3,32 +3,32 @@ using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
 
-internal class TriggerDevice : OpenEnum<TriggerDevice.DeviceTypeEnum, Guid>
+public enum TriggerDeviceType { Keyboard, Mouse }
+
+internal class TriggerDevice : OpenEnum<TriggerDeviceType, Guid>
 {
     public TriggerDevice()
     {
     }
 
-    public TriggerDevice(DeviceTypeEnum enumValue)
+    public TriggerDevice(TriggerDeviceType enumValue)
     {
         Enum = enumValue;
     }
 
-    public enum DeviceTypeEnum { Keyboard, Mouse }
-
-    protected override Guid ConvertEnumToRaw(DeviceTypeEnum enumValue)
+    protected override Guid ConvertEnumToRaw(TriggerDeviceType enumValue)
     {
         switch (enumValue)
         {
-            case DeviceTypeEnum.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
-            case DeviceTypeEnum.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
+            case TriggerDeviceType.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
+            case TriggerDeviceType.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
             default: throw new ConfigException($"Invalid trigger device type {enumValue} in configuration file");
         }
     }
 }
 
 internal class TriggerDeviceConverter(INamingConvention namingConvention)
-        : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDevice.DeviceTypeEnum, Guid>(namingConvention)
+        : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDeviceType, Guid>(namingConvention)
 {
     protected override bool TryConvertStringToRaw(string str, out Guid rawValue)
     {
