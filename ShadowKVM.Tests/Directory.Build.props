@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BaseOutputPath>..\bin</BaseOutputPath>
+    <BaseIntermediateOutputPath>..\obj\ShadowKVM.Tests</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

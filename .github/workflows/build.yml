@@ -35,6 +35,16 @@ jobs:
       - name: Build sources
         run: dotnet build --configuration Release
 
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory coverage
+
+      - name: Upload unit test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/**/coverage.cobertura.xml
+          if-no-files-found: error
+
       - name: Prepare installer
         working-directory: bin/Release
         run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
@@ -45,6 +55,41 @@ jobs:
           name: installer
           path: bin/Release/ShadowKVM-*.msi
           if-no-files-found: error
+
+  coverage-report:
+    name: Create Coverage Report
+    runs-on: ubuntu-24.04 # these steps do not support Windows
+    needs: build
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Download coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: coverage/**/coverage.cobertura.xml
+          badge: true
+          # TODO fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '60 80'
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
 
   release:
     name: Release
