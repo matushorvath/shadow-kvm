@@ -36,13 +36,15 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Run unit tests
-        run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory coverage
+        run: |
+          dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory coverage
+          Move-Item coverage/*/coverage.cobertura.xml coverage/
 
       - name: Upload unit test coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: coverage/**/coverage.cobertura.xml
+          path: coverage/coverage.cobertura.xml
           if-no-files-found: error
 
       - name: Prepare installer
@@ -76,7 +78,7 @@ jobs:
         id: code_coverage_report_action
         if: ${{ github.actor != 'dependabot[bot]'}}
         with:
-          filename: coverage/**/coverage.cobertura.xml
+          filename: coverage/coverage.cobertura.xml
           badge: true
           # TODO overall_coverage_fail_threshold: 70
           # TODO file_coverage_error_min: 80
