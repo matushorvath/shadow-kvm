@@ -3,7 +3,7 @@
 public class ConfigExceptionTests
 {
     [Fact]
-    public void WorksWithoutInnerException()
+    public void Constructor_WorksWithoutInnerException()
     {
         var exception = Assert.Throws<ConfigException>(
             void () => throw new ConfigException("tEsT mEsSaGe"));
@@ -13,7 +13,7 @@ public class ConfigExceptionTests
     }
 
     [Fact]
-    public void SavesInnerException()
+    public void Constructor_SavesInnerException()
     {
         var exception = Assert.Throws<ConfigException>(
             void () => throw new ConfigException("tEsT mEsSaGe", new Exception("iNnEr mEsSaGe")));

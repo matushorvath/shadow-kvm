@@ -5,7 +5,7 @@ namespace ShadowKVM.Tests;
 public class ConfigFileExceptionTests
 {
     [Fact]
-    public void SavesInnerException()
+    public void Constructor_SavesInnerException()
     {
         var exception = Assert.Throws<ConfigFileException>(
             void () => throw new ConfigFileException("tEsT pAtH",
@@ -17,7 +17,7 @@ public class ConfigFileExceptionTests
     }
 
     [Fact]
-    public void FormatsMessageWithDefaultMark()
+    public void Message_IsCorrectWithDefaultMark()
     {
         var exception = Assert.Throws<ConfigFileException>(
             void () => throw new ConfigFileException("tEsT pAtH",
@@ -27,7 +27,7 @@ public class ConfigFileExceptionTests
     }
 
     [Fact]
-    public void FormatsMessageWithGivenMark()
+    public void Message_IsCorrectWithSpecificMark()
     {
         var exception = Assert.Throws<ConfigFileException>(
             void () => throw new ConfigFileException("tEsT pAtH",
@@ -37,7 +37,7 @@ public class ConfigFileExceptionTests
     }
 
     [Fact]
-    public void FormatsMessageWithInnerInnerException()
+    public void Message_IsCorrectWithInnerInnerException()
     {
         var exception = Assert.Throws<ConfigFileException>(
             void () => throw new ConfigFileException("tEsT pAtH",

@@ -18,12 +18,11 @@ internal class ConfigService
     public ConfigService(string dataDirectory, IFileSystem fileSystem)
     {
         ConfigPath = Path.Combine(dataDirectory, "config.yaml");
-        _fileSystem = fileSystem;
+        FileSystem = fileSystem;
     }
 
     public string ConfigPath { get; private set; }
-
-    IFileSystem _fileSystem;
+    public IFileSystem FileSystem { get; set; }
 
     public bool NeedReloadConfig(Config config)
     {
@@ -32,7 +31,7 @@ internal class ConfigService
             return true;
         }
 
-        using (var stream = _fileSystem.File.OpenRead(ConfigPath))
+        using (var stream = FileSystem.File.OpenRead(ConfigPath))
         using (var md5 = MD5.Create())
         {
             return !config.LoadedChecksum.SequenceEqual(md5.ComputeHash(stream));
@@ -56,7 +55,7 @@ internal class ConfigService
 
             Config config;
 
-            using (var stream = _fileSystem.File.OpenRead(ConfigPath))
+            using (var stream = FileSystem.File.OpenRead(ConfigPath))
             using (var input = new StreamReader(stream))
             {
                 config = deserializer.Deserialize<Config>(input);
@@ -67,7 +66,7 @@ internal class ConfigService
                 throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
             }
 
-            using (var stream = _fileSystem.File.OpenRead(ConfigPath))
+            using (var stream = FileSystem.File.OpenRead(ConfigPath))
             using (var md5 = MD5.Create())
             {
                 config.LoadedChecksum = md5.ComputeHash(stream);
