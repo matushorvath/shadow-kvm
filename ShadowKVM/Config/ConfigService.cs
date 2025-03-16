@@ -10,11 +10,6 @@ namespace ShadowKVM;
 
 internal class ConfigService
 {
-    public ConfigService(string dataDirectory)
-        : this(dataDirectory, new FileSystem())
-    {
-    }
-
     public ConfigService(string dataDirectory, IFileSystem fileSystem)
     {
         ConfigPath = Path.Combine(dataDirectory, "config.yaml");
@@ -22,7 +17,7 @@ internal class ConfigService
     }
 
     public string ConfigPath { get; private set; }
-    public IFileSystem FileSystem { get; set; }
+    IFileSystem FileSystem { get; set; }
 
     public bool NeedReloadConfig(Config config)
     {
@@ -40,8 +35,6 @@ internal class ConfigService
 
     public Config LoadConfig()
     {
-        Log.Information("Loading configuration from {ConfigPath}", ConfigPath);
-
         try
         {
             var namingConvention = HyphenatedNamingConvention.Instance;

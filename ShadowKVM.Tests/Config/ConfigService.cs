@@ -1,17 +1,9 @@
-using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace ShadowKVM.Tests;
 
 public class ConfigServiceTests
 {
-    [Fact]
-    public void Constructor_WorksWithRealFilesystem()
-    {
-        var configService = new ConfigService(@"x:\mOcKfS");
-        Assert.IsType<FileSystem>(configService.FileSystem);
-    }
-
     [Fact]
     public void NeedReloadConfig_ReturnsFalseWithSameContent()
     {

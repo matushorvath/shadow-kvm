@@ -305,7 +305,4 @@ public class ConfigActionsTests
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(7,30): Invalid value \"{invalidString}\"", exception.Message);
     }
-
-    // TODO
-    // test also serialization of vcp value/code, or disable the code
 }
