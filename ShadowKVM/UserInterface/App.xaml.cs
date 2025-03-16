@@ -124,7 +124,7 @@ public partial class App : Application
 
     public void ReloadConfig(bool message = false)
     {
-        if (_config != null && _configService.NeedReloadConfig(_config))
+        if (_config != null && !_configService.NeedReloadConfig(_config))
         {
             Log.Information("Configuration file has not changed, skipping reload");
             return;
