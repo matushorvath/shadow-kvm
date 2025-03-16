@@ -18,7 +18,7 @@ public partial class App : Application
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
         _loggingLevelSwitch = new LoggingLevelSwitch();
 
-        Services.ConstructDefault(_dataDirectory);
+        Services = new Services(_dataDirectory);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -185,7 +185,7 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    Services Services { get; set; } = new Services();
+    Services Services { get; }
 
     TaskbarIcon? _notifyIcon;
     BackgroundTask? _backgroundTask;

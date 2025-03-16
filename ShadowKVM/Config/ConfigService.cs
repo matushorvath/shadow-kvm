@@ -16,8 +16,8 @@ internal class ConfigService
         FileSystem = fileSystem;
     }
 
-    public string ConfigPath { get; private set; }
-    IFileSystem FileSystem { get; set; }
+    public string ConfigPath { get; }
+    IFileSystem FileSystem { get; }
 
     public bool NeedReloadConfig(Config config)
     {

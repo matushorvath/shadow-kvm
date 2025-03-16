@@ -1,10 +1,8 @@
 using Serilog;
-using System.Collections;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -12,12 +10,8 @@ using Windows.Win32.Graphics.Gdi;
 namespace ShadowKVM;
 
 // Partial class because of GeneratedRegex
-internal partial class MonitorService
+internal partial class MonitorService(IMonitorAPI monitorAPI)
 {
-    public MonitorService()
-    {
-    }
-
     public Monitors LoadMonitors()
     {
         var physicalMonitors = LoadPhysicalMonitors();
@@ -48,7 +42,7 @@ internal partial class MonitorService
             var monitorInfoEx = new MONITORINFOEXW();
             monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
 
-            success = PInvoke.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
+            success = monitorAPI.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
             if (!success)
             {
                 exception = new Exception("Getting monitor information failed");
@@ -56,7 +50,7 @@ internal partial class MonitorService
             }
 
             uint numberOfPhysicalMonitors;
-            success = PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
+            success = monitorAPI.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
             if (!success)
             {
                 exception = new Exception("Getting physical monitor number failed");
@@ -69,7 +63,7 @@ internal partial class MonitorService
             }
 
             var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
-            success = PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
+            success = monitorAPI.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
             if (!success)
             {
                 exception = new Exception("Getting physical monitor information failed");
@@ -93,7 +87,7 @@ internal partial class MonitorService
             return true;
         }
 
-        BOOL success = PInvoke.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
+        BOOL success = monitorAPI.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
 
         if (exception != null)
         {
@@ -130,7 +124,7 @@ internal partial class MonitorService
         uint adapterIndex = 0;
         while (true)
         {
-            success = PInvoke.EnumDisplayDevices(null, adapterIndex++, ref adapterDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            success = monitorAPI.EnumDisplayDevices(null, adapterIndex++, ref adapterDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
             if (!success)
             {
                 break;
@@ -140,7 +134,7 @@ internal partial class MonitorService
             while (true)
             {
                 var deviceName = adapterDevice.DeviceName.ToString();
-                success = PInvoke.EnumDisplayDevices(deviceName, monitorIndex++, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+                success = monitorAPI.EnumDisplayDevices(deviceName, monitorIndex++, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
                 if (!success)
                 {
                     break;
@@ -172,10 +166,8 @@ internal partial class MonitorService
     {
         var wmiMonitorIds = new List<WmiMonitorId>();
 
-        ManagementObjectSearcher wmiSearcher = new ManagementObjectSearcher("root\\wmi", "SELECT * FROM WMIMonitorID");
-        ManagementObjectCollection monitorIds = wmiSearcher.Get();
-
-        foreach (var monitorId in monitorIds)
+        var monitorIds = monitorAPI.SelectAllWMIMonitorIDs();
+        foreach (ManagementBaseObject monitorId in monitorIds)
         {
             var serialNumberBytes =
                 from ch in (monitorId["SerialNumberID"] as ushort[]) ?? []
