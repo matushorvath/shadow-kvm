@@ -6,6 +6,20 @@ namespace ShadowKVM;
 internal class OpenEnumByte<TEnum> : OpenEnum<TEnum, byte>
     where TEnum : struct, Enum // TEnum should also use byte as underlying type
 {
+    public OpenEnumByte()
+    {
+    }
+
+    public OpenEnumByte(TEnum enumValue)
+        : base(enumValue)
+    {
+    }
+
+    public OpenEnumByte(byte rawValue)
+        : base(rawValue)
+    {
+    }
+
     protected override byte ConvertEnumToRaw(TEnum enumValue)
     {
         if (System.Enum.GetUnderlyingType(typeof(TEnum)) != typeof(byte))

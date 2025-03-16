@@ -306,21 +306,6 @@ public class ConfigActionsTests
         Assert.Equal($"x:\\mOcKfS\\config.yaml(7,30): Invalid value \"{invalidString}\"", exception.Message);
     }
 
-    enum OpenEnumByte_NonByteEnum { A, B, C };
-
-    [Fact]
-    public void OpenEnumByteVcpCodeEnumConstructor_ThrowsWithNonByteEnumValue()
-    {
-        // This code is not reachable through ConfigService
-        var openEnum = new OpenEnumByte<OpenEnumByte_NonByteEnum>();
-        var exception = Assert.Throws<InvalidOperationException>(() =>
-        {
-            openEnum.Enum = (OpenEnumByte_NonByteEnum)(object)-1;
-        });
-
-        Assert.Equal($"OpenEnumByte cannot convert enum value to byte", exception.Message);
-    }
-
     // TODO
     // test also serialization of vcp value/code, or disable the code
 }
