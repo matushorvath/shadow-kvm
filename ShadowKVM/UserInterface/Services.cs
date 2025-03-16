@@ -14,9 +14,9 @@ internal class Services
         ConfigGenerator = new ConfigGenerator(MonitorService);
     }
 
-    public ConfigGenerator ConfigGenerator { get; }
-    public ConfigService ConfigService { get; }
+    public IConfigGenerator ConfigGenerator { get; }
+    public IConfigService ConfigService { get; }
     public IFileSystem FileSystem { get; }
     public IMonitorAPI MonitorAPI { get; }
-    public MonitorService MonitorService { get; }
+    public IMonitorService MonitorService { get; }
 }

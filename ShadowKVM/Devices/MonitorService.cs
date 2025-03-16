@@ -9,8 +9,13 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM;
 
+internal interface IMonitorService
+{
+    public Monitors LoadMonitors();
+}
+
 // Partial class because of GeneratedRegex
-internal partial class MonitorService(IMonitorAPI monitorAPI)
+internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 {
     public Monitors LoadMonitors()
     {

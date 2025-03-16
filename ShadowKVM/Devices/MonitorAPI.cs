@@ -9,40 +9,40 @@ namespace ShadowKVM;
 
 internal interface IMonitorAPI
 {
-    public unsafe BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi);
+    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi);
 
-    public unsafe BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors);
-    public unsafe BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray);
+    public BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors);
+    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray);
 
-    public unsafe BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
-    public unsafe BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
+    public BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
+    public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
 
     public IEnumerable SelectAllWMIMonitorIDs();
 }
 
 internal class MonitorAPI : IMonitorAPI
 {
-    public unsafe BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi)
+    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi)
     {
         return PInvoke.GetMonitorInfo(hMonitor, ref lpmi);
     }
 
-    public unsafe BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors)
+    public BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors)
     {
         return PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out pdwNumberOfPhysicalMonitors);
     }
 
-    public unsafe BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray)
+    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray)
     {
         return PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, pPhysicalMonitorArray);
     }
 
-    public unsafe BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData)
+    public BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData)
     {
         return PInvoke.EnumDisplayMonitors(hdc, lprcClip, lpfnEnum, dwData);
     }
 
-    public unsafe BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags)
+    public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags)
     {
         return PInvoke.EnumDisplayDevices(lpDevice, iDevNum, ref lpDisplayDevice, dwFlags);
     }

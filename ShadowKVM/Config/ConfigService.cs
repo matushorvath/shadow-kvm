@@ -8,7 +8,14 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
-internal class ConfigService
+internal interface IConfigService
+{
+    public string ConfigPath { get; }
+    bool NeedReloadConfig(Config config);
+    public Config LoadConfig();
+}
+
+internal class ConfigService : IConfigService
 {
     public ConfigService(string dataDirectory, IFileSystem fileSystem)
     {

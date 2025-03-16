@@ -3,7 +3,7 @@ using Windows.Win32;
 
 namespace ShadowKVM;
 
-internal class BackgroundTask(Config config, MonitorService monitorService) : IDisposable
+internal class BackgroundTask(Config config, IMonitorService monitorService) : IDisposable
 {
     public void Start()
     {

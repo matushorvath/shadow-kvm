@@ -12,7 +12,12 @@ public class ConfigGeneratorStatus
     public int Maximum { get; set; }
 }
 
-internal class ConfigGenerator(MonitorService monitorService)
+internal interface IConfigGenerator
+{
+    public string Generate(IProgress<ConfigGeneratorStatus>? progress);
+}
+
+internal class ConfigGenerator(IMonitorService monitorService) : IConfigGenerator
 {
     class Data
     {
