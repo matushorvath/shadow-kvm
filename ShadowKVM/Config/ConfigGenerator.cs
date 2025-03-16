@@ -12,7 +12,7 @@ public class ConfigGeneratorStatus
     public int Maximum { get; set; }
 }
 
-internal class ConfigGenerator
+internal class ConfigGenerator(MonitorService monitorService)
 {
     class Data
     {
@@ -20,17 +20,15 @@ internal class ConfigGenerator
         public required MonitorInputs Inputs { get; set; }
     }
 
-    public unsafe static string Generate(IProgress<ConfigGeneratorStatus>? progress)
+    public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress)
     {
         var resource = App.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
         var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
 
         var data = new List<Data>();
 
-        using (var monitors = new Monitors())
+        using (var monitors = monitorService.LoadMonitors())
         {
-            monitors.Load();
-
             var status = new ConfigGeneratorStatus { Current = 0, Maximum = monitors.Count() };
             progress?.Report(status);
 

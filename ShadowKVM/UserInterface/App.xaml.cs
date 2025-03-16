@@ -102,7 +102,7 @@ public partial class App : Application
     {
         ConfigGeneratorWindow.Execute(progress =>
         {
-            var configText = ConfigGenerator.Generate(progress);
+            var configText = Services.ConfigGenerator.Generate(progress);
             using (var output = new StreamWriter(Services.ConfigService.ConfigPath))
             {
                 output.Write(configText);
@@ -149,7 +149,7 @@ public partial class App : Application
             _backgroundTask = null;
         }
 
-        _backgroundTask = new BackgroundTask(_config);
+        _backgroundTask = new BackgroundTask(_config, Services.MonitorService);
         _backgroundTask.Start();
     }
 
