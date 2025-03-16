@@ -68,7 +68,7 @@ internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamin
         var reversedScalar = namingConvention.Reverse(scalar);
 
         TEnum enumValue;
-        if (Enum.TryParse(reversedScalar, out enumValue))
+        if (Enum.TryParse(reversedScalar, out enumValue) && Enum.IsDefined<TEnum>(enumValue))
         {
             var openEnum = new TOpenEnum();
             openEnum.Enum = enumValue;
