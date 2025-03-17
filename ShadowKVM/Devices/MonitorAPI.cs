@@ -9,10 +9,10 @@ namespace ShadowKVM;
 
 internal interface IMonitorAPI
 {
-    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi);
+    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi);
 
     public BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors);
-    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray);
+    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray);
 
     public BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
     public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
@@ -22,9 +22,9 @@ internal interface IMonitorAPI
 
 internal class MonitorAPI : IMonitorAPI
 {
-    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFO lpmi)
+    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi)
     {
-        return PInvoke.GetMonitorInfo(hMonitor, ref lpmi);
+        return PInvoke.GetMonitorInfo(hMonitor, ref lpmi.monitorInfo);
     }
 
     public BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors)
@@ -32,7 +32,7 @@ internal class MonitorAPI : IMonitorAPI
         return PInvoke.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out pdwNumberOfPhysicalMonitors);
     }
 
-    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, Span<PHYSICAL_MONITOR> pPhysicalMonitorArray)
+    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray)
     {
         return PInvoke.GetPhysicalMonitorsFromHMONITOR(hMonitor, pPhysicalMonitorArray);
     }

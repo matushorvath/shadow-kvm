@@ -47,7 +47,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
             var monitorInfoEx = new MONITORINFOEXW();
             monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
 
-            success = monitorAPI.GetMonitorInfo(hMonitor, ref monitorInfoEx.monitorInfo);
+            success = monitorAPI.GetMonitorInfo(hMonitor, ref monitorInfoEx);
             if (!success)
             {
                 exception = new Exception("Getting monitor information failed");
