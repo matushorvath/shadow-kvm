@@ -105,13 +105,8 @@ public class ConfigActionsTests
         });
     }
 
-    public static IEnumerable<object[]> ValidEnumVcpCodes =>
-    [
-        ["input-select", VcpCodeEnum.InputSelect, 0x60]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidEnumVcpCodes))]
+    [InlineData("input-select", VcpCodeEnum.InputSelect, 0x60)]
     public void LoadConfig_LoadsEnumVcpCode(string enumString, VcpCodeEnum enumValue, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -137,14 +132,9 @@ public class ConfigActionsTests
         });
     }
 
-    public static IEnumerable<object[]> ValidRawVcpCodes =>
-    [
-        ["0x4a", 0x4a],
-        ["42", 42]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidRawVcpCodes))]
+    [InlineData("0x4a", 0x4a)]
+    [InlineData("42", 42)]
     public void LoadConfig_LoadsByteVcpCode(string rawString, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -170,13 +160,11 @@ public class ConfigActionsTests
         });
     }
 
-    public static IEnumerable<object[]> InvalidRawVcpCodes =>
-    [
-        ["iNvAlIdCoDe"], ["-1"], ["256"], ["0xzz"]
-    ];
-
     [Theory]
-    [MemberData(nameof(InvalidRawVcpCodes))]
+    [InlineData("iNvAlIdCoDe")]
+    [InlineData("-1")]
+    [InlineData("256")]
+    [InlineData("0xzz")]
     public void LoadConfig_ThrowsWithInvalidVcpCode(string invalidString)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -197,30 +185,25 @@ public class ConfigActionsTests
         Assert.Equal($"x:\\mOcKfS\\config.yaml(6,29): Invalid value \"{invalidString}\"", exception.Message);
     }
 
-    public static IEnumerable<object[]> ValidEnumVcpValues =>
-    [
-        ["analog1", VcpValueEnum.Analog1, 0x01],
-        ["analog2", VcpValueEnum.Analog2, 0x02],
-        ["dvi1", VcpValueEnum.Dvi1, 0x03],
-        ["dvi2", VcpValueEnum.Dvi2, 0x04],
-        ["composite1", VcpValueEnum.Composite1, 0x05],
-        ["composite2", VcpValueEnum.Composite2, 0x06],
-        ["s-video1", VcpValueEnum.SVideo1, 0x07],
-        ["s-video2", VcpValueEnum.SVideo2, 0x08],
-        ["tuner1", VcpValueEnum.Tuner1, 0x09],
-        ["tuner2", VcpValueEnum.Tuner2, 0x0A],
-        ["tuner3", VcpValueEnum.Tuner3, 0x0B],
-        ["component1", VcpValueEnum.Component1, 0x0C],
-        ["component2", VcpValueEnum.Component2, 0x0D],
-        ["component3", VcpValueEnum.Component3, 0x0E],
-        ["display-port1", VcpValueEnum.DisplayPort1, 0x0F],
-        ["display-port2", VcpValueEnum.DisplayPort2, 0x10],
-        ["hdmi1", VcpValueEnum.Hdmi1, 0x11],
-        ["hdmi2", VcpValueEnum.Hdmi2, 0x12]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidEnumVcpValues))]
+    [InlineData("analog1", VcpValueEnum.Analog1, 0x01)]
+    [InlineData("analog2", VcpValueEnum.Analog2, 0x02)]
+    [InlineData("dvi1", VcpValueEnum.Dvi1, 0x03)]
+    [InlineData("dvi2", VcpValueEnum.Dvi2, 0x04)]
+    [InlineData("composite1", VcpValueEnum.Composite1, 0x05)]
+    [InlineData("composite2", VcpValueEnum.Composite2, 0x06)]
+    [InlineData("s-video1", VcpValueEnum.SVideo1, 0x07)]
+    [InlineData("s-video2", VcpValueEnum.SVideo2, 0x08)]
+    [InlineData("tuner1", VcpValueEnum.Tuner1, 0x09)]
+    [InlineData("tuner2", VcpValueEnum.Tuner2, 0x0A)]
+    [InlineData("tuner3", VcpValueEnum.Tuner3, 0x0B)]
+    [InlineData("component1", VcpValueEnum.Component1, 0x0C)]
+    [InlineData("component2", VcpValueEnum.Component2, 0x0D)]
+    [InlineData("component3", VcpValueEnum.Component3, 0x0E)]
+    [InlineData("display-port1", VcpValueEnum.DisplayPort1, 0x0F)]
+    [InlineData("display-port2", VcpValueEnum.DisplayPort2, 0x10)]
+    [InlineData("hdmi1", VcpValueEnum.Hdmi1, 0x11)]
+    [InlineData("hdmi2", VcpValueEnum.Hdmi2, 0x12)]
     public void LoadConfig_LoadsEnumVcpValue(string enumString, VcpValueEnum enumValue, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -246,14 +229,9 @@ public class ConfigActionsTests
         });
     }
 
-    public static IEnumerable<object[]> ValidRawVcpValues =>
-    [
-        ["0x4a", 0x4a],
-        ["42", 42]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidRawVcpValues))]
+    [InlineData("0x4a", 0x4a)]
+    [InlineData("42", 42)]
     public void LoadConfig_LoadsByteVcpValue(string rawString, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -279,13 +257,11 @@ public class ConfigActionsTests
         });
     }
 
-    public static IEnumerable<object[]> InvalidRawVcpValues =>
-    [
-        ["iNvAlIdVaLuE"], ["-1"], ["256"], ["0xzz"]
-    ];
-
     [Theory]
-    [MemberData(nameof(InvalidRawVcpValues))]
+    [InlineData("iNvAlIdVaLuE")]
+    [InlineData("-1")]
+    [InlineData("256")]
+    [InlineData("0xzz")]
     public void LoadConfig_ThrowsWithInvalidVcpValue(string invalidString)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>

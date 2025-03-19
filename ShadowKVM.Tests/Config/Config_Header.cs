@@ -88,18 +88,13 @@ public class ConfigHeaderTests
         Assert.Equal(LogEventLevel.Information, config.LogLevel);
     }
 
-    public static IEnumerable<object[]> ValidEnumLogLevels =>
-    [
-        ["verbose", LogEventLevel.Verbose],
-        ["debug", LogEventLevel.Debug],
-        ["information", LogEventLevel.Information],
-        ["warning", LogEventLevel.Warning],
-        ["error", LogEventLevel.Error],
-        ["fatal", LogEventLevel.Fatal]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidEnumLogLevels))]
+    [InlineData("verbose", LogEventLevel.Verbose)]
+    [InlineData("debug", LogEventLevel.Debug)]
+    [InlineData("information", LogEventLevel.Information)]
+    [InlineData("warning", LogEventLevel.Warning)]
+    [InlineData("error", LogEventLevel.Error)]
+    [InlineData("fatal", LogEventLevel.Fatal)]
     public void LoadConfig_LoadsEnumLogLevel(string enumString, LogEventLevel enumValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -165,14 +160,9 @@ public class ConfigHeaderTests
         Assert.Equal(new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}"), config.TriggerDevice.Raw);
     }
 
-    public static IEnumerable<object[]> ValidEnumTriggerDevices =>
-    [
-        ["keyboard", TriggerDeviceType.Keyboard, new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}")],
-        ["mouse", TriggerDeviceType.Mouse, new Guid("{378DE44C-56EF-11D1-BC8C-00A0C91405DD}")]
-    ];
-
     [Theory]
-    [MemberData(nameof(ValidEnumTriggerDevices))]
+    [InlineData("keyboard", TriggerDeviceType.Keyboard, "{884b96c3-56ef-11d1-bc8c-00a0c91405dd}")]
+    [InlineData("mouse", TriggerDeviceType.Mouse, "{378DE44C-56EF-11D1-BC8C-00A0C91405DD}")]
     public void LoadConfig_LoadsEnumTriggerDevice(string enumString, TriggerDeviceType enumValue, Guid rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
