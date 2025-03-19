@@ -184,8 +184,11 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
         var monitorIds = monitorAPI.SelectAllWMIMonitorIDs();
         foreach (IDictionary<string, object> monitorId in monitorIds)
         {
+            object? serialBytes;
+            monitorId.TryGetValue("SerialNumberID", out serialBytes);
+
             var serialNumberBytes =
-                from ch in (monitorId["SerialNumberID"] as ushort[]) ?? []
+                from ch in serialBytes as ushort[] ?? []
                 where ch != 0
                 select (byte)ch;
 
@@ -195,9 +198,12 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
                 serialNumber = string.Empty;
             }
 
+            object? instanceName;
+            monitorId.TryGetValue("InstanceName", out instanceName);
+
             var wmiMonitorId = new WmiMonitorId
             {
-                InstanceName = monitorId["InstanceName"]?.ToString() ?? string.Empty,
+                InstanceName = instanceName?.ToString() ?? string.Empty,
                 SerialNumber = serialNumber
             };
 

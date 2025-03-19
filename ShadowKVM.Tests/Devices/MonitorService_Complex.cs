@@ -1,8 +1,6 @@
 namespace ShadowKVM.Tests;
 
-// TODO test with serialNumber = "sErIaL\0\0\0"
 // TODO test matching, with not found and found
-// TODO test with zero serial
 // TODO fully load multiple monitors
 
 public class MonitorService_ComplexTests : MonitorServiceFixture
