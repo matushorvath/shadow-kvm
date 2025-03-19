@@ -1,6 +1,9 @@
 namespace ShadowKVM.Tests;
 
 // TODO test with serialNumber = "sErIaL\0\0\0"
+// TODO test matching, with not found and found
+// TODO test with zero serial
+// TODO fully load multiple monitors
 
 public class MonitorService_ComplexTests : MonitorServiceFixture
 {
@@ -10,7 +13,7 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
         List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
             new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
                 physicalMonitors = [
-                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                    new () { physicalHandle = 54321, description = "dEsCrIpTiOn 1" }
                 ]
             }
         ];
@@ -39,7 +42,7 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Equal("sErIaL 1", monitor.SerialNumber);
-            Assert.Equal((nint)97531u, monitor.Handle.DangerousGetHandle());
+            Assert.Equal((nint)54321u, monitor.Handle.DangerousGetHandle());
         });
     }
 }

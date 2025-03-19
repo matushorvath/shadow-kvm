@@ -65,6 +65,12 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             {
                 return true;
             }
+            if (numberOfPhysicalMonitors > 1)
+            {
+                // This would make it impossible to match physical monitors to display devices
+                logger.Warning("Multiple physical monitors connected via one port are not supported");
+                return true;
+            }
 
             var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
             success = monitorAPI.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
@@ -80,7 +86,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
                 {
                     Device = monitorInfoEx.szDevice.ToString(),
                     Description = physicalMonitor.szPhysicalMonitorDescription.ToString(),
-                    Handle = physicalMonitor.hPhysicalMonitor, 
+                    Handle = physicalMonitor.hPhysicalMonitor
                 };
 
                 monitors.Add(monitor);
@@ -134,27 +140,32 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
                 break;
             }
 
-            uint monitorIndex = 0;
-            while (true)
+            // More than one monitor connected to the same adapter makes matching monitors impossible, so we don't support it
+            var deviceName = adapterDevice.DeviceName.ToString();
+            success = monitorAPI.EnumDisplayDevices(deviceName, 0, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            if (!success)
             {
-                var deviceName = adapterDevice.DeviceName.ToString();
-                success = monitorAPI.EnumDisplayDevices(deviceName, monitorIndex++, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
-                if (!success)
-                {
-                    break;
-                }
-
-                var device = new DisplayDevice
-                {
-                    Id = monitorDevice.DeviceID.ToString(),
-                    Name = adapterDevice.DeviceName.ToString(),
-                    Adapter = adapterDevice.DeviceString.ToString()
-                };
-
-                devices.Add(device);
-
-                logger.Debug("Display device: {@Device}", device);
+                continue;
             }
+
+            var device = new DisplayDevice
+            {
+                Id = monitorDevice.DeviceID.ToString(),
+                Name = adapterDevice.DeviceName.ToString(),
+                Adapter = adapterDevice.DeviceString.ToString()
+            };
+
+            // Try to get a second monitor to see if there's more than one
+            success = monitorAPI.EnumDisplayDevices(deviceName, 1, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            if (success)
+            {
+                logger.Warning("Multiple monitor devices connected via one adapter device are not supported");
+                continue;
+            }
+
+            devices.Add(device);
+
+            logger.Debug("Display device: {@Device}", device);
         }
 
         return devices;

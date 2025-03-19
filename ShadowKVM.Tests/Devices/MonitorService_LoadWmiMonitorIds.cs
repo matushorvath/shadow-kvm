@@ -8,7 +8,7 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
         List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
             new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
                 physicalMonitors = [
-                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                    new () { physicalHandle = 54321, description = "dEsCrIpTiOn 1" }
                 ]
             }
         ];
@@ -36,7 +36,7 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
-            Assert.Equal((nint)97531u, monitor.Handle.DangerousGetHandle());
+            Assert.Equal((nint)54321u, monitor.Handle.DangerousGetHandle());
         });
     }
 }

@@ -143,7 +143,7 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
     }
 
     [Fact]
-    public void LoadPhysicalMonitors_TwoMonitorMultiplePhysical()
+    public void LoadPhysicalMonitors_OneMonitorTwoPhysical()
     {
         List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
             new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
@@ -151,10 +151,34 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
                     new () { physicalHandle = 54321, description = "dEsCrIpTiOn 1.1" },
                     new () { physicalHandle = 65432, description = "dEsCrIpTiOn 1.2" }
                 ]
+            }
+        ];
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
+
+        _monitorApiMock
+            .Setup(m => m.GetPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), It.IsAny<PHYSICAL_MONITOR[]>()))
+            .Returns(false);
+
+        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitors = monitorService.LoadMonitors();
+
+        Assert.Empty(monitors);
+
+        _loggerApiMock.Verify(m => m.Warning("Multiple physical monitors connected via one port are not supported"));
+    }
+
+    [Fact]
+    public void LoadPhysicalMonitors_TwoMonitorsOnePhysical()
+    {
+        List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
+            new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
+                physicalMonitors = [
+                    new () { physicalHandle = 54321, description = "dEsCrIpTiOn 1" }
+                ]
             },
             new () { monitorHandle = 23456, device = "dEvIcEnAmE 2",
                 physicalMonitors = [
-                    new () { physicalHandle = 76543, description = "dEsCrIpTiOn 2.1" }
+                    new () { physicalHandle = 76543, description = "dEsCrIpTiOn 2" }
                 ]
             }
         ];
@@ -175,23 +199,15 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         monitor =>
         {
             Assert.Equal("dEvIcEnAmE 1", monitor.Device);
-            Assert.Equal("dEsCrIpTiOn 1.1", monitor.Description);
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
             Assert.Equal((nint)54321u, monitor.Handle.DangerousGetHandle());
         },
         monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
-            Assert.Equal("dEsCrIpTiOn 1.2", monitor.Description);
-            Assert.Null(monitor.Adapter);
-            Assert.Null(monitor.SerialNumber);
-            Assert.Equal((nint)65432u, monitor.Handle.DangerousGetHandle());
-        },
-        monitor =>
-        {
             Assert.Equal("dEvIcEnAmE 2", monitor.Device);
-            Assert.Equal("dEsCrIpTiOn 2.1", monitor.Description);
+            Assert.Equal("dEsCrIpTiOn 2", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
             Assert.Equal((nint)76543u, monitor.Handle.DangerousGetHandle());
