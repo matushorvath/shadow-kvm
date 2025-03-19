@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Management;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
