@@ -47,6 +47,19 @@ public class MonitorServiceTests
     [Fact]
     public void LoadMonitors_EnumDisplayMonitorsReturnsFalse()
     {
+        _monitorApiMock
+            .Setup(m => m.EnumDisplayMonitors(HDC.Null, null, It.IsNotNull<MONITORENUMPROC>(), 0))
+            .Returns(false);
+
+        var monitorService = new MonitorService(_monitorApiMock.Object);
+        var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
+
+        Assert.Equal("Monitor enumeration failed", exception.Message);
+    }
+
+    [Fact]
+    public void LoadMonitors_GetMonitorInfoReturnsFalse()
+    {
         List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
             new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
                 physicalMonitors = [
@@ -54,17 +67,39 @@ public class MonitorServiceTests
                 ]
             }
         ];
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
+
+        _monitorApiMock
+            .Setup(m => m.GetMonitorInfo(It.IsAny<HMONITOR>(), ref It.Ref<MONITORINFOEXW>.IsAny))
+            .Returns(false);
+
+        var monitorService = new MonitorService(_monitorApiMock.Object);
+        var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
+
+        Assert.Equal("Getting monitor information failed", exception.Message);
+    }
+
+    [Fact]
+    public void LoadMonitors_EnumDisplayDevicesReturnsFalse()
+    {
+        List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
+            new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
+                physicalMonitors = [
+                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                ]
+            }
+        ];
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
+
+        _monitorApiMock
+            .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
+            .Returns(false);
 
         List<LoadWmiMonitorIds_Data> loadWmiMonitorIdsData = [
             new () { serialNumber = "sErIaL 1", instanceName = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0" }
         ];
 
-        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
-
-        _monitorApiMock
-            .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
-            .Returns((BOOL)false);
 
         var monitorService = new MonitorService(_monitorApiMock.Object);
         var monitors = monitorService.LoadMonitors();
@@ -89,6 +124,7 @@ public class MonitorServiceTests
                 ]
             }
         ];
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
         List<LoadDisplayDevices_Adapter> loadDisplayDevicesData = [
             new () { deviceName = "dEvIcEnAmE 1", deviceString = "aDaPtEr 1",
@@ -97,8 +133,6 @@ public class MonitorServiceTests
                 ]
             }
         ];
-
-        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
         _monitorApiMock
@@ -128,6 +162,7 @@ public class MonitorServiceTests
                 ]
             }
         ];
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
         List<LoadDisplayDevices_Adapter> loadDisplayDevicesData = [
             new () { deviceName = "dEvIcEnAmE 1", deviceString = "aDaPtEr 1",
@@ -136,13 +171,11 @@ public class MonitorServiceTests
                 ]
             }
         ];
+        SetupLoadDisplayDevices(loadDisplayDevicesData);
 
         List<LoadWmiMonitorIds_Data> loadWmiMonitorIdsData = [
             new () { serialNumber = "sErIaL 1", instanceName = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0" }
         ];
-
-        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
-        SetupLoadDisplayDevices(loadDisplayDevicesData);
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
         var monitorService = new MonitorService(_monitorApiMock.Object);
