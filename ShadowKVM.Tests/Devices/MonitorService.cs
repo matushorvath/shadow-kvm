@@ -7,6 +7,8 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM.Tests;
 
+// TODO test with serialNumber = "sErIaL\0\0\0"
+
 public class MonitorServiceTests
 {
     Mock<IMonitorAPI> _monitorApiMock = new Mock<IMonitorAPI>();
@@ -15,7 +17,7 @@ public class MonitorServiceTests
     {
         public required nint monitorHandle;
         public required string device;
-        public IList<LoadPhysicalMonitors_PhysicalMonitor> physicalMonitors = new List<LoadPhysicalMonitors_PhysicalMonitor>();
+        public required IList<LoadPhysicalMonitors_PhysicalMonitor> physicalMonitors;
     }
 
     class LoadPhysicalMonitors_PhysicalMonitor
@@ -28,7 +30,7 @@ public class MonitorServiceTests
     {
         public required string deviceName;
         public required string deviceString;
-        public IList<LoadDisplayDevices_Monitor> monitors = new List<LoadDisplayDevices_Monitor>();
+        public required IList<LoadDisplayDevices_Monitor> monitors;
     }
 
     class LoadDisplayDevices_Monitor
@@ -36,40 +38,108 @@ public class MonitorServiceTests
         public required string deviceID;
     }
 
+    class LoadWmiMonitorIds_Data
+    {
+        public required string serialNumber;
+        public required string instanceName;
+    }
+
+    [Fact]
+    public void LoadMonitors_EnumDisplayMonitorsReturnsFalse()
+    {
+        List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
+            new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
+                physicalMonitors = [
+                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                ]
+            }
+        ];
+
+        List<LoadWmiMonitorIds_Data> loadWmiMonitorIdsData = [
+            new () { serialNumber = "sErIaL 1", instanceName = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0" }
+        ];
+
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
+        SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
+
+        _monitorApiMock
+            .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
+            .Returns((BOOL)false);
+
+        var monitorService = new MonitorService(_monitorApiMock.Object);
+        var monitors = monitorService.LoadMonitors();
+
+        Assert.Collection(monitors, monitor =>
+        {
+            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
+            Assert.Null(monitor.Adapter);
+            Assert.Null(monitor.SerialNumber);
+            Assert.Equal((nint)97531u, monitor.Handle.DangerousGetHandle());
+        });
+    }
+
+    [Fact]
+    public void LoadMonitors_SelectAllWMIMonitorIDsReturnsEmpty()
+    {
+        List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
+            new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
+                physicalMonitors = [
+                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                ]
+            }
+        ];
+
+        List<LoadDisplayDevices_Adapter> loadDisplayDevicesData = [
+            new () { deviceName = "dEvIcEnAmE 1", deviceString = "aDaPtEr 1",
+                monitors = [
+                    new () { deviceID = @"\\?\DISPLAY#DELA1CE#5&fc538b4&0&UID4357#{5f310f81-8c58-4028-a7b8-564cb8324c94}" }
+                ]
+            }
+        ];
+
+        SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
+        SetupLoadDisplayDevices(loadDisplayDevicesData);
+
+        _monitorApiMock
+            .Setup(m => m.SelectAllWMIMonitorIDs())
+            .Returns([]);
+
+        var monitorService = new MonitorService(_monitorApiMock.Object);
+        var monitors = monitorService.LoadMonitors();
+
+        Assert.Collection(monitors, monitor =>
+        {
+            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
+            Assert.Equal("aDaPtEr 1", monitor.Adapter);
+            Assert.Null(monitor.SerialNumber);
+            Assert.Equal((nint)97531u, monitor.Handle.DangerousGetHandle());
+        });
+    }
+
     [Fact]
     public void LoadMonitors_FullyLoadsOneMonitor()
     {
-        var loadPhysicalMonitorsData = new List<LoadPhysicalMonitors_Monitor> {
-            new LoadPhysicalMonitors_Monitor {
-                monitorHandle = 12345,
-                device = "dEvIcEnAmE 1",
-                physicalMonitors = {
-                    new LoadPhysicalMonitors_PhysicalMonitor {
-                        physicalHandle = 97531,
-                        description = "dEsCrIpTiOn 1"
-                    }
-                }
+        List<LoadPhysicalMonitors_Monitor> loadPhysicalMonitorsData = [
+            new () { monitorHandle = 12345, device = "dEvIcEnAmE 1",
+                physicalMonitors = [
+                    new () { physicalHandle = 97531, description = "dEsCrIpTiOn 1" }
+                ]
             }
-        };
+        ];
 
-        var loadDisplayDevicesData = new List<LoadDisplayDevices_Adapter> {
-            new LoadDisplayDevices_Adapter {
-                deviceName = "dEvIcEnAmE 1",
-                deviceString = "aDaPtEr 1",
-                monitors = {
-                    new LoadDisplayDevices_Monitor {
-                        deviceID = @"\\?\DISPLAY#DELA1CE#5&fc538b4&0&UID4357#{5f310f81-8c58-4028-a7b8-564cb8324c94}"
-                    }
-                }
+        List<LoadDisplayDevices_Adapter> loadDisplayDevicesData = [
+            new () { deviceName = "dEvIcEnAmE 1", deviceString = "aDaPtEr 1",
+                monitors = [
+                    new () { deviceID = @"\\?\DISPLAY#DELA1CE#5&fc538b4&0&UID4357#{5f310f81-8c58-4028-a7b8-564cb8324c94}" }
+                ]
             }
-        };
+        ];
 
-        var loadWmiMonitorIdsData = new List<Dictionary<string, object>> {
-            new Dictionary<string, object> {
-                ["SerialNumberID"] = Encoding.ASCII.GetBytes("sErIaL 1\0\0".ToCharArray()).Select(b => (ushort)b).ToArray(),
-                ["InstanceName"] = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0"
-            }
-        };
+        List<LoadWmiMonitorIds_Data> loadWmiMonitorIdsData = [
+            new () { serialNumber = "sErIaL 1", instanceName = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0" }
+        ];
 
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
         SetupLoadDisplayDevices(loadDisplayDevicesData);
@@ -200,10 +270,15 @@ public class MonitorServiceTests
                 });
     }
 
-    void SetupLoadWmiMonitorIds(List<Dictionary<string, object>> data)
+    void SetupLoadWmiMonitorIds(List<LoadWmiMonitorIds_Data> ids)
     {
         _monitorApiMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
-            .Returns(data);
+            .Returns(
+                from id in ids
+                select new Dictionary<string, object> {
+                    ["SerialNumberID"] = Encoding.ASCII.GetBytes(id.serialNumber).Select(b => (ushort)b).ToArray(),
+                    ["InstanceName"] = id.instanceName
+                });
     }
 }
