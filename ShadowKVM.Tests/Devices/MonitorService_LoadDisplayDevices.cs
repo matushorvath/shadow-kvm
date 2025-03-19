@@ -27,7 +27,7 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object);
+        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>

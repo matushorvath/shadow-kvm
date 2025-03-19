@@ -1,5 +1,4 @@
 using Serilog;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,7 +14,7 @@ internal interface IMonitorService
 }
 
 // Partial class because of GeneratedRegex
-internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
+internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : IMonitorService
 {
     public Monitors LoadMonitors()
     {
@@ -86,7 +85,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 
                 monitors.Add(monitor);
 
-                Log.Debug("Physical monitor: {@Monitor}", monitor);
+                logger.Debug("Physical monitor: {@Monitor}", monitor);
             }
 
             return true;
@@ -154,7 +153,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 
                 devices.Add(device);
 
-                Log.Debug("Display device: {@Device}", device);
+                logger.Debug("Display device: {@Device}", device);
             }
         }
 
@@ -193,7 +192,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 
             wmiMonitorIds.Add(wmiMonitorId);
 
-            Log.Debug("WMI monitor id: {@WmiMonitorId}", wmiMonitorId);
+            logger.Debug("WMI monitor id: {@WmiMonitorId}", wmiMonitorId);
         }
 
         return wmiMonitorIds;
@@ -222,7 +221,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 
             if (displayDevice == null)
             {
-                Log.Debug("Could not find display device for \"{Device}\"", physicalMonitor.Device);
+                logger.Debug("Could not find display device for \"{Device}\"", physicalMonitor.Device);
             }
             else
             {
@@ -238,7 +237,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
 
                 if (wmiMonitorId == null)
                 {
-                    Log.Debug("Could not find WMI monitor id for \"{Id}\"", displayDevice.Id);
+                    logger.Debug("Could not find WMI monitor id for \"{Id}\"", displayDevice.Id);
                 }
                 else
                 {
@@ -247,7 +246,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
                 }
             }
 
-            Log.Debug("Monitor: {@Monitor}", monitor);
+            logger.Debug("Monitor: {@Monitor}", monitor);
 
             monitors.Add(monitor);
         }
@@ -261,7 +260,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
     [GeneratedRegex(@"^DISPLAY\\([^\\]+)\\([^_]+)_\d+$", RegexOptions.IgnoreCase)]
     private static partial Regex WmiIdRegex();
 
-    static bool MatchDeviceId(string devId, string wmiId)
+    bool MatchDeviceId(string devId, string wmiId)
     {
         // The DisplayDevice object and the WMI Monitor ID object contain the same id,
         // but it's formatted slightly differently:
@@ -271,14 +270,14 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
         var devMatch = DevIdRegex().Match(devId);
         if (!devMatch.Success)
         {
-            Log.Warning("Could not parse display device \"{DevId}\"", devId);
+            logger.Warning("Could not parse display device \"{DevId}\"", devId);
             return false;
         }
 
         var wmiMatch = WmiIdRegex().Match(wmiId);
         if (!devMatch.Success)
         {
-            Log.Warning("Could not parse WMI monitor id \"{WmiId}\"", wmiId);
+            logger.Warning("Could not parse WMI monitor id \"{WmiId}\"", wmiId);
             return false;
         }
 

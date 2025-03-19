@@ -1,5 +1,6 @@
 using System.Text;
 using Moq;
+using Serilog;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -9,6 +10,7 @@ namespace ShadowKVM.Tests;
 public class MonitorServiceFixture
 {
     internal Mock<IMonitorAPI> _monitorApiMock = new();
+    internal Mock<ILogger> _loggerApiMock = new();
 
     protected class LoadPhysicalMonitors_Monitor
     {

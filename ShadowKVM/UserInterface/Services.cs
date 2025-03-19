@@ -1,4 +1,5 @@
 using System.IO.Abstractions;
+using Serilog;
 
 namespace ShadowKVM;
 
@@ -10,7 +11,7 @@ internal class Services
         ConfigService = new ConfigService(dataDirectory, FileSystem);
 
         MonitorAPI = new MonitorAPI();
-        MonitorService = new MonitorService(MonitorAPI);
+        MonitorService = new MonitorService(MonitorAPI, Log.Logger);
         ConfigGenerator = new ConfigGenerator(MonitorService);
     }
 
