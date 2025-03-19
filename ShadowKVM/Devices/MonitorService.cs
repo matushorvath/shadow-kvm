@@ -172,7 +172,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI) : IMonitorService
         var wmiMonitorIds = new List<WmiMonitorId>();
 
         var monitorIds = monitorAPI.SelectAllWMIMonitorIDs();
-        foreach (ManagementBaseObject monitorId in monitorIds)
+        foreach (IDictionary<string, object> monitorId in monitorIds)
         {
             var serialNumberBytes =
                 from ch in (monitorId["SerialNumberID"] as ushort[]) ?? []

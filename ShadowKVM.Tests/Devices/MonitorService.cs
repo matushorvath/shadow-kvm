@@ -1,3 +1,5 @@
+using System.Management;
+using System.Text;
 using Moq;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
@@ -64,7 +66,7 @@ public class MonitorServiceTests
                     case 1:
                         Assert.Equal("dEvIcEnAmE 1", lpDevice);
                         Assert.Equal(0u, iDevNum);
-                        lpDisplayDevice.DeviceID = "dEvIcEiD 1";
+                        lpDisplayDevice.DeviceID = @"\\?\DISPLAY#DELA1CE#5&fc538b4&0&UID4357#{5f310f81-8c58-4028-a7b8-564cb8324c94}";
                         return (BOOL)true;
                     case 2:
                         Assert.Equal("dEvIcEnAmE 1", lpDevice);
@@ -80,6 +82,16 @@ public class MonitorServiceTests
                     }
                 });
 
+        _monitorApiMock
+            .Setup(m => m.SelectAllWMIMonitorIDs())
+            .Returns([
+                new Dictionary<string, object>
+                {
+                    ["SerialNumberID"] = Encoding.ASCII.GetBytes("sErIaL 1\0\0".ToCharArray()).Select(b => (ushort)b).ToArray(),
+                    ["InstanceName"] = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0"
+                }
+            ]);
+
         var monitorService = new MonitorService(_monitorApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
@@ -88,6 +100,7 @@ public class MonitorServiceTests
             Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
+            Assert.Equal("sErIaL 1", monitor.SerialNumber);
             Assert.Equal((nint)0x97531u, monitor.Handle.DangerousGetHandle());
         });
     }

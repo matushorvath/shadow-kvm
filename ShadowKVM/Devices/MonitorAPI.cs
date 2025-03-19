@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Management;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
@@ -17,7 +18,7 @@ internal interface IMonitorAPI
     public BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
     public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
 
-    public IEnumerable SelectAllWMIMonitorIDs();
+    public IEnumerable<IDictionary<string, object>> SelectAllWMIMonitorIDs();
 }
 
 internal class MonitorAPI : IMonitorAPI
@@ -47,8 +48,14 @@ internal class MonitorAPI : IMonitorAPI
         return PInvoke.EnumDisplayDevices(lpDevice, iDevNum, ref lpDisplayDevice, dwFlags);
     }
 
-    public IEnumerable SelectAllWMIMonitorIDs()
+    public IEnumerable<IDictionary<string, object>> SelectAllWMIMonitorIDs()
     {
-        return new ManagementObjectSearcher("root\\wmi", "SELECT * FROM WMIMonitorID").Get();
+        var wmiMonitorIds = new ManagementObjectSearcher("root\\wmi", "SELECT * FROM WMIMonitorID").Get();
+
+        // Convert from a WMI collection to a list of dictionaries, for mocking purposes
+        return
+            from ManagementBaseObject wmiMonitorId in wmiMonitorIds
+            select wmiMonitorId.Properties.Cast<PropertyData>()
+                .ToDictionary(property => property.Name, property => property.Value);
     }
 }
