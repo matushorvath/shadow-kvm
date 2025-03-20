@@ -15,10 +15,10 @@ public partial class App : Application
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         _dataDirectory = Path.Combine(appData, "Shadow KVM");
 
-        _configPath = Path.Combine(_dataDirectory, "config.yaml");
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
-
         _loggingLevelSwitch = new LoggingLevelSwitch();
+
+        Services = new Services(_dataDirectory);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -102,8 +102,8 @@ public partial class App : Application
     {
         ConfigGeneratorWindow.Execute(progress =>
         {
-            var configText = ConfigGenerator.Generate(progress);
-            using (var output = new StreamWriter(_configPath))
+            var configText = Services.ConfigGenerator.Generate(progress);
+            using (var output = new StreamWriter(Services.ConfigService.ConfigPath))
             {
                 output.Write(configText);
             }
@@ -113,7 +113,7 @@ public partial class App : Application
     public async Task EditConfig()
     {
         // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", _configPath);
+        var process = Process.Start("notepad.exe", Services.ConfigService.ConfigPath);
         if (process == null)
         {
             throw new Exception("Failed to start notepad");
@@ -124,13 +124,14 @@ public partial class App : Application
 
     public void ReloadConfig(bool message = false)
     {
-        if (_config != null && !_config.HasChanged(_configPath))
+        if (_config != null && !Services.ConfigService.NeedReloadConfig(_config))
         {
             Log.Information("Configuration file has not changed, skipping reload");
             return;
         }
 
-        _config = Config.Load(_configPath);
+        Log.Information("Loading configuration from {ConfigPath}", Services.ConfigService.ConfigPath);
+        _config = Services.ConfigService.LoadConfig();
 
         if (message)
         {
@@ -148,7 +149,7 @@ public partial class App : Application
             _backgroundTask = null;
         }
 
-        _backgroundTask = new BackgroundTask(_config);
+        _backgroundTask = new BackgroundTask(_config, Services.MonitorService);
         _backgroundTask.Start();
     }
 
@@ -184,11 +185,12 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
+    Services Services { get; }
+
     TaskbarIcon? _notifyIcon;
     BackgroundTask? _backgroundTask;
 
     string _dataDirectory;
-    string _configPath;
     string _logPath;
 
     Config? _config;

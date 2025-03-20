@@ -1,76 +1,17 @@
-using Serilog;
 using Serilog.Events;
-using System.IO;
-using System.Security.Cryptography;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
 internal class Config
 {
-    public static Config Load(string configPath)
-    {
-        Log.Information("Loading configuration from {ConfigPath}", configPath);
-
-        try
-        {
-            var namingConvention = HyphenatedNamingConvention.Instance;
-
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(namingConvention)
-                .WithTypeConverter(new TriggerDeviceConverter(namingConvention))
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpCodeEnum>(namingConvention))
-                .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
-                .Build();
-
-            Config config;
-            using (var input = new StreamReader(configPath))
-            {
-                config = deserializer.Deserialize<Config>(input);
-            }
-
-            if (config.Version != 1)
-            {
-                throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
-            }
-
-            using (var md5 = MD5.Create())
-            using (var stream = File.OpenRead(configPath))
-            {
-                config._loadedChecksum = md5.ComputeHash(stream);
-            }
-
-            return config;
-        }
-        catch (YamlException exception)
-        {
-            throw new ConfigFileException(configPath, exception);
-        }
-    }
-
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
-    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDevice.DeviceTypeEnum.Keyboard);
+    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDeviceType.Keyboard);
 
-    public List<MonitorConfig> Monitors { get; set; } = new List<MonitorConfig>();
+    public List<MonitorConfig>? Monitors { get; set; }
 
-    byte[]? _loadedChecksum;
-
-    public bool HasChanged(string configPath)
-    {
-        if (_loadedChecksum == null)
-        {
-            return true;
-        }
-
-        using (var md5 = MD5.Create())
-        using (var stream = File.OpenRead(configPath))
-        {
-            return !_loadedChecksum.SequenceEqual(md5.ComputeHash(stream));
-        }
-    }
+    // MD5 checksum of the loaded configuration file
+    public byte[]? LoadedChecksum { get; set; }
 }
 
 internal class MonitorConfig
@@ -83,12 +24,12 @@ internal class MonitorConfig
     public ActionConfig? Detach { get; set; }
 }
 
-internal enum VcpCodeEnum : byte
+public enum VcpCodeEnum : byte
 {
     InputSelect = 0x60
 }
 
-internal enum VcpValueEnum : byte
+public enum VcpValueEnum : byte
 {
     Analog1 = 0x01,
     Analog2 = 0x02,

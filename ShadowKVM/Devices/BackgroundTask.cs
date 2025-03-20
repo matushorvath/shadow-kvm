@@ -3,7 +3,7 @@ using Windows.Win32;
 
 namespace ShadowKVM;
 
-internal class BackgroundTask(Config config) : IDisposable
+internal class BackgroundTask(Config config, IMonitorService monitorService) : IDisposable
 {
     public void Start()
     {
@@ -45,11 +45,9 @@ internal class BackgroundTask(Config config) : IDisposable
     {
         Log.Debug("Received device notification, action {Action}", action);
 
-        using (var monitors = new Monitors())
+        using (var monitors = monitorService.LoadMonitors())
         {
-            monitors.Load();
-
-            foreach (var monitorConfig in config.Monitors)
+            foreach (var monitorConfig in config.Monitors ?? [])
             {
                 // Find the action config for this device action
                 var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;

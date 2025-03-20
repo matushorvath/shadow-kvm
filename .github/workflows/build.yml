@@ -17,6 +17,9 @@ jobs:
     name: Build and Test
     runs-on: windows-2022
 
+    permissions:
+      pull-requests: write
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -34,6 +37,29 @@ jobs:
 
       - name: Build sources
         run: dotnet build --configuration Release
+
+      - name: Run unit tests
+        run: |
+          dotnet test --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory coverage
+          Move-Item coverage/*/coverage.cobertura.xml coverage/
+
+      - name: Generate Coverage Report
+        uses: clearlyip/code-coverage-report-action@v4
+        id: code_coverage_report_action
+        if: ${{ github.actor != 'dependabot[bot]'}}
+        with:
+          filename: coverage/coverage.cobertura.xml
+          badge: true
+          # TODO overall_coverage_fail_threshold: 70
+          # TODO file_coverage_error_min: 80
+          # TODO file_coverage_warning_max: 90
+          # TODO fail_on_negative_difference: true
+
+      - name: Add Coverage Comment to PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: steps.code_coverage_report_action.outputs.file != '' && github.event_name == 'pull_request' && (success() || failure())
+        with:
+          path: code-coverage-results.md
 
       - name: Prepare installer
         working-directory: bin/Release

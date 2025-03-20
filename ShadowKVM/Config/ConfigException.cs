@@ -24,51 +24,30 @@ internal class ConfigFileException : ConfigException
         _path = path;
     }
 
-    public override string Message
-    {
-        get
-        {
-            if (InnerException is YamlException)
-            {
-                return FormatYamlMessage();
-            }
+    public override string Message => FormatYamlMessage();
 
-            var innerMessage = InnerException?.Message != null ? $" ({InnerException?.Message})" : "";
-            return $"Config file processing error{innerMessage}";
-        }
-    }
-
-    private string FormatYamlMessage()
+    string FormatYamlMessage()
     {
         var builder = new StringBuilder();
 
         builder.Append(_path);
 
-        var yamlException = InnerException as YamlException;
-        if (yamlException?.Start != null)
-        {
-            builder.Append('(');
-            builder.Append(yamlException?.Start.Line);
-            builder.Append(',');
-            builder.Append(yamlException?.Start.Column);
-            builder.Append(')');
-        }
+        YamlException yamlException = (YamlException)InnerException!;
+
+        builder.Append('(');
+        builder.Append(yamlException.Start.Line);
+        builder.Append(',');
+        builder.Append(yamlException.Start.Column);
+        builder.Append(')');
 
         builder.Append(": ");
 
-        if (InnerException?.Message != null)
-        {
-            builder.Append(InnerException.Message);
+        builder.Append(yamlException.Message);
 
-            if (InnerException.InnerException?.Message != null)
-            {
-                builder.Append(": ");
-                builder.Append(InnerException.InnerException.Message);
-            }
-        }
-        else 
+        if (yamlException.InnerException?.Message != null)
         {
-            builder.Append("YAML processing error");
+            builder.Append(": ");
+            builder.Append(yamlException.InnerException.Message);
         }
 
         return builder.ToString();

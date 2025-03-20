@@ -68,7 +68,7 @@ internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamin
         var reversedScalar = namingConvention.Reverse(scalar);
 
         TEnum enumValue;
-        if (Enum.TryParse(reversedScalar, out enumValue))
+        if (Enum.TryParse(reversedScalar, out enumValue) && Enum.IsDefined<TEnum>(enumValue))
         {
             var openEnum = new TOpenEnum();
             openEnum.Enum = enumValue;
@@ -88,17 +88,19 @@ internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamin
 
     public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
     {
-        var openEnum = (TOpenEnum)value!;
+        throw new NotImplementedException("Serialization of OpenEnum to Yaml is not implemented");
 
-        if (openEnum.Enum != null)
-        {
-            var yamlEnumValue = namingConvention.Apply(openEnum.Enum?.ToString() ?? string.Empty);
-            emitter.Emit(new Scalar(yamlEnumValue));
-        }
-        else
-        {
-            emitter.Emit(new Scalar(openEnum.Raw!.ToString() ?? string.Empty));
-        }
+        // var openEnum = (TOpenEnum)value!;
+
+        // if (openEnum.Enum != null)
+        // {
+        //     var yamlEnumValue = namingConvention.Apply(openEnum.Enum?.ToString() ?? string.Empty);
+        //     emitter.Emit(new Scalar(yamlEnumValue));
+        // }
+        // else
+        // {
+        //     emitter.Emit(new Scalar(openEnum.Raw!.ToString() ?? string.Empty));
+        // }
     }
 
     protected abstract bool TryConvertStringToRaw(string str, out TRaw rawValue);
