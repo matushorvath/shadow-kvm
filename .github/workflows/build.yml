@@ -59,7 +59,6 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         if: steps.code_coverage_report_action.outputs.file != '' && github.event_name == 'pull_request' && (success() || failure())
         with:
-          recreate: true
           path: code-coverage-results.md
 
       - name: Prepare installer
