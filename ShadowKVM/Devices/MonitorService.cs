@@ -226,7 +226,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             {
                 Device = physicalMonitor.Device,
                 Description = physicalMonitor.Description,
-                Handle = new SafePhysicalMonitorHandle(physicalMonitor.Handle, true)
+                Handle = new SafePhysicalMonitorHandle(monitorAPI, physicalMonitor.Handle, true)
             };
 
             // Find display device for this physical monitor, if available
@@ -292,7 +292,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
         }
 
         var wmiMatch = WmiIdRegex().Match(wmiId);
-        if (!devMatch.Success)
+        if (!wmiMatch.Success)
         {
             logger.Warning("Could not parse WMI monitor id \"{WmiId}\"", wmiId);
             return false;

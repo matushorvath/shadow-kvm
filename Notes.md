@@ -7,9 +7,10 @@ Backlog
    - test installer on a machine without .NET 9.0
 
 - useful
-   - investigate unit tests in C#
+   - finish unit tests in C#
    - real configuration UI
    - log version number on startup
+   - add "Disable" to tray menu
 
 - nice to have
    - parallelize inputs.Load in ConfigGenerator

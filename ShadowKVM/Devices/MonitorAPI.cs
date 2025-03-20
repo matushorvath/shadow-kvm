@@ -17,6 +17,8 @@ internal interface IMonitorAPI
     public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
 
     public IEnumerable<IDictionary<string, object>> SelectAllWMIMonitorIDs();
+
+    public BOOL DestroyPhysicalMonitor(HANDLE hMonitor);
 }
 
 internal class MonitorAPI : IMonitorAPI
@@ -55,5 +57,10 @@ internal class MonitorAPI : IMonitorAPI
             from ManagementBaseObject wmiMonitorId in wmiMonitorIds
             select wmiMonitorId.Properties.Cast<PropertyData>()
                 .ToDictionary(property => property.Name, property => property.Value);
+    }
+
+    public BOOL DestroyPhysicalMonitor(HANDLE hMonitor)
+    {
+        return PInvoke.DestroyPhysicalMonitor(hMonitor);
     }
 }
