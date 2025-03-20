@@ -196,5 +196,7 @@ public partial class App : Application
     Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
 
+    public bool IsEnabled { get; set; } = true;
+
     HiddenWindow? _hiddenWindow;
 }

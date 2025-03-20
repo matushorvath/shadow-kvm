@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System.Windows;
+using Serilog;
 using Windows.Win32;
 
 namespace ShadowKVM;
@@ -26,7 +27,7 @@ internal class BackgroundTask(Config config, IMonitorService monitorService) : I
                 var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
                 await foreach (DeviceNotification.Action action in actions)
                 {
-                    if (lastAction != action)
+                    if (App.IsEnabled && lastAction != action)
                     {
                         ProcessNotification(action);
                         lastAction = action;
@@ -109,4 +110,6 @@ internal class BackgroundTask(Config config, IMonitorService monitorService) : I
     Task? _task;
 
     CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+    App App => (App)Application.Current;
 }

@@ -10,12 +10,12 @@ Backlog
    - finish unit tests in C#
    - real configuration UI
    - log version number on startup
-   - add "Disable" to tray menu
 
 - nice to have
    - parallelize inputs.Load in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
+   - grayed out tray icon when disabled
 
 Useful Links
 ============
@@ -25,3 +25,8 @@ https://github.com/HavenDV/H.NotifyIcon/tree/master/src/apps/H.NotifyIcon.Apps.W
 
 MCCS 2.2:
 https://milek7.pl/ddcbacklight/mccs.pdf
+
+Unit tests:
+https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-test
+https://github.com/devlooped/moq/wiki/Quickstart
+https://www.roundthecode.com/dotnet-tutorials/moq-mocking-objects-xunit-dotnet

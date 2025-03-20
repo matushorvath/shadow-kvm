@@ -8,7 +8,7 @@ public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
     {
-        IsAutostartEnabled = Autostart.IsEnabled();
+        IsAutostart = Autostart.IsEnabled();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
@@ -25,11 +25,19 @@ public partial class NotifyIconViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private bool isAutostartEnabled;
+    private bool isAutostart;
 
-    partial void OnIsAutostartEnabledChanged(bool value)
+    partial void OnIsAutostartChanged(bool value)
     {
         Autostart.SetEnabled(value);
+    }
+
+    [ObservableProperty]
+    private bool isEnabled = true;
+
+    partial void OnIsEnabledChanged(bool value)
+    {
+        App.IsEnabled = value;
     }
 
     App App => (App)Application.Current;

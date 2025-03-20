@@ -18,7 +18,12 @@
         <MenuItem
             Header="Start automatically"
             IsCheckable="True"
-            IsChecked="{Binding IsAutostartEnabled, Mode=TwoWay}"
+            IsChecked="{Binding IsAutostart, Mode=TwoWay}"
+            />
+        <MenuItem
+            Header="Enabled"
+            IsCheckable="True"
+            IsChecked="{Binding IsEnabled, Mode=TwoWay}"
             />
 
         <Separator/>
