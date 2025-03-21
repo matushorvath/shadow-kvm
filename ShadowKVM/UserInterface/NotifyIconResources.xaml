@@ -11,13 +11,13 @@
         >
 
         <MenuItem
-            Header="Configure"
+            Header="{Binding EnableDisableText}"
             FontWeight="Bold"
-            Command="{Binding ConfigureCommand}"
+            Command="{Binding EnableDisableCommand}"
             />
         <MenuItem
-            Header="{Binding EnableDisableText}"
-            Command="{Binding EnableDisableCommand}"
+            Header="Configure…"
+            Command="{Binding ConfigureCommand}"
             />
         <MenuItem
             Header="Start automatically"
@@ -37,9 +37,8 @@
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
         IconSource="{Binding Icon}"
-        DoubleClickCommand="{Binding ConfigureCommand}"
+        DoubleClickCommand="{Binding EnableDisableCommand}"
         MenuActivation="LeftOrRightClick"
-        NoLeftClickDelay="True"
         ToolTipText="Shadow KVM"
         >
         <tb:TaskbarIcon.DataContext>
