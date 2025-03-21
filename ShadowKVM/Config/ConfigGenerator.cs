@@ -2,6 +2,7 @@ using HandlebarsDotNet;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Windows;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
@@ -21,7 +22,7 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
 {
     public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress)
     {
-        var resource = App.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
+        var resource = Application.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
         var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
 
         var monitorData = new List<MonitorTemplateData>();

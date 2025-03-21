@@ -2,7 +2,6 @@ using Serilog;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 
@@ -56,7 +55,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
         // Find out which inputs are supported by this monitor
         uint capabilitiesLength;
 
-        result = PInvoke.GetCapabilitiesStringLength(physicalMonitorHandle, out capabilitiesLength);
+        result = monitorAPI.GetCapabilitiesStringLength(physicalMonitorHandle, out capabilitiesLength);
         if (result != 1)
         {
             return false;
@@ -65,7 +64,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
         var capabilitiesBuffer = new byte[capabilitiesLength];
         fixed (byte* capabilitiesPtr = &capabilitiesBuffer[0])
         {
-            result = PInvoke.CapabilitiesRequestAndCapabilitiesReply(physicalMonitorHandle, new PSTR(capabilitiesPtr), capabilitiesLength);
+            result = monitorAPI.CapabilitiesRequestAndCapabilitiesReply(physicalMonitorHandle, new PSTR(capabilitiesPtr), capabilitiesLength);
             if (result != 1)
             {
                 return false;
@@ -89,12 +88,12 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
         ImmutableArray<byte> inputs;
         if (!component.Codes.TryGetValue(0x60, out inputs))
         {
-            Log.Warning("Monitor does not support selecting input source (VCP code 0x60)");
+            logger.Warning("Monitor does not support selecting input source (VCP code 0x60)");
             return false;
         }
         if (inputs.Length == 0)
         {
-            Log.Warning("Monitor does not define a list of supported input sources (VCP code 0x60)");
+            logger.Warning("Monitor does not define a list of supported input sources (VCP code 0x60)");
             return false;
         }
 
@@ -110,7 +109,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
         var vct = new MC_VCP_CODE_TYPE();
         uint selectedInputUint;
 
-        int result = PInvoke.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, &vct, out selectedInputUint, null);
+        int result = monitorAPI.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, &vct, out selectedInputUint, null);
         if (result != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
         {
             return false;
