@@ -14,13 +14,7 @@ public partial class NotifyIconViewModel : ObservableObject
         _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/IconDisabled.ico"));
 
         IsAutostart = Autostart.IsEnabled();
-        IsEnabled = true;
     }
-
-    ImageSource _enabledIcon;
-    ImageSource _disabledIcon;
-
-    public ImageSource Icon => IsEnabled ? _enabledIcon : _disabledIcon;
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public async Task Configure()
@@ -43,14 +37,21 @@ public partial class NotifyIconViewModel : ObservableObject
         Autostart.SetEnabled(value);
     }
 
-    [ObservableProperty]
-    private bool isEnabled;
-
-    partial void OnIsEnabledChanged(bool value)
+    [RelayCommand]
+    public void EnableDisable()
     {
-        App.IsEnabled = value;
+        App.IsEnabled = !App.IsEnabled;
+
         OnPropertyChanged(nameof(Icon));
+        OnPropertyChanged(nameof(EnableDisableText));
     }
+
+    public string EnableDisableText => App.IsEnabled ? "Disable" : "Enable";
+
+    ImageSource _enabledIcon;
+    ImageSource _disabledIcon;
+
+    public ImageSource Icon => App.IsEnabled ? _enabledIcon : _disabledIcon;
 
     App App => (App)Application.Current;
 }
