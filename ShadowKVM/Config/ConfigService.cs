@@ -1,4 +1,3 @@
-using Serilog;
 using System.IO;
 using System.IO.Abstractions;
 using System.Security.Cryptography;

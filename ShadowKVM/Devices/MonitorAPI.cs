@@ -23,7 +23,7 @@ internal interface IMonitorAPI
     // For SafePhysicalMonitorHandle
     public BOOL DestroyPhysicalMonitor(HANDLE hMonitor);
 
-    // For MonitorInputsService
+    // For MonitorInputService
     public int GetCapabilitiesStringLength(SafeHandle hMonitor, out uint pdwCapabilitiesStringLengthInCharacters);
 
     public int CapabilitiesRequestAndCapabilitiesReply(
@@ -78,7 +78,7 @@ internal class MonitorAPI : IMonitorAPI
         return PInvoke.DestroyPhysicalMonitor(hMonitor);
     }
 
-    // For MonitorInputsService
+    // For MonitorInputService
     public int GetCapabilitiesStringLength(SafeHandle hMonitor, out uint pdwCapabilitiesStringLengthInCharacters)
     {
         return PInvoke.GetCapabilitiesStringLength(hMonitor, out pdwCapabilitiesStringLengthInCharacters);

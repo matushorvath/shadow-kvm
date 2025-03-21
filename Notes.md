@@ -12,7 +12,7 @@ Backlog
    - log version number on startup
 
 - nice to have
-   - parallelize monitorInputService.LoadMonitorInputs in ConfigGenerator
+   - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
 
