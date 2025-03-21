@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Moq;
 using Serilog;
+using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
@@ -17,6 +18,25 @@ public class MonitorInputServiceTest
     public MonitorInputServiceTest()
     {
         _handle12345 = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)12345u, false);
+    }
+
+    [Fact]
+    public void Constructor_FromMonitor()
+    {
+        uint length;
+        _monitorApiMock
+            .Setup(m => m.GetCapabilitiesStringLength(
+                It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u), out length))
+            .Returns(0)
+            .Verifiable();
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        var monitor = new Monitor { Handle = _handle12345, Device = "", Description = "" };
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(monitor, out inputs));
+
+        _monitorApiMock.Verify();
     }
 
     [Fact]
@@ -85,11 +105,8 @@ public class MonitorInputServiceTest
         pstr.Value[bytes.Length] = 0;
     }
 
-    [Fact]
-    public void TryParseCapabilities_CapabilitiesParser_Throws()
+    void SetupForCapabilitiesParser(string capabilities)
     {
-        string capabilities = "cApAbIlItIeS";
-
         uint length = (uint)capabilities.Length + 1;
         _monitorApiMock
             .Setup(m => m.GetCapabilitiesStringLength(
@@ -109,6 +126,12 @@ public class MonitorInputServiceTest
                     return 1;
                 }
             );
+    }
+
+    [Fact]
+    public void TryParseCapabilities_CapabilitiesParser_Throws()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
 
         _capabilitiesParser
             .Setup(m => m.Parse("cApAbIlItIeS"))
@@ -121,5 +144,190 @@ public class MonitorInputServiceTest
 
         Assert.Equal("pArSeErRoR", exception.Message);
         Assert.Null(inputs);
+    }
+
+    [Fact]
+    public void TryParseCapabilities_CapabilitiesParser_ReturnsNull()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns((ICapabilitiesParser.VcpComponent?)null);
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
+        Assert.Null(inputs);
+    }
+
+    [Fact]
+    public void TryParseCapabilities_NoInputSelectCode()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns(new ICapabilitiesParser.VcpComponent { Codes = new () });
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
+        Assert.Null(inputs);
+
+        _loggerApiMock.Verify(m => m.Warning("Monitor does not support selecting input source (VCP code 0x60)"));
+    }
+
+    [Fact]
+    public void TryParseCapabilities_NoInputSelectInputs()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns(new ICapabilitiesParser.VcpComponent
+            {
+                Codes = new ()
+                {
+                    [0x60] = new ()
+                }
+            });
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
+        Assert.Null(inputs);
+
+        _loggerApiMock.Verify(m => m.Warning("Monitor does not define a list of supported input sources (VCP code 0x60)"));
+    }
+
+    [Fact]
+    public void TryLoadSelectedInput_GetVCPFeatureAndVCPFeatureReply_ReturnsError()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns(new ICapabilitiesParser.VcpComponent
+            {
+                Codes = new ()
+                {
+                    [0x60] = new () { 0x42 }
+                }
+            });
+
+        uint pdwCurrentValue;
+        uint pdwMaximumValue;
+
+        _monitorApiMock
+            .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
+                It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
+                0x60,
+                ref It.Ref<MC_VCP_CODE_TYPE>.IsAny,
+                out pdwCurrentValue,
+                out pdwMaximumValue))
+            .Returns(0);
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
+        Assert.Null(inputs);
+    }
+
+    [Fact]
+    public void TryLoadSelectedInput_GetVCPFeatureAndVCPFeatureReply_ReturnsBadVct()
+    {
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns(new ICapabilitiesParser.VcpComponent
+            {
+                Codes = new ()
+                {
+                    [0x60] = new () { 0x42 }
+                }
+            });
+
+        uint pdwCurrentValue;
+        uint pdwMaximumValue;
+
+        _monitorApiMock
+            .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
+                It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
+                0x60,
+                ref It.Ref<MC_VCP_CODE_TYPE>.IsAny,
+                out pdwCurrentValue,
+                out pdwMaximumValue))
+            .Returns(
+                (SafeHandle hMonitor, uint bVCPCode, ref MC_VCP_CODE_TYPE pvct, out uint pdwCurrentValue, out uint pdwMaximumValue) =>
+                {
+                    pvct = MC_VCP_CODE_TYPE.MC_MOMENTARY;
+                    pdwCurrentValue = 0;
+                    pdwMaximumValue = 0;
+                    return 1;
+                }
+            );
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
+        Assert.Null(inputs);
+    }
+
+    [Fact]
+    public void LoadMonitorInputs_Successful()
+    {
+        _monitorApiMock.Reset();
+
+        SetupForCapabilitiesParser("cApAbIlItIeS");
+
+        _capabilitiesParser
+            .Setup(m => m.Parse("cApAbIlItIeS"))
+            .Returns(new ICapabilitiesParser.VcpComponent
+            {
+                Codes = new ()
+                {
+                    [0x60] = new () { 0x42, 0x69, 0xfe }
+                }
+            });
+
+        uint pdwCurrentValue;
+        uint pdwMaximumValue;
+
+        _monitorApiMock
+            .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
+                It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
+                0x60,
+                ref It.Ref<MC_VCP_CODE_TYPE>.IsAny,
+                out pdwCurrentValue,
+                out pdwMaximumValue))
+            .Returns(
+                (SafeHandle hMonitor, uint bVCPCode, ref MC_VCP_CODE_TYPE pvct, out uint pdwCurrentValue, out uint pdwMaximumValue) =>
+                {
+                    pvct = MC_VCP_CODE_TYPE.MC_SET_PARAMETER;
+                    pdwCurrentValue = 0x69;
+                    pdwMaximumValue = 0xff;
+                    return 1;
+                }
+            );
+
+        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+
+        MonitorInputs? inputs;
+        Assert.True(service.TryLoadMonitorInputs(_handle12345, out inputs));
+
+        Assert.NotNull(inputs);
+        Assert.Equal(0x69, inputs.SelectedInput);
+        Assert.Collection(inputs.ValidInputs,
+            input => Assert.Equal(0x42, input),
+            input => Assert.Equal(0x69, input),
+            input => Assert.Equal(0xfe, input)
+        );
     }
 }

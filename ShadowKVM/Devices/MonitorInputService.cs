@@ -1,5 +1,4 @@
 using Serilog;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Windows.Win32.Devices.Display;
@@ -85,19 +84,19 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser c
             return false;
         }
 
-        ImmutableArray<byte> inputs;
+        List<byte>? inputs;
         if (!component.Codes.TryGetValue(0x60, out inputs))
         {
             logger.Warning("Monitor does not support selecting input source (VCP code 0x60)");
             return false;
         }
-        if (inputs.Length == 0)
+        if (inputs.Count == 0)
         {
             logger.Warning("Monitor does not define a list of supported input sources (VCP code 0x60)");
             return false;
         }
 
-        validInputs = inputs.ToList();
+        validInputs = inputs;
         return true;
     }
 
@@ -109,7 +108,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser c
         var vct = new MC_VCP_CODE_TYPE();
         uint selectedInputUint;
 
-        int result = monitorAPI.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, &vct, out selectedInputUint, null);
+        int result = monitorAPI.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, ref vct, out selectedInputUint, out _);
         if (result != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
         {
             return false;

@@ -29,8 +29,8 @@ internal interface IMonitorAPI
     public int CapabilitiesRequestAndCapabilitiesReply(
         SafeHandle hMonitor, PSTR pszASCIICapabilitiesString, uint dwCapabilitiesStringLengthInCharacters);
 
-    public unsafe int GetVCPFeatureAndVCPFeatureReply(
-        SafeHandle hMonitor, byte bVCPCode, MC_VCP_CODE_TYPE* pvct, out uint pdwCurrentValue, uint* pdwMaximumValue);
+    public int GetVCPFeatureAndVCPFeatureReply(
+        SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint pdwMaximumValue);
 }
 
 internal class MonitorAPI : IMonitorAPI
@@ -92,8 +92,12 @@ internal class MonitorAPI : IMonitorAPI
     }
 
     public unsafe int GetVCPFeatureAndVCPFeatureReply(
-        SafeHandle hMonitor, byte bVCPCode, MC_VCP_CODE_TYPE* pvct, out uint pdwCurrentValue, uint* pdwMaximumValue)
+        SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint dwMaximumValue)
     {
-        return PInvoke.GetVCPFeatureAndVCPFeatureReply(hMonitor, bVCPCode, pvct, out pdwCurrentValue, pdwMaximumValue);
+        fixed (MC_VCP_CODE_TYPE* pvct = &vct)
+        fixed (uint* pdwMaximumValue = &dwMaximumValue)
+        {
+            return PInvoke.GetVCPFeatureAndVCPFeatureReply(hMonitor, bVCPCode, pvct, out pdwCurrentValue, pdwMaximumValue);
+        }
     }
 }

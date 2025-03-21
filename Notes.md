@@ -15,6 +15,7 @@ Backlog
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
+   - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
 
 Build and Test
 ==============
