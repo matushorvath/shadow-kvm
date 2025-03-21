@@ -95,8 +95,8 @@ public class MonitorServiceFixture
         _monitorApiMock
             .Setup(m => m.GetPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), It.IsAny<PHYSICAL_MONITOR[]>()))
             .Returns(
-                 (HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray) =>
-                 {
+                (HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray) =>
+                {
                     Assert.Equal(results[currentResultIndex].monitorHandle, hMonitor);
                     Assert.Equal(results[currentResultIndex].physicalMonitors.Count, pPhysicalMonitorArray.Length);
 
@@ -108,7 +108,7 @@ public class MonitorServiceFixture
                     }
 
                     return (BOOL)true;
-                 });
+                });
     }
 
     protected void SetupLoadDisplayDevices(List<LoadDisplayDevices_Adapter> adapters)
@@ -161,7 +161,8 @@ public class MonitorServiceFixture
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns(
                 from id in ids
-                select new Dictionary<string, object> {
+                select new Dictionary<string, object>
+                {
                     ["SerialNumberID"] = Encoding.ASCII.GetBytes(id.serialNumber).Select(b => (ushort)b).ToArray(),
                     ["InstanceName"] = id.instanceName
                 });
