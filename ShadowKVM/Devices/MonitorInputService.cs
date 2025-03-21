@@ -56,7 +56,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
         uint capabilitiesLength;
 
         result = monitorAPI.GetCapabilitiesStringLength(physicalMonitorHandle, out capabilitiesLength);
-        if (result != 1)
+        if (result != 1 || capabilitiesLength == 0)
         {
             return false;
         }
