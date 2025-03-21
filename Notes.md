@@ -15,7 +15,6 @@ Backlog
    - parallelize inputs.Load in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
-   - grayed out tray icon when disabled
 
 Useful Links
 ============

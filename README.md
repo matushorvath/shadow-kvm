@@ -34,7 +34,7 @@ that is part of H.NotifyIcon source code.
 
 This project includes the [Shadow Icon](https://icon-icons.com/icon/shadow/264912) by Mingcute,
 licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
-The icon was modified by inverting the colors.
+The icon was modified by adjusting the color to white/gray.
 
 ## Release Process
 

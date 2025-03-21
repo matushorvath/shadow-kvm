@@ -43,6 +43,7 @@
     <ApplicationDefinition Include="UserInterface/App.xaml" />
     <Resource Include="Config/DefaultConfig.hbs" />
     <Resource Include="UserInterface/Icon.ico" />
+    <Resource Include="UserInterface/IconDisabled.ico" />
   </ItemGroup>
 
 </Project>
