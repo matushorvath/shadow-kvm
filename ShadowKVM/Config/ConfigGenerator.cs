@@ -49,7 +49,7 @@ internal class ConfigGenerator(IMonitorService monitorService) : IConfigGenerato
 
                 data.Add(new Data { Monitor = monitor, Inputs = inputs });
             }
-        };
+        }
 
         var common = new CommonDataForConfigTemplate();
         return template(new { Common = common, Monitors = data });

@@ -16,6 +16,28 @@ Backlog
    - add a way to check for updates
    - show which display is which in case they have same names
 
+Build and Test
+==============
+
+Install tools:
+```sh
+# dotnet tool install --global XamlStyler.Console
+# dotnet tool install --global  wix
+```
+
+Build and test:
+```sh
+# this insists on formatting the attributes in a way I don't like
+# xstyler --recursive --passive --directory .
+
+# this actually makes the source worse
+# wix format Installer/*.wxs
+
+dotnet format --verify-no-changes
+dotnet build
+dotnet test
+```
+
 Useful Links
 ============
 

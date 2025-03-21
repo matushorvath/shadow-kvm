@@ -71,7 +71,7 @@ public class MonitorsTests
                 SerialNumber = "sErIaL 2",
                 Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)65432u, true)
             });
-        };
+        }
 
         _monitorApiMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)54321u), Times.Never());
         _monitorApiMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)65432u), Times.Once());

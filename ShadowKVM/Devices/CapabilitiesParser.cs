@@ -53,7 +53,7 @@ internal static class CapabilitiesParser
     static readonly Parser<char, char> _openParen = Tok('(');
     static readonly Parser<char, char> _closeParen = Tok(')');
 
-    static readonly Parser<char, char> _hexDigit = 
+    static readonly Parser<char, char> _hexDigit =
         OneOf(Digit, CIOneOf('a', 'b', 'c', 'd', 'e', 'f'));
 
     static readonly Parser<char, byte> _byte =
