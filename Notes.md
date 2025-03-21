@@ -16,6 +16,22 @@ Backlog
    - add a way to check for updates
    - show which display is which in case they have same names
 
+Build and Test
+==============
+
+Install tools:
+```sh
+dotnet tool install XamlStyler.Console --global
+```
+
+Build and test:
+```sh
+xstyler --recursive --passive --directory . # this currently fails on attribute formatting
+dotnet format --verify-no-changes
+dotnet build
+dotnet test
+```
+
 Useful Links
 ============
 

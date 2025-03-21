@@ -1,49 +1,37 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
     xmlns:local="clr-namespace:ShadowKVM"
-    >
+    xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf">
 
-    <ContextMenu
-        x:Key="TrayMenu"
-        x:Shared="false"
-        >
-
+    <ContextMenu x:Key="TrayMenu" x:Shared="false">
         <MenuItem
-            Header="{Binding EnableDisableText}"
-            FontWeight="Bold"
             Command="{Binding EnableDisableCommand}"
-            />
+            FontWeight="Bold"
+            Header="{Binding EnableDisableText}" />
         <MenuItem
-            Header="Configure…"
             Command="{Binding ConfigureCommand}"
-            />
+            Header="Configure…" />
         <MenuItem
             Header="Start automatically"
             IsCheckable="True"
-            IsChecked="{Binding IsAutostart, Mode=TwoWay}"
-            />
-
-        <Separator/>
-
+            IsChecked="{Binding IsAutostart, Mode=TwoWay}" />
+        <Separator />
         <MenuItem
-            Header="Exit"
             Command="{Binding ExitCommand}"
-            />
+            Header="Exit" />
     </ContextMenu>
 
     <tb:TaskbarIcon
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
-        IconSource="{Binding Icon}"
         DoubleClickCommand="{Binding EnableDisableCommand}"
+        IconSource="{Binding Icon}"
         MenuActivation="LeftOrRightClick"
-        ToolTipText="Shadow KVM"
-        >
+        ToolTipText="Shadow KVM">
+
         <tb:TaskbarIcon.DataContext>
             <local:NotifyIconViewModel />
         </tb:TaskbarIcon.DataContext>
     </tb:TaskbarIcon>
-
 </ResourceDictionary>

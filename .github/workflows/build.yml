@@ -35,7 +35,7 @@ jobs:
         id: version_step
         uses: gittools/actions/gitversion/execute@v3
 
-      - name: Check source formatting
+      - name: Lint sources
         run: dotnet format --verify-no-changes
 
       - name: Build sources
