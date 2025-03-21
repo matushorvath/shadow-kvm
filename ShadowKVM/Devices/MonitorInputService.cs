@@ -19,7 +19,7 @@ internal interface IMonitorInputService
     public bool TryLoadMonitorInputs(SafePhysicalMonitorHandle physicalMonitorHandle, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
 }
 
-internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMonitorInputService
+internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
 {
     public bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs)
     {
@@ -71,7 +71,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
             }
         }
 
-        var capabilities = Encoding.ASCII.GetString(capabilitiesBuffer);
+        var capabilities = Encoding.ASCII.GetString(capabilitiesBuffer, 0, (int)capabilitiesLength - 1);
         return TryParseCapabilities(capabilities, out validInputs);
     }
 
@@ -79,7 +79,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ILogger logger) : IMo
     {
         validInputs = default;
 
-        var component = CapabilitiesParser.Parse(capabilities);
+        var component = capabilitiesParser.Parse(capabilities);
         if (component == null)
         {
             return false;

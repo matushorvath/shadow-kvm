@@ -12,15 +12,18 @@ internal class Services
 
         MonitorAPI = new MonitorAPI();
         MonitorService = new MonitorService(MonitorAPI, Log.Logger);
-        MonitorInputService = new MonitorInputService(MonitorAPI, Log.Logger);
+
+        CapabilitiesParser = new CapabilitiesParser(Log.Logger);
+        MonitorInputService = new MonitorInputService(MonitorAPI, CapabilitiesParser, Log.Logger);
 
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
     }
 
+    public ICapabilitiesParser CapabilitiesParser { get; }
     public IConfigGenerator ConfigGenerator { get; }
     public IConfigService ConfigService { get; }
     public IFileSystem FileSystem { get; }
     public IMonitorAPI MonitorAPI { get; }
-    public IMonitorService MonitorService { get; }
     public IMonitorInputService MonitorInputService { get; }
+    public IMonitorService MonitorService { get; }
 }
