@@ -16,9 +16,13 @@
             Command="{Binding ConfigureCommand}"
             />
         <MenuItem
+            Header="{Binding EnableDisableText}"
+            Command="{Binding EnableDisableCommand}"
+            />
+        <MenuItem
             Header="Start automatically"
             IsCheckable="True"
-            IsChecked="{Binding IsAutostartEnabled, Mode=TwoWay}"
+            IsChecked="{Binding IsAutostart, Mode=TwoWay}"
             />
 
         <Separator/>
@@ -32,7 +36,7 @@
     <tb:TaskbarIcon
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
-        IconSource="pack://application:,,,/UserInterface/Icon.ico"
+        IconSource="{Binding Icon}"
         DoubleClickCommand="{Binding ConfigureCommand}"
         MenuActivation="LeftOrRightClick"
         NoLeftClickDelay="True"
