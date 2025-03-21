@@ -12,7 +12,9 @@ internal class Services
 
         MonitorAPI = new MonitorAPI();
         MonitorService = new MonitorService(MonitorAPI, Log.Logger);
-        ConfigGenerator = new ConfigGenerator(MonitorService);
+        MonitorInputService = new MonitorInputService(MonitorAPI, Log.Logger);
+
+        ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
     }
 
     public IConfigGenerator ConfigGenerator { get; }
@@ -20,4 +22,5 @@ internal class Services
     public IFileSystem FileSystem { get; }
     public IMonitorAPI MonitorAPI { get; }
     public IMonitorService MonitorService { get; }
+    public IMonitorInputService MonitorInputService { get; }
 }

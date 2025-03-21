@@ -17,20 +17,14 @@ internal interface IConfigGenerator
     public string Generate(IProgress<ConfigGeneratorStatus>? progress);
 }
 
-internal class ConfigGenerator(IMonitorService monitorService) : IConfigGenerator
+internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputService monitorInputService) : IConfigGenerator
 {
-    class Data
-    {
-        public required Monitor Monitor { get; set; }
-        public required MonitorInputs Inputs { get; set; }
-    }
-
     public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress)
     {
         var resource = App.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
         var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
 
-        var data = new List<Data>();
+        var monitorData = new List<MonitorTemplateData>();
 
         using (var monitors = monitorService.LoadMonitors())
         {
@@ -40,23 +34,29 @@ internal class ConfigGenerator(IMonitorService monitorService) : IConfigGenerato
             foreach (var monitor in monitors)
             {
                 // Determine input sources for this monitor
-                // TODO each inputs.Load takes 2 seconds, do them in parallel
-                var inputs = new MonitorInputsForConfigTemplate();
-                inputs.Load(monitor.Handle);
+                MonitorInputs? inputs;
+                monitorInputService.TryLoadMonitorInputs(monitor, out inputs);
 
                 status.Current++;
                 progress?.Report(status);
 
-                data.Add(new Data { Monitor = monitor, Inputs = inputs });
+                monitorData.Add(new MonitorTemplateData
+                {
+                    Monitor = monitor,
+                    Inputs = new MonitorInputsTemplateData(inputs)
+                });
             }
         }
 
-        var common = new CommonDataForConfigTemplate();
-        return template(new { Common = common, Monitors = data });
+        return template(new
+        {
+            Common = new CommonTemplateData(),
+            Monitors = monitorData
+        });
     }
 }
 
-internal class CommonDataForConfigTemplate
+internal class CommonTemplateData
 {
     public string AllCodes => FormatAllEnumValues<VcpCodeEnum>();
     public string AllValues => FormatAllEnumValues<VcpValueEnum>();
@@ -87,12 +87,17 @@ internal class CommonDataForConfigTemplate
     }
 }
 
-// MonitorInputs with additional properties needed by the template
-internal class MonitorInputsForConfigTemplate : MonitorInputs
+internal class MonitorTemplateData
 {
-    public string CommentUnsupported => SupportsInputs ? "  " : "# ";
+    public required Monitor Monitor { get; set; }
+    public required MonitorInputsTemplateData Inputs { get; set; }
+}
 
-    public string SelectedInputString => FormatInputString(SelectedInput);
+internal class MonitorInputsTemplateData(MonitorInputs? inputs)
+{
+    public string CommentUnsupported => inputs != null ? "  " : "# ";
+
+    public string SelectedInputString => FormatInputString(inputs?.SelectedInput);
 
     public string UnselectedInputStringAndComment
     {
@@ -100,19 +105,19 @@ internal class MonitorInputsForConfigTemplate : MonitorInputs
         {
             // Choose a random input that wasn't selected
             var unselectedInputs = (
-                from input in ValidInputs
-                where input != SelectedInput
+                from input in inputs?.ValidInputs ?? []
+                where input != inputs?.SelectedInput
                 select input
             ).ToArray();
 
-            if (SelectedInput == null && unselectedInputs.Length == 0)
+            if (inputs?.SelectedInput == null && unselectedInputs.Length == 0)
             {
                 return $"{FormatInputString(null)}";
             }
             else if (unselectedInputs.Length == 0)
             {
                 // There is just one input; use that, although it doesn't make much sense
-                return $"{FormatInputString(SelectedInput)}    # warning: only one input source found for this monitor";
+                return $"{FormatInputString(inputs?.SelectedInput)}    # warning: only one input source found for this monitor";
             }
             else if (unselectedInputs.Length == 1)
             {
