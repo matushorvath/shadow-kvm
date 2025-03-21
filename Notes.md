@@ -21,12 +21,18 @@ Build and Test
 
 Install tools:
 ```sh
-dotnet tool install XamlStyler.Console --global
+# dotnet tool install --global XamlStyler.Console
+# dotnet tool install --global  wix
 ```
 
 Build and test:
 ```sh
-xstyler --recursive --passive --directory . # this currently fails on attribute formatting
+# this insists on formatting the attributes in a way I don't like
+# xstyler --recursive --passive --directory .
+
+# this actually makes the source worse
+# wix format Installer/*.wxs
+
 dotnet format --verify-no-changes
 dotnet build
 dotnet test
