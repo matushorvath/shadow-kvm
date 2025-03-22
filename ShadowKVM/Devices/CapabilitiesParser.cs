@@ -2,14 +2,13 @@ using Pidgin;
 using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
 using Serilog;
-using System.Collections.Immutable;
 
 // Capabilities string format:
 // (prot(monitor)type(LCD)model(...)cmds(...)vcp(02 04 ... 14(05 08 0B 0C) ... 60(1B 11 12 ) ... FD)mswhql(1)asset_eep(40)mccs_ver(2.1))
 
 namespace ShadowKVM;
 
-internal static class CapabilitiesParser
+internal interface ICapabilitiesParser
 {
     internal abstract class Component
     {
@@ -17,27 +16,32 @@ internal static class CapabilitiesParser
 
     internal class VcpComponent : Component
     {
-        public required ImmutableDictionary<byte, ImmutableArray<byte>> Codes { get; set; }
+        public required Dictionary<byte, List<byte>> Codes { get; set; }
     }
 
-    public static VcpComponent? Parse(string input)
+    public VcpComponent? Parse(string input);
+}
+
+internal class CapabilitiesParser(ILogger logger) : ICapabilitiesParser
+{
+    public ICapabilitiesParser.VcpComponent? Parse(string input)
     {
         var result = _capabilities.Parse(input);
         if (!result.Success)
         {
-            Log.Warning("Failed to parse capabilities string: {Error}", result.Error);
+            logger.Warning("Failed to parse capabilities string: {Error}", result.Error);
             return null;
         }
 
         var components = (
             from component in result.Value
-            where component != null && component is VcpComponent
-            select component as VcpComponent
+            where component != null && component is ICapabilitiesParser.VcpComponent
+            select component as ICapabilitiesParser.VcpComponent
         ).ToArray();
 
         if (components.Length != 1)
         {
-            Log.Warning("Expected exactly one VCP component in capabilities, but found {Count}", components.Length);
+            logger.Warning("Expected exactly one VCP component in capabilities, but found {Count}", components.Length);
             return null;
         }
 
@@ -77,39 +81,39 @@ internal static class CapabilitiesParser
         .Then(_genericParameter.Many().IgnoreResult())
         .Before(_closeParen);
 
-    static readonly Parser<char, Component?> _genericComponent =
+    static readonly Parser<char, ICapabilitiesParser.Component?> _genericComponent =
         _genericAbbreviation
             .Then(_genericParameters)
-            .Select<Component?>(_ => null);
+            .Select<ICapabilitiesParser.Component?>(_ => null);
 
-    static readonly Parser<char, ImmutableArray<byte>> _vcpValues =
-        _byte.Many().Select(values => ImmutableArray.CreateRange(values));
+    static readonly Parser<char, List<byte>> _vcpValues =
+        _byte.Many().Select(values => values.ToList());
 
-    static readonly Parser<char, KeyValuePair<byte, ImmutableArray<byte>>> _vcpCode =
+    static readonly Parser<char, KeyValuePair<byte, List<byte>>> _vcpCode =
         Map(
             (code, values) => KeyValuePair.Create(code, values),
             _byte,
             _openParen
                 .Then(_vcpValues).Before(_closeParen)
-                .Or(Return(ImmutableArray<byte>.Empty))
+                .Or(Return(new List<byte>()))
         );
 
-    static readonly Parser<char, ImmutableDictionary<byte, ImmutableArray<byte>>> _vcpCodes =
+    static readonly Parser<char, Dictionary<byte, List<byte>>> _vcpCodes =
         _openParen
-        .Then(_vcpCode.Many().Select(codes => ImmutableDictionary.CreateRange(codes)))
+        .Then(_vcpCode.Many().Select(codes => new Dictionary<byte, List<byte>>(codes)))
         .Before(_closeParen);
 
-    static readonly Parser<char, VcpComponent> _vcpComponent =
+    static readonly Parser<char, ICapabilitiesParser.VcpComponent> _vcpComponent =
         _vcpAbbreviation
-            .Then(_vcpCodes).Select(codes => new VcpComponent { Codes = codes });
+            .Then(_vcpCodes).Select(codes => new ICapabilitiesParser.VcpComponent { Codes = codes });
 
-    static readonly Parser<char, Component?> _component =
-        OneOf(_vcpComponent.Cast<Component?>(), _genericComponent)
+    static readonly Parser<char, ICapabilitiesParser.Component?> _component =
+        OneOf(_vcpComponent.Cast<ICapabilitiesParser.Component?>(), _genericComponent)
             .Labelled("component");
 
-    static readonly Parser<char, ImmutableArray<Component?>> _capabilities =
+    static readonly Parser<char, List<ICapabilitiesParser.Component?>> _capabilities =
         _openParen
-            .Then(_component.Many().Select(components => ImmutableArray.CreateRange(components)))
+            .Then(_component.Many().Select(components => components.ToList()))
             .Before(_closeParen);
 
 #pragma warning restore CS8602

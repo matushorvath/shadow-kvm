@@ -1,10 +1,9 @@
 using Microsoft.Win32.SafeHandles;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
-internal class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
+public class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     public SafePhysicalMonitorHandle(IMonitorAPI monitorAPI, HANDLE preexistingHandle, bool ownsHandle)
         : base(ownsHandle)
@@ -17,6 +16,8 @@ internal class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         return _monitorAPI.DestroyPhysicalMonitor(new HANDLE(handle));
     }
+
+    public static SafePhysicalMonitorHandle Null => new SafePhysicalMonitorHandle(null!, new HANDLE(), false);
 
     IMonitorAPI _monitorAPI;
 }
