@@ -17,6 +17,7 @@ Backlog
    - show which display is which in case they have same names
    - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
    - give up on using internal, switch to public (it just creates problems)
+   - chocolatey/winget support
 
 Build and Test
 ==============
