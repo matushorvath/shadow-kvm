@@ -7,7 +7,7 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM;
 
-internal interface IMonitorAPI
+public interface IMonitorAPI
 {
     // For MonitorService
     public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi);

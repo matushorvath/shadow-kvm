@@ -3,7 +3,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
-internal class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
+public class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     public SafePhysicalMonitorHandle(IMonitorAPI monitorAPI, HANDLE preexistingHandle, bool ownsHandle)
         : base(ownsHandle)

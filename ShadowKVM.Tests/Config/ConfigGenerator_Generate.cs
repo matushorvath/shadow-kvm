@@ -68,7 +68,7 @@ public class ConfigGenerator_GenerateTest
         var text = generator.Generate(withProgress ? _progressMock.Object : null);
 
         Assert.StartsWith("# ShadowKVM automatically switches", text);
-        Assert.EndsWith("version: 1\n", text);
+        Assert.EndsWith("version: 1\r\n", text);
 
         _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 1"), out inputs));
         _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 2"), out inputs));
