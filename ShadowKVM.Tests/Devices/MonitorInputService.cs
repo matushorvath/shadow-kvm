@@ -169,7 +169,7 @@ public class MonitorInputServiceTest
 
         _capabilitiesParser
             .Setup(m => m.Parse("cApAbIlItIeS"))
-            .Returns(new ICapabilitiesParser.VcpComponent { Codes = new () });
+            .Returns(new ICapabilitiesParser.VcpComponent { Codes = new() });
 
         var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
@@ -189,9 +189,9 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns(new ICapabilitiesParser.VcpComponent
             {
-                Codes = new ()
+                Codes = new()
                 {
-                    [0x60] = new ()
+                    [0x60] = new()
                 }
             });
 
@@ -213,9 +213,9 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns(new ICapabilitiesParser.VcpComponent
             {
-                Codes = new ()
+                Codes = new()
                 {
-                    [0x60] = new () { 0x42 }
+                    [0x60] = new() { 0x42 }
                 }
             });
 
@@ -247,9 +247,9 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns(new ICapabilitiesParser.VcpComponent
             {
-                Codes = new ()
+                Codes = new()
                 {
-                    [0x60] = new () { 0x42 }
+                    [0x60] = new() { 0x42 }
                 }
             });
 
@@ -291,9 +291,9 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns(new ICapabilitiesParser.VcpComponent
             {
-                Codes = new ()
+                Codes = new()
                 {
-                    [0x60] = new () { 0x42, 0x69, 0xfe }
+                    [0x60] = new() { 0x42, 0x69, 0xfe }
                 }
             });
 

@@ -46,31 +46,41 @@ public class ConfigGeneratorTest
         Assert.Equal("tRyLoAdMoNiToUtPuTs tHrOwS", exception.Message);
     }
 
-    [Fact]
-    public void Generate_WithProgress()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Generate_Succeeds(bool withProgress)
     {
         _monitorServiceMock
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors
             {
-                new Monitor { Device = "dEvIcE", Description = "dEsCrIpTiOn", Handle = SafePhysicalMonitorHandle.Null }
+                new Monitor { Device = "dEvIcE 1", Description = "", Handle = SafePhysicalMonitorHandle.Null },
+                new Monitor { Device = "dEvIcE 2", Description = "", Handle = SafePhysicalMonitorHandle.Null }
             });
 
         MonitorInputs? inputs = new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 17, 42, 123 } };
         _monitorInputServiceMock
-            .Setup(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE"), out inputs))
+            .Setup(m => m.TryLoadMonitorInputs(It.IsAny<Monitor>(), out inputs))
             .Returns(true);
 
         _progressMock
             .Setup(m => m.Report(It.IsAny<ConfigGeneratorStatus>()));
 
         var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
-        var text = generator.Generate(_progressMock.Object);
+        var text = generator.Generate(withProgress ? _progressMock.Object : null);
 
         Assert.StartsWith("# ShadowKVM automatically switches", text);
         Assert.EndsWith("version: 1\n", text);
 
-        _progressMock.Verify(m => m.Report(It.Is<ConfigGeneratorStatus>(s => s.Current == 0 && s.Maximum == 1)));
-        _progressMock.Verify(m => m.Report(It.Is<ConfigGeneratorStatus>(s => s.Current == 1 && s.Maximum == 1)));
+        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 1"), out inputs));
+        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 2"), out inputs));
+
+        if (withProgress)
+        {
+            _progressMock.Verify(m => m.Report(It.Is<ConfigGeneratorStatus>(s => s.Current == 0 && s.Maximum == 2)));
+            _progressMock.Verify(m => m.Report(It.Is<ConfigGeneratorStatus>(s => s.Current == 1 && s.Maximum == 2)));
+            _progressMock.Verify(m => m.Report(It.Is<ConfigGeneratorStatus>(s => s.Current == 2 && s.Maximum == 2)));
+        }
     }
 }
