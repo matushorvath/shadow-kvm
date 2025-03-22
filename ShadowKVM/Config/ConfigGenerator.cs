@@ -46,8 +46,8 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
 
         using (var monitors = monitorService.LoadMonitors())
         {
-            var status = new ConfigGeneratorStatus { Current = 0, Maximum = monitors.Count() };
-            progress?.Report(status);
+            int current = 0;
+            progress?.Report(new () { Current = current, Maximum = monitors.Count() });
 
             foreach (var monitor in monitors)
             {
@@ -55,8 +55,8 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
                 MonitorInputs? inputs;
                 monitorInputService.TryLoadMonitorInputs(monitor, out inputs);
 
-                status.Current++;
-                progress?.Report(status);
+                current++;
+                progress?.Report(new () { Current = current, Maximum = monitors.Count() });
 
                 monitorData.Add(new MonitorTemplateData
                 {
