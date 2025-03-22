@@ -10,8 +10,8 @@ public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
     {
-        _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/Icon.ico"));
-        _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/IconDisabled.ico"));
+        _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
+        _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
 
         IsAutostart = Autostart.IsEnabled();
     }

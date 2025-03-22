@@ -14,7 +14,7 @@
     <!-- Create a standalone .msi that does not require a separate .cab -->
     <MediaTemplate EmbedCab="yes" />
 
-    <Icon Id="Icon" SourceFile="..\ShadowKVM\UserInterface\Icon.ico" />
+    <Icon Id="Icon" SourceFile="..\ShadowKVM\UserInterface\Application.ico" />
     <Property Id="ARPPRODUCTICON" Value="Icon" />
 
     <!-- Check for Windows 8 or newer, .NET 9.0 or newer -->

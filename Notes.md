@@ -11,7 +11,6 @@ Backlog
    - finish unit tests in C#
    - real configuration UI
    - log version number on startup
-   - use a color icon for the executable and the installer
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
