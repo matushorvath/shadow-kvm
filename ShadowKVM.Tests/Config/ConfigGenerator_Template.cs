@@ -3,6 +3,9 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
+// TODO test the config can be loaded and has trigger-device, monitors, log-level, version
+// TODO invalid yaml strings in description, adapter, serial - are they correctly escaped?
+
 // In some cases xUnit will decide to collapse a theory into a single test case,
 // which makes the VS Code "Testing" sidebar bug out and not show test results for that theory.
 //
@@ -20,17 +23,6 @@ public class ConfigGenerator_TemplateTest
     internal Mock<IMonitorInputService> _monitorInputServiceMock = new();
 
     static SafePhysicalMonitorHandle NH = SafePhysicalMonitorHandle.Null; // short name for null handle
-
-    // TODO
-    // formatted SelectedInput when enum, when raw, when null
-    // formatted UnselectedInputStringAndComment when SelectedInput null and unselected = []
-    //   when Selected not null and unselected = []
-    //   when Selected not null and unselected = exactly one
-    //   when Selected not null and unselected = more than one
-    // monitors:
-    //   one, multiple
-    // the whole text can be loaded and has trigger-device, monitors, log-level, version
-    // invalid yaml strings in description, adapter, serial - are they correctly escaped?
 
     // Workaround for broken VS Code behavior when using theory data with objects (see above):
     // Save the actual theory data in a dictionary, pass dictionary keys to the theory.
@@ -64,28 +56,6 @@ public class ConfigGenerator_TemplateTest
             expectedFragment = """
             monitors:
             #
-            """
-        },
-        ["monitor with no inputs"] = new()
-        {
-            monitors = new()
-            {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
-            },
-            monitorInputs =
-            [
-                null
-            ],
-            expectedFragment = """
-            monitors:
-            # - description: dEsCrIpTiOn 1
-            #   attach:
-            #     code: input-select
-            #     value: # warning: no input sources found for this monitor
-            #   detach:
-            #     code: input-select
-            #     value: # warning: no input sources found for this monitor
-
             """
         },
         ["monitor with no adapter or serial"] = new()
@@ -177,6 +147,160 @@ public class ConfigGenerator_TemplateTest
                 detach:
                   code: input-select
                   value: 123
+
+            """
+        },
+        ["inputs are enum values"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 0x0f, ValidInputs = new List<byte> { 0x0f, 0x12 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: display-port1
+                detach:
+                  code: input-select
+                  value: hdmi2
+
+            """
+        },
+        ["monitor with no inputs"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                null
+            ],
+            expectedFragment = """
+            monitors:
+            # - description: dEsCrIpTiOn 1
+            #   attach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+            #   detach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+
+            """
+        },
+        ["monitor with single input"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 42    # warning: only one input source found for this monitor
+
+            """
+        },
+        ["monitor with two inputs"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 123
+
+            """
+        },
+        ["monitor with multiple inputs"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 0x07, 42, 123, 0x11 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: s-video1    # other options: 123 hdmi1
+
+            """
+        },
+        ["multiple monitors"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH },
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 0x0e, 42, 123, 0x03 } },
+                null,
+                new MonitorInputs { SelectedInput = 0x01, ValidInputs = new List<byte> { 0x01 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: component3    # other options: 123 dvi1
+
+            # - description: dEsCrIpTiOn 2
+            #   adapter: aDaPtEr 2
+            #   attach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+            #   detach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+
+              - description: dEsCrIpTiOn 3
+                serial-number: sErIaL 3
+                attach:
+                  code: input-select
+                  value: analog1
+                detach:
+                  code: input-select
+                  value: analog1    # warning: only one input source found for this monitor
 
             """
         },
