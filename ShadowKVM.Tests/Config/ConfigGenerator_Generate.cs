@@ -2,9 +2,8 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
-public class ConfigGeneratorTest
+public class ConfigGenerator_GenerateTest
 {
-    internal Mock<IMonitorAPI> _monitorApiMock = new();
     internal Mock<IMonitorService> _monitorServiceMock = new();
     internal Mock<IMonitorInputService> _monitorInputServiceMock = new();
     internal Mock<IProgress<ConfigGeneratorStatus>> _progressMock = new();
