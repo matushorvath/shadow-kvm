@@ -64,6 +64,12 @@ jobs:
         with:
           path: code-coverage-results.md
 
+      - name: Rebuild sources for installer
+        run: |
+          Remove-Item -Path bin, obj -Recurse -Force
+          dotnet clean
+          dotnet build --configuration Release
+
       - name: Prepare installer
         working-directory: bin/Release
         run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
