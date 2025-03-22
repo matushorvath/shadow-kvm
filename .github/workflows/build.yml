@@ -68,7 +68,7 @@ jobs:
         run: |
           Remove-Item -Path bin, obj -Recurse -Force
           dotnet build Installer/Installer.wixproj --configuration Release
-          Rename-Item -Path bin/Release/ShadowKVM.msi -NewName bin/Release/ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
+          Rename-Item -Path bin/Release/ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
