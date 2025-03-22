@@ -2,6 +2,7 @@ Backlog
 =======
 
 - required
+   - clean the project before building the installer, to avoid packing in the tests
    - add installation and usage to README.md
    - about box, with link to page, licenses
    - test installer on a machine without .NET 9.0
@@ -10,11 +11,14 @@ Backlog
    - finish unit tests in C#
    - real configuration UI
    - log version number on startup
+   - use a color icon for the executable and the installer
 
 - nice to have
-   - parallelize inputs.Load in ConfigGenerator
+   - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
+   - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
+   - give up on using internal, switch to public (it just creates problems)
 
 Build and Test
 ==============

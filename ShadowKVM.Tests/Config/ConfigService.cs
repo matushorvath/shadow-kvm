@@ -2,6 +2,8 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace ShadowKVM.Tests;
 
+// TODO use """ strings for MockFileData, it gets rid of the extra whitespace
+
 public class ConfigServiceTests
 {
     [Fact]
@@ -143,7 +145,7 @@ public class ConfigServiceTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+            ".ReplaceLineEndings("\r\n")) }
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
