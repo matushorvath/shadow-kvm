@@ -2,6 +2,7 @@ Backlog
 =======
 
 - required
+   - clean the project before building the installer, to avoid packing in the tests
    - add installation and usage to README.md
    - about box, with link to page, licenses
    - test installer on a machine without .NET 9.0
@@ -10,6 +11,7 @@ Backlog
    - finish unit tests in C#
    - real configuration UI
    - log version number on startup
+   - use a color icon for the executable and the installer
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator

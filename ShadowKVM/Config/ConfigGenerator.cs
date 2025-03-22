@@ -15,16 +15,33 @@ public class ConfigGeneratorStatus
 
 internal interface IConfigGenerator
 {
-    public string Generate(IProgress<ConfigGeneratorStatus>? progress);
+    public string Generate(IProgress<ConfigGeneratorStatus>? progress = null);
 }
 
 internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputService monitorInputService) : IConfigGenerator
 {
-    public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress)
+    public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress = null)
     {
-        var resource = Application.GetResourceStream(new Uri("pack://application:,,,/Config/DefaultConfig.hbs"));
-        var template = Handlebars.Compile(new StreamReader(resource.Stream).ReadToEnd());
+        var template = LoadTemplate();
 
+        return template(new
+        {
+            Common = new CommonTemplateData(),
+            Monitors = LoadMonitorData(progress)
+        });
+    }
+
+    HandlebarsTemplate<object, object> LoadTemplate()
+    {
+        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ShadowKVM.Config.DefaultConfig.hbs"))
+        using (var reader = new StreamReader(stream!))
+        {
+            return Handlebars.Compile(reader.ReadToEnd());
+        }
+    }
+
+    List<MonitorTemplateData> LoadMonitorData(IProgress<ConfigGeneratorStatus>? progress)
+    {
         var monitorData = new List<MonitorTemplateData>();
 
         using (var monitors = monitorService.LoadMonitors())
@@ -49,11 +66,7 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
             }
         }
 
-        return template(new
-        {
-            Common = new CommonTemplateData(),
-            Monitors = monitorData
-        });
+        return monitorData;
     }
 }
 

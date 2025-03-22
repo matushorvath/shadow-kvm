@@ -18,5 +18,7 @@ internal class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
         return _monitorAPI.DestroyPhysicalMonitor(new HANDLE(handle));
     }
 
+    public static SafePhysicalMonitorHandle Null => new SafePhysicalMonitorHandle(null!, new HANDLE(), false);
+
     IMonitorAPI _monitorAPI;
 }
