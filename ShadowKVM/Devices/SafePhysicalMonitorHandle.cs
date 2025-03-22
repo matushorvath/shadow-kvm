@@ -1,5 +1,4 @@
 using Microsoft.Win32.SafeHandles;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 
 namespace ShadowKVM;

@@ -1,6 +1,4 @@
 using Moq;
-using System.Windows;
-using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 

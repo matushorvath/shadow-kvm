@@ -2,7 +2,6 @@ using HandlebarsDotNet;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Windows;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
