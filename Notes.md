@@ -2,7 +2,6 @@ Backlog
 =======
 
 - required
-   - clean the project before building the installer, to avoid packing in the tests
    - add installation and usage to README.md
    - about box, with link to page, licenses
    - test installer on a machine without .NET 9.0
