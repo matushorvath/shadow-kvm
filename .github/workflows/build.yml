@@ -64,15 +64,11 @@ jobs:
         with:
           path: code-coverage-results.md
 
-      - name: Rebuild sources for installer
+      - name: Prepare installer
         run: |
           Remove-Item -Path bin, obj -Recurse -Force
-          dotnet clean
-          dotnet build --configuration Release
-
-      - name: Prepare installer
-        working-directory: bin/Release
-        run: Rename-Item -Path ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
+          dotnet build Installer/Installer.wixproj --configuration Release
+          Rename-Item -Path bin/Release/ShadowKVM.msi -NewName bin/Release/ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
