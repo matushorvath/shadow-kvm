@@ -2,6 +2,8 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace ShadowKVM.Tests;
 
+// TODO use """ strings for MockFileData, it gets rid of the extra whitespace
+
 public class ConfigServiceTests
 {
     [Fact]

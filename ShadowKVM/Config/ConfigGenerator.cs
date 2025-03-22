@@ -35,7 +35,7 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
         using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ShadowKVM.Config.DefaultConfig.hbs"))
         using (var reader = new StreamReader(stream!))
         {
-            return Handlebars.Compile(reader.ReadToEnd());
+            return Handlebars.Compile(reader.ReadToEnd().ReplaceLineEndings());
         }
     }
 
@@ -96,7 +96,7 @@ internal class CommonTemplateData
             builders.Last().Append(value);
         }
 
-        return string.Join('\n', builders.Select(b => b.ToString()));
+        return string.Join(Environment.NewLine, builders.Select(b => b.ToString()));
     }
 }
 

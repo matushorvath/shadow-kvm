@@ -6,7 +6,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
-internal class MonitorInputs
+public class MonitorInputs
 {
     public required List<byte> ValidInputs { get; set; }
     public required byte SelectedInput { get; set; }

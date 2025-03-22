@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace ShadowKVM;
 
-internal class Monitors : IEnumerable<Monitor>, IDisposable
+public class Monitors : IEnumerable<Monitor>, IDisposable
 {
     public void Add(Monitor monitor)
     {
@@ -40,7 +40,7 @@ internal class Monitors : IEnumerable<Monitor>, IDisposable
     List<Monitor> _monitors = new List<Monitor>();
 }
 
-internal class Monitor : IDisposable
+public class Monitor : IDisposable
 {
     public void Dispose()
     {
