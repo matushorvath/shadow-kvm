@@ -22,55 +22,164 @@ public class ConfigGenerator_TemplateTest
     static SafePhysicalMonitorHandle NH = SafePhysicalMonitorHandle.Null; // short name for null handle
 
     // TODO
-    // all codes, all values
-    // unsupported when inputs = null
     // formatted SelectedInput when enum, when raw, when null
     // formatted UnselectedInputStringAndComment when SelectedInput null and unselected = []
     //   when Selected not null and unselected = []
     //   when Selected not null and unselected = exactly one
     //   when Selected not null and unselected = more than one
-    // the whole text can be loaded and has trigger-device, monitors, log-level, version
     // monitors:
-    //   none, one, multiple
-    //   without adapter and serial, with just adapter, just serial, both
+    //   one, multiple
+    // the whole text can be loaded and has trigger-device, monitors, log-level, version
+    // invalid yaml strings in description, adapter, serial - are they correctly escaped?
 
     // Workaround for broken VS Code behavior when using theory data with objects (see above):
     // Save the actual theory data in a dictionary, pass dictionary keys to the theory.
 
-    static Dictionary<string, (Monitors monitors, MonitorInputs[] monitorInputs, string expectedFragment)> TestData => new()
+    static Dictionary<string, (Monitors monitors, MonitorInputs?[] monitorInputs, string expectedFragment)> TestData => new()
     {
-        ["check Common.AllCodes"] = new()
+        ["all codes"] = new()
         {
-            monitors = new()
-            {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
-            },
-            monitorInputs =
-            [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
-            ],
+            monitors = new() { },
+            monitorInputs = [],
             expectedFragment = """
             # Supported command code strings are:
             #   input-select (96)
             """
         },
-        ["check Common.AllValues"] = new()
+        ["all values"] = new()
         {
-            monitors = new()
-            {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
-            },
-            monitorInputs =
-            [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
-            ],
+            monitors = new() { },
+            monitorInputs = [],
             expectedFragment = """
             # Supported command value strings are:
             #   analog1 (1) analog2 (2) dvi1 (3) dvi2 (4) composite1 (5) composite2 (6) s-video1 (7)
             #   s-video2 (8) tuner1 (9) tuner2 (10) tuner3 (11) component1 (12) component2 (13)
             #   component3 (14) display-port1 (15) display-port2 (16) hdmi1 (17) hdmi2 (18)
             """
-        }
+        },
+        ["no monitors"] = new()
+        {
+            monitors = new() { },
+            monitorInputs = [],
+            expectedFragment = """
+            monitors:
+            #
+            """
+        },
+        ["monitor with no inputs"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                null
+            ],
+            expectedFragment = """
+            monitors:
+            # - description: dEsCrIpTiOn 1
+            #   attach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+            #   detach:
+            #     code: input-select
+            #     value: # warning: no input sources found for this monitor
+
+            """
+        },
+        ["monitor with no adapter or serial"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 123
+
+            """
+        },
+        ["monitor with adapter but no serial"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                adapter: aDaPtEr 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 123
+
+            """
+        },
+        ["monitor with serial but no adapter"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                serial-number: sErIaL 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 123
+
+            """
+        },
+        ["monitor with adapter and serial"] = new()
+        {
+            monitors = new()
+            {
+                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
+            },
+            monitorInputs =
+            [
+                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+            ],
+            expectedFragment = """
+            monitors:
+              - description: dEsCrIpTiOn 1
+                adapter: aDaPtEr 1
+                serial-number: sErIaL 1
+                attach:
+                  code: input-select
+                  value: 42
+                detach:
+                  code: input-select
+                  value: 123
+
+            """
+        },
     };
 
     public static TheoryData<string> TestDataKeys => new(TestData.Keys.AsEnumerable());
@@ -92,7 +201,7 @@ public class ConfigGenerator_TemplateTest
         Assert.Contains(expectedFragment.ReplaceLineEndings(), text);
     }
 
-    void SetupForTemplate(Monitors monitors, MonitorInputs[] monitorInputs)
+    void SetupForTemplate(Monitors monitors, MonitorInputs?[] monitorInputs)
     {
         _monitorServiceMock
             .Setup(m => m.LoadMonitors())
@@ -107,7 +216,7 @@ public class ConfigGenerator_TemplateTest
                 (Monitor monitor, out MonitorInputs? inputs) =>
                 {
                     inputs = monitorInputs[loadMonitorInputsInvocation++];
-                    return true;
+                    return inputs != null;
                 }
             );
     }
