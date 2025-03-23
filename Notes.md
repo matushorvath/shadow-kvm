@@ -4,19 +4,24 @@ Backlog
 - required
    - add installation and usage to README.md
    - about box, with link to page, licenses
+      - version:
+         GitVersionInformation.ShortSha = "1e9324f"
+         GitVersionInformation.SemVer = "0.6.4-small-improvements.1"
+         GitVersionInformation.FullSemVer = "0.6.4-small-improvements.1+9",
+         GitVersionInformation.InformationalVersion = "0.6.4-small-improvements.1+9.Branch.small-improvements.Sha.1e9324fae87029676c462dd83fb92dbb04cd51d6",
+         GitVersionInformation.CommitDate = "2025-03-23",
    - test installer on a machine without .NET 9.0
 
 - useful
    - finish unit tests in C#
    - real configuration UI
-   - log version number on startup
+   - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
+   - give up on using internal, switch to public (it just creates problems)
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
-   - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
-   - give up on using internal, switch to public (it just creates problems)
    - chocolatey/winget support
 
 Build and Test

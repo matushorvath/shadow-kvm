@@ -29,7 +29,8 @@ public partial class App : Application
 
         InitLogger();
 
-        Log.Information("Initializing");
+        Log.Information("Initializing, version {FullSemVer} ({CommitDate})",
+            GitVersionInformation.FullSemVer, GitVersionInformation.CommitDate);
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
@@ -45,6 +46,9 @@ public partial class App : Application
         _notifyIcon.ForceCreate();
 
         InitConfig();
+
+        // Debug log can only be enabled after loading config
+        Log.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
     }
 
     void InitLogger()
