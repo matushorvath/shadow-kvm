@@ -40,18 +40,18 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand]
     public void EnableDisable()
     {
-        App.IsEnabled = !App.IsEnabled;
+        App.BackgroundTask.Enabled = !App.BackgroundTask.Enabled;
 
         OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(EnableDisableText));
     }
 
-    public string EnableDisableText => App.IsEnabled ? "Disable" : "Enable";
+    public string EnableDisableText => App.BackgroundTask.Enabled ? "Disable" : "Enable";
 
     ImageSource _enabledIcon;
     ImageSource _disabledIcon;
 
-    public ImageSource Icon => App.IsEnabled ? _enabledIcon : _disabledIcon;
+    public ImageSource Icon => App.BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
 
     App App => (App)Application.Current;
 }
