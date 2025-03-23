@@ -16,7 +16,8 @@ Backlog
    - finish unit tests in C#
    - real configuration UI
    - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
-   - give up on using internal, switch to public (it just creates problems)
+   - installer takes forever to kill running ShadowKVM.exe
+      - maybe it's sending WM_CLOSE to wrong windows?
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator

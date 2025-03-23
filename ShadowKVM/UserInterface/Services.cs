@@ -3,7 +3,7 @@ using Serilog;
 
 namespace ShadowKVM;
 
-internal class Services
+public class Services
 {
     public Services(string dataDirectory)
     {

@@ -9,8 +9,8 @@ namespace ShadowKVM.Tests;
 
 public class MonitorServiceFixture
 {
-    internal Mock<IWindowsAPI> _windowsAPIMock = new();
-    internal Mock<ILogger> _loggerApiMock = new();
+    public Mock<IWindowsAPI> _windowsAPIMock = new();
+    public Mock<ILogger> _loggerApiMock = new();
 
     protected class LoadPhysicalMonitors_Monitor
     {

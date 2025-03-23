@@ -8,7 +8,7 @@ namespace ShadowKVM.Tests;
 
 public class DeviceNotificationTest
 {
-    internal Mock<IWindowsAPI> _windowsAPIMock = new();
+    public Mock<IWindowsAPI> _windowsAPIMock = new();
 
     static Guid _testGuid = new("{582a0a58-a22c-431a-bffe-8e381e0522e7}");
 
