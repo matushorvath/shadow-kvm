@@ -4,6 +4,7 @@ using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.Devices.DeviceAndDriverInstallation;
 
 namespace ShadowKVM;
 
@@ -31,6 +32,10 @@ public interface IWindowsAPI
 
     public int GetVCPFeatureAndVCPFeatureReply(
         SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint pdwMaximumValue);
+
+    // For DeviceNotificationService
+    public CONFIGRET CM_Register_Notification(in CM_NOTIFY_FILTER pFilter, nuint pContext,
+        PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext);
 }
 
 internal class WindowsAPI : IWindowsAPI
@@ -99,5 +104,12 @@ internal class WindowsAPI : IWindowsAPI
         {
             return PInvoke.GetVCPFeatureAndVCPFeatureReply(hMonitor, bVCPCode, pvct, out pdwCurrentValue, pdwMaximumValue);
         }
+    }
+
+    // For DeviceNotificationService
+    public unsafe CONFIGRET CM_Register_Notification(in CM_NOTIFY_FILTER pFilter, nuint pContext,
+        PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext)
+    {
+        return PInvoke.CM_Register_Notification(in pFilter, (void*)pContext, pCallback, out pNotifyContext);
     }
 }
