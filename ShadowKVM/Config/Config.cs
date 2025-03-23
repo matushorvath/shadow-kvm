@@ -6,7 +6,7 @@ public class Config
 {
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
-    public TriggerDevice TriggerDevice { get; set; } = new TriggerDevice(TriggerDeviceType.Keyboard);
+    public TriggerDevice TriggerDevice { get; set; } = new(TriggerDeviceType.Keyboard);
 
     public List<MonitorConfig>? Monitors { get; set; }
 
@@ -53,6 +53,6 @@ public enum VcpValueEnum : byte
 
 public class ActionConfig
 {
-    public OpenEnumByte<VcpCodeEnum> Code { get; set; } = new OpenEnumByte<VcpCodeEnum>();
-    public OpenEnumByte<VcpValueEnum> Value { get; set; } = new OpenEnumByte<VcpValueEnum>();
+    public OpenEnumByte<VcpCodeEnum> Code { get; set; } = new();
+    public OpenEnumByte<VcpValueEnum> Value { get; set; } = new();
 }

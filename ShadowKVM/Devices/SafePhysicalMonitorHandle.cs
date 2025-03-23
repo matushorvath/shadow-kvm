@@ -17,7 +17,7 @@ public class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
         return _windowsAPI.DestroyPhysicalMonitor(new HANDLE(handle));
     }
 
-    public static SafePhysicalMonitorHandle Null => new SafePhysicalMonitorHandle(null!, new HANDLE(), false);
+    public static SafePhysicalMonitorHandle Null => new(null!, new HANDLE(), false);
 
     IWindowsAPI _windowsAPI;
 }

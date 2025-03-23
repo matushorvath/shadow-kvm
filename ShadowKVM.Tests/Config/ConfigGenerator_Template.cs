@@ -64,11 +64,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
             expectedFragment = """
             monitors:
@@ -86,11 +86,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
             expectedFragment = """
             monitors:
@@ -109,11 +109,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
             expectedFragment = """
             monitors:
@@ -132,11 +132,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
             expectedFragment = """
             monitors:
@@ -156,11 +156,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 0x0f, ValidInputs = new List<byte> { 0x0f, 0x12 } }
+                new() { SelectedInput = 0x0f, ValidInputs = new() { 0x0f, 0x12 } }
             ],
             expectedFragment = """
             monitors:
@@ -178,7 +178,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -200,11 +200,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42 } }
             ],
             expectedFragment = """
             monitors:
@@ -222,11 +222,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 42, 123 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
             expectedFragment = """
             monitors:
@@ -244,11 +244,11 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 0x07, 42, 123, 0x11 } }
+                new() { SelectedInput = 42, ValidInputs = new() { 0x07, 42, 123, 0x11 } }
             ],
             expectedFragment = """
             monitors:
@@ -266,15 +266,15 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH },
-                new Monitor { Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
-                new Monitor { Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
+                new() { Description = "dEsCrIpTiOn 1", Handle = NH },
+                new() { Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
+                new() { Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
             },
             monitorInputs =
             [
-                new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 0x0e, 42, 123, 0x03 } },
+                new() { SelectedInput = 42, ValidInputs = new() { 0x0e, 42, 123, 0x03 } },
                 null,
-                new MonitorInputs { SelectedInput = 0x01, ValidInputs = new List<byte> { 0x01 } }
+                new() { SelectedInput = 0x01, ValidInputs = new() { 0x01 } }
             ],
             expectedFragment = """
             monitors:

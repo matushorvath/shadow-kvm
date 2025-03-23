@@ -41,7 +41,7 @@ public class MonitorInputService(IWindowsAPI windowsAPI, ICapabilitiesParser cap
             return false;
         }
 
-        monitorInputs = new MonitorInputs { ValidInputs = validInputs, SelectedInput = selectedInput };
+        monitorInputs = new() { ValidInputs = validInputs, SelectedInput = selectedInput };
         return true;
     }
 
