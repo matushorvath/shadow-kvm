@@ -3,7 +3,7 @@ using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
 
-internal class OpenEnumByte<TEnum> : OpenEnum<TEnum, byte>
+public class OpenEnumByte<TEnum> : OpenEnum<TEnum, byte>
     where TEnum : struct, Enum // TEnum should also use byte as underlying type
 {
     public OpenEnumByte()
@@ -31,7 +31,7 @@ internal class OpenEnumByte<TEnum> : OpenEnum<TEnum, byte>
     }
 }
 
-internal class OpenEnumByteYamlTypeConverter<TEnum>(INamingConvention namingConvention)
+public class OpenEnumByteYamlTypeConverter<TEnum>(INamingConvention namingConvention)
         : OpenEnumYamlTypeConverter<OpenEnumByte<TEnum>, TEnum, byte>(namingConvention)
     where TEnum : struct, Enum
 {

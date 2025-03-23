@@ -38,7 +38,7 @@ public interface IWindowsAPI
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext);
 }
 
-internal class WindowsAPI : IWindowsAPI
+public class WindowsAPI : IWindowsAPI
 {
     // For MonitorService
     public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi)

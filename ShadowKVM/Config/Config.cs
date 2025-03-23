@@ -2,7 +2,7 @@ using Serilog.Events;
 
 namespace ShadowKVM;
 
-internal class Config
+public class Config
 {
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
@@ -14,7 +14,7 @@ internal class Config
     public byte[]? LoadedChecksum { get; set; }
 }
 
-internal class MonitorConfig
+public class MonitorConfig
 {
     public string? Description { get; set; }
     public string? Adapter { get; set; }
@@ -51,7 +51,7 @@ public enum VcpValueEnum : byte
     Hdmi2 = 0x12
 }
 
-internal class ActionConfig
+public class ActionConfig
 {
     public OpenEnumByte<VcpCodeEnum> Code { get; set; } = new OpenEnumByte<VcpCodeEnum>();
     public OpenEnumByte<VcpValueEnum> Value { get; set; } = new OpenEnumByte<VcpValueEnum>();

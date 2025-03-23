@@ -9,9 +9,9 @@ namespace ShadowKVM.Tests;
 
 public class MonitorInputServiceTest
 {
-    internal Mock<IWindowsAPI> _windowsAPIMock = new();
-    internal Mock<ICapabilitiesParser> _capabilitiesParser = new();
-    internal Mock<ILogger> _loggerApiMock = new();
+    public Mock<IWindowsAPI> _windowsAPIMock = new();
+    public Mock<ICapabilitiesParser> _capabilitiesParser = new();
+    public Mock<ILogger> _loggerApiMock = new();
 
     SafePhysicalMonitorHandle _handle12345;
 

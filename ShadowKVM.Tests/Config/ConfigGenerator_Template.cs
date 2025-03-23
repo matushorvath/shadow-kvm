@@ -21,8 +21,8 @@ namespace ShadowKVM.Tests;
 
 public class ConfigGenerator_TemplateTest
 {
-    internal Mock<IMonitorService> _monitorServiceMock = new();
-    internal Mock<IMonitorInputService> _monitorInputServiceMock = new();
+    public Mock<IMonitorService> _monitorServiceMock = new();
+    public Mock<IMonitorInputService> _monitorInputServiceMock = new();
 
     static SafePhysicalMonitorHandle NH = SafePhysicalMonitorHandle.Null; // short name for null handle
 

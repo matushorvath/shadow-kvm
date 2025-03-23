@@ -3,7 +3,7 @@ using YamlDotNet.Core;
 
 namespace ShadowKVM;
 
-internal class ConfigException : Exception
+public class ConfigException : Exception
 {
     public ConfigException(string message)
         : base(message)
@@ -16,7 +16,7 @@ internal class ConfigException : Exception
     }
 }
 
-internal class ConfigFileException : ConfigException
+public class ConfigFileException : ConfigException
 {
     public ConfigFileException(string path, YamlException exception)
         : base(string.Empty, exception)

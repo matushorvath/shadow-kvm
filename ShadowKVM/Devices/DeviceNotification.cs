@@ -6,12 +6,12 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
-internal interface IDeviceNotificationService
+public interface IDeviceNotificationService
 {
     IDeviceNotification Register(Guid deviceClassGuid);
 }
 
-internal class DeviceNotificationService(IWindowsAPI windowsAPI) : IDeviceNotificationService
+public class DeviceNotificationService(IWindowsAPI windowsAPI) : IDeviceNotificationService
 {
     public IDeviceNotification Register(Guid deviceClassGuid)
     {
@@ -31,7 +31,7 @@ public interface IDeviceNotification : IDisposable
     public ChannelReader<Action> Reader { get; }
 }
 
-internal class DeviceNotification : IDeviceNotification
+public class DeviceNotification : IDeviceNotification
 {
     public DeviceNotification(IWindowsAPI windowsAPI)
     {
@@ -109,5 +109,5 @@ internal class DeviceNotification : IDeviceNotification
 
     IWindowsAPI _windowsAPI;
     Channel<IDeviceNotification.Action> _channel;
-    internal CM_Unregister_NotificationSafeHandle? _notification; // internal for unit tests, don't use
+    public CM_Unregister_NotificationSafeHandle? _notification; // public for unit tests, don't use
 }
