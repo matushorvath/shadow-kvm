@@ -7,17 +7,19 @@ namespace ShadowKVM;
 public class BackgroundTask(
     Config config,
     IDeviceNotificationService deviceNotificationService,
-    IMonitorService monitorService) : IDisposable
+    IMonitorService monitorService,
+    ILogger logger
+        ) : IDisposable
 {
     public void Start()
     {
-        Log.Debug("Starting background task");
+        logger.Debug("Starting background task");
         _task = Task.Run(ProcessNotifications);
     }
 
     async void ProcessNotifications()
     {
-        Log.Debug("Background task started");
+        logger.Debug("Background task started");
 
         IDeviceNotification.Action? lastAction = null;
 
@@ -38,14 +40,14 @@ public class BackgroundTask(
             catch (OperationCanceledException)
             {
                 // Background task was cancelled from outside, just return
-                Log.Debug("Background task stopped");
+                logger.Debug("Background task stopped");
             }
         }
     }
 
     void ProcessNotification(IDeviceNotification.Action action)
     {
-        Log.Debug("Received device notification, action {Action}", action);
+        logger.Debug("Received device notification, action {Action}", action);
 
         using (var monitors = monitorService.LoadMonitors())
         {
@@ -58,7 +60,7 @@ public class BackgroundTask(
                     continue;
                 }
 
-                Log.Debug("Processing config {@MonitorConfig}", monitorConfig);
+                logger.Debug("Processing config {@MonitorConfig}", monitorConfig);
 
                 // Execute the action for matching monitors
                 var matchingMonitors =
@@ -70,8 +72,8 @@ public class BackgroundTask(
 
                 if (matchingMonitors.Count() == 0)
                 {
-                    Log.Warning("Did not find any monitors for config {@MonitorConfig}", monitorConfig);
-                    Log.Information("Following monitors exist: {@Monitors}", monitors);
+                    logger.Warning("Did not find any monitors for config {@MonitorConfig}", monitorConfig);
+                    logger.Information("Following monitors exist: {@Monitors}", monitors);
 
                     continue;
                 }
@@ -79,13 +81,13 @@ public class BackgroundTask(
                 foreach (var matchingMonitor in matchingMonitors)
                 {
                     PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
-                    Log.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
+                    logger.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
                         actionConfig.Code.Raw, actionConfig.Value.Raw, matchingMonitor);
                 }
             }
         }
 
-        Log.Debug("Device notification processed");
+        logger.Debug("Device notification processed");
     }
 
     public void Dispose()
