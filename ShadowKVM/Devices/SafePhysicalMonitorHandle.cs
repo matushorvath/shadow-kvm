@@ -5,19 +5,19 @@ namespace ShadowKVM;
 
 public class SafePhysicalMonitorHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
-    public SafePhysicalMonitorHandle(IMonitorAPI monitorAPI, HANDLE preexistingHandle, bool ownsHandle)
+    public SafePhysicalMonitorHandle(IWindowsAPI windowsAPI, HANDLE preexistingHandle, bool ownsHandle)
         : base(ownsHandle)
     {
-        _monitorAPI = monitorAPI;
+        _windowsAPI = windowsAPI;
         handle = preexistingHandle;
     }
 
     override protected bool ReleaseHandle()
     {
-        return _monitorAPI.DestroyPhysicalMonitor(new HANDLE(handle));
+        return _windowsAPI.DestroyPhysicalMonitor(new HANDLE(handle));
     }
 
     public static SafePhysicalMonitorHandle Null => new SafePhysicalMonitorHandle(null!, new HANDLE(), false);
 
-    IMonitorAPI _monitorAPI;
+    IWindowsAPI _windowsAPI;
 }

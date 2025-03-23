@@ -10,20 +10,23 @@ internal class Services
         FileSystem = new FileSystem();
         ConfigService = new ConfigService(dataDirectory, FileSystem);
 
-        MonitorAPI = new MonitorAPI();
-        MonitorService = new MonitorService(MonitorAPI, Log.Logger);
+        WindowsAPI = new WindowsAPI();
+        MonitorService = new MonitorService(WindowsAPI, Log.Logger);
 
         CapabilitiesParser = new CapabilitiesParser(Log.Logger);
-        MonitorInputService = new MonitorInputService(MonitorAPI, CapabilitiesParser, Log.Logger);
+        MonitorInputService = new MonitorInputService(WindowsAPI, CapabilitiesParser, Log.Logger);
 
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
+
+        DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
     }
 
     public ICapabilitiesParser CapabilitiesParser { get; }
     public IConfigGenerator ConfigGenerator { get; }
     public IConfigService ConfigService { get; }
+    public IDeviceNotificationService DeviceNotificationService { get; }
     public IFileSystem FileSystem { get; }
-    public IMonitorAPI MonitorAPI { get; }
+    public IWindowsAPI WindowsAPI { get; }
     public IMonitorInputService MonitorInputService { get; }
     public IMonitorService MonitorService { get; }
 }

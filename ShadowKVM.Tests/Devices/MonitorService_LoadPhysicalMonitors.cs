@@ -9,11 +9,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
     [Fact]
     public void LoadPhysicalMonitors_EnumDisplayMonitorsReturnsFalse()
     {
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayMonitors(HDC.Null, null, It.IsNotNull<MONITORENUMPROC>(), 0))
             .Returns(false);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
 
         Assert.Equal("Monitor enumeration failed", exception.Message);
@@ -31,11 +31,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetMonitorInfo(It.IsAny<HMONITOR>(), ref It.Ref<MONITORINFOEXW>.IsAny))
             .Returns(false);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
 
         Assert.Equal("Getting monitor information failed", exception.Message);
@@ -54,11 +54,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
         uint pdwNumberOfPhysicalMonitors = 0;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetNumberOfPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), out pdwNumberOfPhysicalMonitors))
             .Returns(false);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
 
         Assert.Equal("Getting physical monitor number failed", exception.Message);
@@ -77,11 +77,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
         uint pdwNumberOfPhysicalMonitors = 0;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetNumberOfPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), out pdwNumberOfPhysicalMonitors))
             .Returns(true);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Empty(monitors);
@@ -99,11 +99,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), It.IsAny<PHYSICAL_MONITOR[]>()))
             .Returns(false);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var exception = Assert.Throws<Exception>(monitorService.LoadMonitors);
 
         Assert.Equal("Getting physical monitor information failed", exception.Message);
@@ -121,15 +121,15 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
             .Returns(false);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -155,11 +155,11 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), It.IsAny<PHYSICAL_MONITOR[]>()))
             .Returns(false);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Empty(monitors);
@@ -184,15 +184,15 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
             .Returns(false);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors,

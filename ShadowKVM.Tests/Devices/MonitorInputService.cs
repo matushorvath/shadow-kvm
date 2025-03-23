@@ -9,7 +9,7 @@ namespace ShadowKVM.Tests;
 
 public class MonitorInputServiceTest
 {
-    internal Mock<IMonitorAPI> _monitorApiMock = new();
+    internal Mock<IWindowsAPI> _windowsAPIMock = new();
     internal Mock<ICapabilitiesParser> _capabilitiesParser = new();
     internal Mock<ILogger> _loggerApiMock = new();
 
@@ -17,38 +17,38 @@ public class MonitorInputServiceTest
 
     public MonitorInputServiceTest()
     {
-        _handle12345 = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)12345u, false);
+        _handle12345 = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)12345u, false);
     }
 
     [Fact]
     public void Constructor_FromMonitor()
     {
         uint length;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetCapabilitiesStringLength(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u), out length))
             .Returns(0)
             .Verifiable();
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         var monitor = new Monitor { Handle = _handle12345, Device = "", Description = "" };
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(monitor, out inputs));
 
-        _monitorApiMock.Verify();
+        _windowsAPIMock.Verify();
     }
 
     [Fact]
     public void TryLoadValidInputs_GetCapabilitiesStringLength_ReturnsError()
     {
         uint length;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetCapabilitiesStringLength(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u), out length))
             .Returns(0);
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -59,12 +59,12 @@ public class MonitorInputServiceTest
     public void TryLoadValidInputs_GetCapabilitiesStringLength_ReturnsZeroLength()
     {
         uint length = 0;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetCapabilitiesStringLength(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u), out length))
             .Returns(1);
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -75,20 +75,20 @@ public class MonitorInputServiceTest
     public void TryLoadValidInputs_CapabilitiesRequestAndCapabilitiesReply_ReturnsError()
     {
         uint length = 42;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetCapabilitiesStringLength(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 out length))
             .Returns(1);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.CapabilitiesRequestAndCapabilitiesReply(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 It.IsNotNull<PSTR>(),
                 42))
             .Returns(0);
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -108,13 +108,13 @@ public class MonitorInputServiceTest
     void SetupForCapabilitiesParser(string capabilities)
     {
         uint length = (uint)capabilities.Length + 1;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetCapabilitiesStringLength(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 out length))
             .Returns(1);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.CapabilitiesRequestAndCapabilitiesReply(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 It.IsNotNull<PSTR>(),
@@ -137,7 +137,7 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Throws(new Exception("pArSeErRoR"));
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs = null;
         var exception = Assert.Throws<Exception>(() => service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -155,7 +155,7 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns((ICapabilitiesParser.VcpComponent?)null);
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -171,7 +171,7 @@ public class MonitorInputServiceTest
             .Setup(m => m.Parse("cApAbIlItIeS"))
             .Returns(new ICapabilitiesParser.VcpComponent { Codes = new() });
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -195,7 +195,7 @@ public class MonitorInputServiceTest
                 }
             });
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -222,7 +222,7 @@ public class MonitorInputServiceTest
         uint pdwCurrentValue;
         uint pdwMaximumValue;
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 0x60,
@@ -231,7 +231,7 @@ public class MonitorInputServiceTest
                 out pdwMaximumValue))
             .Returns(0);
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -256,7 +256,7 @@ public class MonitorInputServiceTest
         uint pdwCurrentValue;
         uint pdwMaximumValue;
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 0x60,
@@ -273,7 +273,7 @@ public class MonitorInputServiceTest
                 }
             );
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(_handle12345, out inputs));
@@ -283,7 +283,7 @@ public class MonitorInputServiceTest
     [Fact]
     public void LoadMonitorInputs_Successful()
     {
-        _monitorApiMock.Reset();
+        _windowsAPIMock.Reset();
 
         SetupForCapabilitiesParser("cApAbIlItIeS");
 
@@ -300,7 +300,7 @@ public class MonitorInputServiceTest
         uint pdwCurrentValue;
         uint pdwMaximumValue;
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetVCPFeatureAndVCPFeatureReply(
                 It.Is<SafePhysicalMonitorHandle>(h => h.DangerousGetHandle() == 12345u),
                 0x60,
@@ -317,7 +317,7 @@ public class MonitorInputServiceTest
                 }
             );
 
-        var service = new MonitorInputService(_monitorApiMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
+        var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
         MonitorInputs? inputs;
         Assert.True(service.TryLoadMonitorInputs(_handle12345, out inputs));

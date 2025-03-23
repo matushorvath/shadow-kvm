@@ -17,7 +17,7 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
         ];
         SetupLoadPhysicalMonitors(loadPhysicalMonitorsData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
             .Returns(false);
 
@@ -27,7 +27,7 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -62,11 +62,11 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -97,11 +97,11 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -137,11 +137,11 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -189,11 +189,11 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors,
