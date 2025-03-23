@@ -24,6 +24,7 @@ Backlog
    - add a way to check for updates
    - show which display is which in case they have same names
    - chocolatey/winget support
+   - the "config reloaded succesfully" window does not have focus and sometimes opens in background
 
 Build and Test
 ==============

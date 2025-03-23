@@ -18,7 +18,9 @@ public partial class App : Application
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
         _loggingLevelSwitch = new();
 
-        Services = new(_dataDirectory);
+        Services = new Services(_dataDirectory);
+
+        BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Log.Logger);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -146,22 +148,14 @@ public partial class App : Application
         // Set up logging level based on config file
         _loggingLevelSwitch.MinimumLevel = _config.LogLevel;
 
-        // Restart the background task
-        if (_backgroundTask != null)
-        {
-            _backgroundTask.Dispose();
-            _backgroundTask = null;
-        }
-
-        _backgroundTask = new(_config, Services.DeviceNotificationService, Services.MonitorService, Log.Logger);
-        _backgroundTask.Start();
+        BackgroundTask.Restart(_config);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         Log.Information("Shutting down");
 
-        _backgroundTask?.Dispose();
+        BackgroundTask.Dispose();
         _notifyIcon?.Dispose();
 
         _hiddenWindow?.Dispose();
@@ -191,16 +185,15 @@ public partial class App : Application
 
     Services Services { get; }
 
+    public BackgroundTask BackgroundTask { get; }
+
     TaskbarIcon? _notifyIcon;
-    BackgroundTask? _backgroundTask;
 
     string _dataDirectory;
     string _logPath;
 
     Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
-
-    public bool IsEnabled { get; set; } = true;
 
     HiddenWindow? _hiddenWindow;
 }
