@@ -13,21 +13,21 @@ public class MonitorsTests
     {
         IEnumerable enumerable = new Monitors
         {
-            new Monitor
+            new()
             {
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
                 Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)54321u, false)
             },
-            new Monitor
+            new()
             {
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",
                 SerialNumber = "sErIaL 2",
                 Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)65432u, false)
             },
-            new Monitor
+            new()
             {
                 Description = "dEsCrIpTiOn 3",
                 Adapter = "aDaPtEr 3",
@@ -52,14 +52,14 @@ public class MonitorsTests
 
         using (var monitors = new Monitors())
         {
-            monitors.Add(new Monitor
+            monitors.Add(new()
             {
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
                 Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)54321u, false)
             });
-            monitors.Add(new Monitor
+            monitors.Add(new()
             {
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",

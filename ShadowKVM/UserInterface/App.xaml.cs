@@ -16,9 +16,9 @@ public partial class App : Application
         _dataDirectory = Path.Combine(appData, "Shadow KVM");
 
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
-        _loggingLevelSwitch = new LoggingLevelSwitch();
+        _loggingLevelSwitch = new();
 
-        Services = new Services(_dataDirectory);
+        Services = new(_dataDirectory);
     }
 
     protected override void OnStartup(StartupEventArgs e)
@@ -39,7 +39,7 @@ public partial class App : Application
             Autostart.SetEnabled(true);
         }
 
-        _hiddenWindow = new HiddenWindow();
+        _hiddenWindow = new();
         _hiddenWindow.Create();
 
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
@@ -153,8 +153,7 @@ public partial class App : Application
             _backgroundTask = null;
         }
 
-        _backgroundTask = new BackgroundTask(
-            _config, Services.DeviceNotificationService, Services.MonitorService);
+        _backgroundTask = new(_config, Services.DeviceNotificationService, Services.MonitorService);
         _backgroundTask.Start();
     }
 
