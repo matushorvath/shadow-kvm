@@ -37,7 +37,7 @@ public class Monitors : IEnumerable<Monitor>, IDisposable
         }
     }
 
-    List<Monitor> _monitors = new List<Monitor>();
+    List<Monitor> _monitors = new();
 }
 
 public class Monitor : IDisposable

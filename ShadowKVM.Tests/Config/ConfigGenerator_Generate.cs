@@ -28,7 +28,7 @@ public class ConfigGenerator_GenerateTest
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors
             {
-                new Monitor { Description = "dEsCrIpTiOn", Handle = SafePhysicalMonitorHandle.Null }
+                new() { Description = "dEsCrIpTiOn", Handle = SafePhysicalMonitorHandle.Null }
             });
 
         _monitorInputServiceMock
@@ -52,11 +52,11 @@ public class ConfigGenerator_GenerateTest
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors
             {
-                new Monitor { Description = "dEsCrIpTiOn 1", Handle = SafePhysicalMonitorHandle.Null },
-                new Monitor { Description = "dEsCrIpTiOn 2", Handle = SafePhysicalMonitorHandle.Null }
+                new() { Description = "dEsCrIpTiOn 1", Handle = SafePhysicalMonitorHandle.Null },
+                new() { Description = "dEsCrIpTiOn 2", Handle = SafePhysicalMonitorHandle.Null }
             });
 
-        MonitorInputs? inputs = new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 17, 42, 123 } };
+        MonitorInputs? inputs = new() { SelectedInput = 42, ValidInputs = new() { 17, 42, 123 } };
         _monitorInputServiceMock
             .Setup(m => m.TryLoadMonitorInputs(It.IsAny<Monitor>(), out inputs))
             .Returns(true);

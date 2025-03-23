@@ -52,7 +52,7 @@ public class DeviceNotification : IDeviceNotification
             throw new Exception("Device notification is already registered");
         }
 
-        CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
+        var filter = new CM_NOTIFY_FILTER();
         filter.cbSize = (uint)Marshal.SizeOf(filter);
         filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
         filter.u.DeviceInterface.ClassGuid = deviceClassGuid;

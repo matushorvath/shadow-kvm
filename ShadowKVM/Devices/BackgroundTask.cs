@@ -110,7 +110,7 @@ public class BackgroundTask(
 
     Task? _task;
 
-    CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    CancellationTokenSource _cancellationTokenSource = new();
 
     App App => (App)Application.Current;
 }

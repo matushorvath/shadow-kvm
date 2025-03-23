@@ -86,7 +86,7 @@ public class CommonTemplateData
         {
             if (builders.LastOrDefault() == null || builders.Last().Length + value.Length > 90)
             {
-                builders.Add(new StringBuilder());
+                builders.Add(new());
                 builders.Last().Append("#   ");
             }
             else

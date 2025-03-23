@@ -22,7 +22,7 @@ public partial class ConfigGeneratorWindow : Window
                 window.progressBar.Value = status.Current;
             });
 
-            BackgroundWorker worker = new BackgroundWorker();
+            BackgroundWorker worker = new();
 
             worker.DoWork += (_, _) => work(progress);
             worker.RunWorkerCompleted += (_, _) => window.Close();
