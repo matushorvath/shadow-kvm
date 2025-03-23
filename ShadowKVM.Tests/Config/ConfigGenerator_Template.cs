@@ -308,7 +308,7 @@ public class ConfigGenerator_TemplateTest
         },
     };
 
-    public static TheoryData<string> TestDataKeys => new(TestData.Keys.AsEnumerable());
+    public static TheoryData<string> TestDataKeys => [.. TestData.Keys.AsEnumerable()];
 
     [Theory, MemberData(nameof(TestDataKeys))]
     public void Generate_CorrectText(string testDataKey)

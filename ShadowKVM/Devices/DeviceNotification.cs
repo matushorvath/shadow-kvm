@@ -21,7 +21,7 @@ internal class DeviceNotificationService(IWindowsAPI windowsAPI) : IDeviceNotifi
     }
 }
 
-internal interface IDeviceNotification : IDisposable
+public interface IDeviceNotification : IDisposable
 {
     public enum Action
     {
@@ -82,7 +82,7 @@ internal class DeviceNotification : IDeviceNotification
             action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL
             ? IDeviceNotification.Action.Arrival : IDeviceNotification.Action.Removal;
 
-        _channel?.Writer.TryWrite(outsideAction);    // always succeeds
+        _channel.Writer.TryWrite(outsideAction);    // always succeeds
 
         return (uint)WIN32_ERROR.ERROR_SUCCESS;
     }
@@ -99,7 +99,7 @@ internal class DeviceNotification : IDeviceNotification
         {
             if (_notification != null)
             {
-                _notification?.Dispose();
+                _notification.Dispose();
                 _notification = null;
             }
         }
@@ -109,5 +109,5 @@ internal class DeviceNotification : IDeviceNotification
 
     IWindowsAPI _windowsAPI;
     Channel<IDeviceNotification.Action> _channel;
-    CM_Unregister_NotificationSafeHandle? _notification;
+    internal CM_Unregister_NotificationSafeHandle? _notification; // internal for unit tests, don't use
 }
