@@ -153,7 +153,7 @@ public partial class App : Application
             _backgroundTask = null;
         }
 
-        _backgroundTask = new(_config, Services.DeviceNotificationService, Services.MonitorService);
+        _backgroundTask = new(_config, Services.DeviceNotificationService, Services.MonitorService, Log.Logger);
         _backgroundTask.Start();
     }
 
