@@ -10,13 +10,13 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -30,14 +30,14 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 987
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -51,14 +51,14 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -72,14 +72,14 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -99,7 +99,7 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 log-level: {enumString}
                 monitors:
@@ -107,7 +107,7 @@ public class ConfigHeaderTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -121,7 +121,7 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 log-level: iNvAlIdLoGlEvEl
                 monitors:
@@ -129,13 +129,13 @@ public class ConfigHeaderTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
 
-        Assert.Equal(@"x:\mOcKfS\config.yaml(3,28): Exception during deserialization: Requested value 'iNvAlIdLoGlEvEl' was not found.", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml(2,12): Exception during deserialization: Requested value 'iNvAlIdLoGlEvEl' was not found.", exception.Message);
     }
 
     [Fact]
@@ -143,14 +143,14 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -167,7 +167,7 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 trigger-device: {enumString}
                 monitors:
@@ -175,7 +175,7 @@ public class ConfigHeaderTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -190,7 +190,7 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 trigger-device: '{266976bd-7ba2-4d38-b21c-85bd406917bd}'
                 monitors:
@@ -198,7 +198,7 @@ public class ConfigHeaderTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -213,7 +213,7 @@ public class ConfigHeaderTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 trigger-device: iNvAlIdDeViCe
                 monitors:
@@ -221,13 +221,13 @@ public class ConfigHeaderTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
 
-        Assert.Equal("x:\\mOcKfS\\config.yaml(3,33): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
+        Assert.Equal("x:\\mOcKfS\\config.yaml(2,17): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
     }
 
     [Fact]

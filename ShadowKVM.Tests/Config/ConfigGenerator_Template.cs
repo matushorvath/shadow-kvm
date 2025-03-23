@@ -1,9 +1,11 @@
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Moq;
+using Serilog.Events;
+using YamlDotNet.Serialization;
 
 namespace ShadowKVM.Tests;
 
-// TODO test the config can be loaded and has trigger-device, monitors, log-level, version
 // TODO invalid yaml strings in description, adapter, serial - are they correctly escaped?
 
 // In some cases xUnit will decide to collapse a theory into a single test case,
@@ -260,7 +262,7 @@ public class ConfigGenerator_TemplateTest
 
             """
         },
-        ["multiple monitors"] = new()
+        ["multiple monitors"] = new() // this test data is used in multiple tests
         {
             monitors = new()
             {
@@ -318,11 +320,111 @@ public class ConfigGenerator_TemplateTest
         var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
         var text = generator.Generate();
 
+        Assert.Contains(expectedFragment.ReplaceLineEndings(), text);
+    }
+
+    [Fact]
+    public void Generate_NoLineEndWhiteSpace()
+    {
+        var (monitors, monitorInputs, expectedFragment) = TestData["multiple monitors"];
+
+        SetupForTemplate(monitors, monitorInputs);
+
+        var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
+        var text = generator.Generate();
+
+        // No lines should end in whitespace
+        Assert.All(text.Split("\r\n"), line => Assert.DoesNotMatch(@"\s$", line));
+    }
+
+    [Fact]
+    public void Generate_StartAndEnd()
+    {
+        var (monitors, monitorInputs, expectedFragment) = TestData["multiple monitors"];
+
+        SetupForTemplate(monitors, monitorInputs);
+
+        var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
+        var text = generator.Generate();
+
         Assert.StartsWith("# ShadowKVM automatically switches", text);
         Assert.EndsWith("version: 1\r\n", text);
-        // TODO make sure it's valid yaml, or even try to load it with ConfigService
+    }
 
-        Assert.Contains(expectedFragment.ReplaceLineEndings(), text);
+    [Fact]
+    public void Generate_IsYaml()
+    {
+        var (monitors, monitorInputs, expectedFragment) = TestData["multiple monitors"];
+
+        SetupForTemplate(monitors, monitorInputs);
+
+        var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
+        var text = generator.Generate();
+
+        // Load the config from a mock file system
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = text
+        });
+
+        using (var stream = fileSystem.File.OpenRead(@"x:\mOcKfS\config.yaml"))
+        using (var input = new StreamReader(stream))
+        {
+            var deserializer = new DeserializerBuilder().Build();
+            deserializer.Deserialize(input);
+        }
+    }
+
+    [Fact]
+    public void Generate_CanBeLoaded()
+    {
+        var (monitors, monitorInputs, expectedFragment) = TestData["multiple monitors"];
+
+        SetupForTemplate(monitors, monitorInputs);
+
+        var generator = new ConfigGenerator(_monitorServiceMock.Object, _monitorInputServiceMock.Object);
+        var text = generator.Generate();
+
+        // Load the config from a mock file system
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = text
+        });
+
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
+        var config = configService.LoadConfig();
+
+        Assert.Equal(1, config.Version);
+        Assert.Equal(TriggerDeviceType.Keyboard, config.TriggerDevice.Enum);
+        Assert.Equal(LogEventLevel.Information, config.LogLevel);
+
+        Assert.NotNull(config.Monitors);
+        Assert.Collection(config.Monitors,
+        monitor =>
+        {
+            Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
+
+            Assert.NotNull(monitor.Attach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Attach.Code.Enum);
+            Assert.Equal(42, monitor.Attach.Value.Raw);
+
+            Assert.NotNull(monitor.Detach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Detach.Code.Enum);
+            Assert.Equal(VcpValueEnum.Component3, monitor.Detach.Value.Enum);
+        },
+        monitor =>
+        {
+            Assert.Equal("dEsCrIpTiOn 3", monitor.Description);
+            Assert.Equal("sErIaL 3", monitor.SerialNumber);
+
+            Assert.NotNull(monitor.Attach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Attach.Code.Enum);
+            Assert.Equal(VcpValueEnum.Analog1, monitor.Attach.Value.Enum);
+
+            Assert.NotNull(monitor.Detach);
+            Assert.Equal(VcpCodeEnum.InputSelect, monitor.Detach.Code.Enum);
+            Assert.Equal(VcpValueEnum.Analog1, monitor.Detach.Value.Enum);
+        });
     }
 
     void SetupForTemplate(Monitors monitors, MonitorInputs?[] monitorInputs)

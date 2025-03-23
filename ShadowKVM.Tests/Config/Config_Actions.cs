@@ -9,11 +9,11 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
-                  - description: dEsCrIpTiOn 1
-            ") }
+                - description: dEsCrIpTiOn 1
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -27,14 +27,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: dEsCrIpTiOn 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -53,14 +53,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: dEsCrIpTiOn 1
                     detach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -79,7 +79,7 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: dEsCrIpTiOn 1
@@ -89,7 +89,7 @@ public class ConfigActionsTests
                     detach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -110,14 +110,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: {enumString}
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -138,14 +138,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: {rawString}
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -168,20 +168,20 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: {invalidString}
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
 
-        Assert.Equal($"x:\\mOcKfS\\config.yaml(6,29): Invalid value \"{invalidString}\"", exception.Message);
+        Assert.Equal($"x:\\mOcKfS\\config.yaml(5,13): Invalid value \"{invalidString}\"", exception.Message);
     }
 
     [Theory]
@@ -207,14 +207,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: {enumString}
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -235,14 +235,14 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: {rawString}
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -265,19 +265,19 @@ public class ConfigActionsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData($@"
+            [@"x:\mOcKfS\config.yaml"] = $"""
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: {invalidString}
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
 
-        Assert.Equal($"x:\\mOcKfS\\config.yaml(7,30): Invalid value \"{invalidString}\"", exception.Message);
+        Assert.Equal($"x:\\mOcKfS\\config.yaml(6,14): Invalid value \"{invalidString}\"", exception.Message);
     }
 }
