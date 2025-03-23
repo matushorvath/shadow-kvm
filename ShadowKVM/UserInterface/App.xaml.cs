@@ -150,7 +150,7 @@ public partial class App : Application
         }
 
         _backgroundTask = new BackgroundTask(
-            _config, Services.DeviceNotificationFactory, Services.MonitorService);
+            _config, Services.DeviceNotificationService, Services.MonitorService);
         _backgroundTask.Start();
     }
 

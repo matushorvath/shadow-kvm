@@ -6,26 +6,33 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
-internal interface IDeviceNotificationFactory
+internal interface IDeviceNotificationService
 {
-    DeviceNotification Create();
+    IDeviceNotification Register(Guid deviceClassGuid);
 }
 
-internal class DeviceNotificationFactory(IWindowsAPI windowsAPI) : IDeviceNotificationFactory
+internal class DeviceNotificationService(IWindowsAPI windowsAPI) : IDeviceNotificationService
 {
-    public DeviceNotification Create()
+    public IDeviceNotification Register(Guid deviceClassGuid)
     {
-        return new DeviceNotification(windowsAPI);
+        var notification = new DeviceNotification(windowsAPI);
+        notification.Register(deviceClassGuid);
+        return notification;
     }
 }
 
-internal class DeviceNotification : IDisposable
+internal interface IDeviceNotification : IDisposable
 {
     public enum Action
     {
         Arrival, Removal
     }
 
+    public ChannelReader<Action> Reader { get; }
+}
+
+internal class DeviceNotification : IDeviceNotification
+{
     public DeviceNotification(IWindowsAPI windowsAPI)
     {
         _windowsAPI = windowsAPI;
@@ -35,15 +42,14 @@ internal class DeviceNotification : IDisposable
         channelOptions.SingleReader = true;
         channelOptions.SingleWriter = true;
 
-        _channel = Channel.CreateUnbounded<Action>();
+        _channel = Channel.CreateBounded<IDeviceNotification.Action>(channelOptions);
     }
 
     public unsafe void Register(Guid deviceClassGuid)
     {
         if (_notification != null)
         {
-            // Already registered, nothing to do
-            return;
+            throw new Exception("Device notification is already registered");
         }
 
         CM_NOTIFY_FILTER filter = new CM_NOTIFY_FILTER();
@@ -51,6 +57,7 @@ internal class DeviceNotification : IDisposable
         filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
         filter.u.DeviceInterface.ClassGuid = deviceClassGuid;
 
+        // TODO replace PInvoke
         CONFIGRET res = PInvoke.CM_Register_Notification(filter, null, DeviceCallback, out _notification);
         if (res != CONFIGRET.CR_SUCCESS)
         {
@@ -72,7 +79,10 @@ internal class DeviceNotification : IDisposable
             return (uint)WIN32_ERROR.ERROR_SUCCESS;
         }
 
-        var outsideAction = action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL ? Action.Arrival : Action.Removal;
+        var outsideAction =
+            action == CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL
+            ? IDeviceNotification.Action.Arrival : IDeviceNotification.Action.Removal;
+
         _channel?.Writer.TryWrite(outsideAction);    // always succeeds
 
         return (uint)WIN32_ERROR.ERROR_SUCCESS;
@@ -96,19 +106,9 @@ internal class DeviceNotification : IDisposable
         }
     }
 
-    public ChannelReader<Action> Reader
-    {
-        get
-        {
-            if (_channel == null)
-            {
-                throw new Exception("Channel does not exist");
-            }
-            return _channel.Reader;
-        }
-    }
+    public ChannelReader<IDeviceNotification.Action> Reader => _channel.Reader;
 
     IWindowsAPI _windowsAPI;
-    Channel<Action>? _channel;
+    Channel<IDeviceNotification.Action> _channel;
     CM_Unregister_NotificationSafeHandle? _notification;
 }

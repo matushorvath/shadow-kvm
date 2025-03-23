@@ -6,7 +6,7 @@ namespace ShadowKVM;
 
 internal class BackgroundTask(
     Config config,
-    IDeviceNotificationFactory deviceNotificationFactory,
+    IDeviceNotificationService deviceNotificationService,
     IMonitorService monitorService) : IDisposable
 {
     public void Start()
@@ -19,16 +19,14 @@ internal class BackgroundTask(
     {
         Log.Debug("Background task started");
 
-        DeviceNotification.Action? lastAction = null;
+        IDeviceNotification.Action? lastAction = null;
 
-        using (var notification = deviceNotificationFactory.Create())
+        using (var notification = deviceNotificationService.Register(config.TriggerDevice))
         {
-            notification.Register(config.TriggerDevice);
-
             try
             {
                 var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
-                await foreach (DeviceNotification.Action action in actions)
+                await foreach (IDeviceNotification.Action action in actions)
                 {
                     if (App.IsEnabled && lastAction != action)
                     {
@@ -45,7 +43,7 @@ internal class BackgroundTask(
         }
     }
 
-    void ProcessNotification(DeviceNotification.Action action)
+    void ProcessNotification(IDeviceNotification.Action action)
     {
         Log.Debug("Received device notification, action {Action}", action);
 
@@ -54,7 +52,7 @@ internal class BackgroundTask(
             foreach (var monitorConfig in config.Monitors ?? [])
             {
                 // Find the action config for this device action
-                var actionConfig = action == DeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;
+                var actionConfig = action == IDeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;
                 if (actionConfig == null)
                 {
                     continue;
