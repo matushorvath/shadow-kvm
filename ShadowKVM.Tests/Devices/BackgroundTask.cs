@@ -1,5 +1,6 @@
 using Moq;
 using Serilog;
+using System.Runtime.InteropServices;
 using System.Threading.Channels;
 using Windows.Win32.Foundation;
 
@@ -13,6 +14,7 @@ public class BackgroundTaskTests
     Mock<ILogger> _loggerMock = new();
 
     Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
+    SafePhysicalMonitorHandle _testHandle = new SafePhysicalMonitorHandle(null!, (HANDLE)12345u, false);
 
     (Mock<IDeviceNotification>, Channel<IDeviceNotification.Action>) SetupNotification()
     {
@@ -20,7 +22,7 @@ public class BackgroundTaskTests
         var notificationMock = new Mock<IDeviceNotification>();
 
         _deviceNotificationServiceMock
-            .Setup(m => m.Register(It.IsAny<Guid>()))
+            .Setup(m => m.Register(_testGuid))
             .Returns(notificationMock.Object)
             .Verifiable();
 
@@ -86,6 +88,64 @@ public class BackgroundTaskTests
         backgroundTask.Dispose();
         Assert.Null(backgroundTask._task);
 
+        _deviceNotificationServiceMock.Verify();
+        notificationMock.Verify();
+    }
+
+    [Fact]
+    public void ProcessNotification_OneMonitor()
+    {
+        var (notificationMock, channel) = SetupNotification();
+
+        _monitorServiceMock
+            .Setup(m => m.LoadMonitors())
+            .Returns(new Monitors() {
+                new() { Description = "dEsCrIpTiOn 1", Handle = _testHandle }
+            })
+            .Verifiable();
+
+        // The task will be restarted with this config
+        var config = new Config
+        {
+            TriggerDevice = new() { Raw = _testGuid },
+            Monitors = new()
+            {
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(0x42), Value = new (0x98) }
+                }
+            }
+        };
+
+        // The task is expected to call SetVCPFeature for each monitor (asynchronously)
+        var setVcpFeatureCalled = new ManualResetEvent(false);
+        _windowsAPIMock
+            .Setup(m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()))
+            .Returns(
+                (SafeHandle hMonitor, byte bVCPCode, uint dwNewValue) =>
+                {
+                    Assert.Equal(_testHandle.DangerousGetHandle(), hMonitor.DangerousGetHandle());
+                    Assert.Equal(0x42, bVCPCode);
+                    Assert.Equal(0x98u, dwNewValue);
+
+                    setVcpFeatureCalled.Set();
+                    return 1;
+                }
+            )
+            .Verifiable();
+
+        var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object);
+        backgroundTask.Restart(config);
+
+        // Task is now running, send it an action
+        channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
+
+        // Wait for the background task to call SetVCPFeature
+        setVcpFeatureCalled.WaitOne();
+
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
