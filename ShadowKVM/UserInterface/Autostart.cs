@@ -3,7 +3,7 @@ using Serilog;
 
 namespace ShadowKVM;
 
-internal static class Autostart
+public static class Autostart
 {
     static string EnabledRegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     static string EnabledRegistryValue = "Shadow KVM";

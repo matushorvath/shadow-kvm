@@ -8,13 +8,13 @@ using Serilog;
 
 namespace ShadowKVM;
 
-internal interface ICapabilitiesParser
+public interface ICapabilitiesParser
 {
-    internal abstract class Component
+    public abstract class Component
     {
     }
 
-    internal class VcpComponent : Component
+    public class VcpComponent : Component
     {
         public required Dictionary<byte, List<byte>> Codes { get; set; }
     }
@@ -22,7 +22,7 @@ internal interface ICapabilitiesParser
     public VcpComponent? Parse(string input);
 }
 
-internal class CapabilitiesParser(ILogger logger) : ICapabilitiesParser
+public class CapabilitiesParser(ILogger logger) : ICapabilitiesParser
 {
     public ICapabilitiesParser.VcpComponent? Parse(string input)
     {

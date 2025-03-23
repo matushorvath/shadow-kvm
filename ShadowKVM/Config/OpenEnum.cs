@@ -4,7 +4,7 @@ using YamlDotNet.Core.Events;
 
 namespace ShadowKVM;
 
-internal abstract class OpenEnum<TEnum, TRaw>
+public abstract class OpenEnum<TEnum, TRaw>
     where TEnum : struct, Enum
 {
     public OpenEnum()
@@ -53,7 +53,7 @@ internal abstract class OpenEnum<TEnum, TRaw>
     protected abstract TRaw ConvertEnumToRaw(TEnum enumValue);
 }
 
-internal abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingConvention namingConvention) : IYamlTypeConverter
+public abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingConvention namingConvention) : IYamlTypeConverter
     where TOpenEnum : OpenEnum<TEnum, TRaw>, new()
     where TEnum : struct, Enum
 {

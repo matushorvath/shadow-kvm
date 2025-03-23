@@ -12,13 +12,13 @@ public class MonitorInputs
     public required byte SelectedInput { get; set; }
 }
 
-internal interface IMonitorInputService
+public interface IMonitorInputService
 {
     public bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
     public bool TryLoadMonitorInputs(SafePhysicalMonitorHandle physicalMonitorHandle, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
 }
 
-internal class MonitorInputService(IWindowsAPI windowsAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
+public class MonitorInputService(IWindowsAPI windowsAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
 {
     public bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs)
     {

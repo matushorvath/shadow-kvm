@@ -4,7 +4,7 @@ using Windows.Win32;
 
 namespace ShadowKVM;
 
-internal class BackgroundTask(
+public class BackgroundTask(
     Config config,
     IDeviceNotificationService deviceNotificationService,
     IMonitorService monitorService) : IDisposable

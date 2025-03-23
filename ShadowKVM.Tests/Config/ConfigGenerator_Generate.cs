@@ -4,9 +4,9 @@ namespace ShadowKVM.Tests;
 
 public class ConfigGenerator_GenerateTest
 {
-    internal Mock<IMonitorService> _monitorServiceMock = new();
-    internal Mock<IMonitorInputService> _monitorInputServiceMock = new();
-    internal Mock<IProgress<ConfigGeneratorStatus>> _progressMock = new();
+    public Mock<IMonitorService> _monitorServiceMock = new();
+    public Mock<IMonitorInputService> _monitorInputServiceMock = new();
+    public Mock<IProgress<ConfigGeneratorStatus>> _progressMock = new();
 
     [Fact]
     public void Generate_LoadMonitorsThrows()

@@ -5,7 +5,7 @@ namespace ShadowKVM;
 
 public enum TriggerDeviceType { Keyboard, Mouse }
 
-internal class TriggerDevice : OpenEnum<TriggerDeviceType, Guid>
+public class TriggerDevice : OpenEnum<TriggerDeviceType, Guid>
 {
     public TriggerDevice()
     {
@@ -27,7 +27,7 @@ internal class TriggerDevice : OpenEnum<TriggerDeviceType, Guid>
     }
 }
 
-internal class TriggerDeviceConverter(INamingConvention namingConvention)
+public class TriggerDeviceConverter(INamingConvention namingConvention)
         : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDeviceType, Guid>(namingConvention)
 {
     protected override bool TryConvertStringToRaw(string str, out Guid rawValue)

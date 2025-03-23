@@ -12,12 +12,12 @@ public class ConfigGeneratorStatus
     public int Maximum { get; set; }
 }
 
-internal interface IConfigGenerator
+public interface IConfigGenerator
 {
     public string Generate(IProgress<ConfigGeneratorStatus>? progress = null);
 }
 
-internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputService monitorInputService) : IConfigGenerator
+public class ConfigGenerator(IMonitorService monitorService, IMonitorInputService monitorInputService) : IConfigGenerator
 {
     public unsafe string Generate(IProgress<ConfigGeneratorStatus>? progress = null)
     {
@@ -69,7 +69,7 @@ internal class ConfigGenerator(IMonitorService monitorService, IMonitorInputServ
     }
 }
 
-internal class CommonTemplateData
+public class CommonTemplateData
 {
     public string AllCodes => FormatAllEnumValues<VcpCodeEnum>();
     public string AllValues => FormatAllEnumValues<VcpValueEnum>();
@@ -100,13 +100,13 @@ internal class CommonTemplateData
     }
 }
 
-internal class MonitorTemplateData
+public class MonitorTemplateData
 {
     public required Monitor Monitor { get; set; }
     public required MonitorInputsTemplateData Inputs { get; set; }
 }
 
-internal class MonitorInputsTemplateData(MonitorInputs? inputs)
+public class MonitorInputsTemplateData(MonitorInputs? inputs)
 {
     public string CommentUnsupported => inputs != null ? "  " : "# ";
 
