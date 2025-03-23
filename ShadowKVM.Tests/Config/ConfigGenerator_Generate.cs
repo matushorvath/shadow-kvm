@@ -2,7 +2,7 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
-public class ConfigGenerator_GenerateTest
+public class ConfigGenerator_GenerateTests
 {
     public Mock<IMonitorService> _monitorServiceMock = new();
     public Mock<IMonitorInputService> _monitorInputServiceMock = new();
