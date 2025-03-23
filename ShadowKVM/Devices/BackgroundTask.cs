@@ -4,7 +4,10 @@ using Windows.Win32;
 
 namespace ShadowKVM;
 
-internal class BackgroundTask(Config config, IMonitorService monitorService) : IDisposable
+internal class BackgroundTask(
+    Config config,
+    IDeviceNotificationFactory deviceNotificationFactory,
+    IMonitorService monitorService) : IDisposable
 {
     public void Start()
     {
@@ -18,7 +21,7 @@ internal class BackgroundTask(Config config, IMonitorService monitorService) : I
 
         DeviceNotification.Action? lastAction = null;
 
-        using (var notification = new DeviceNotification())
+        using (var notification = deviceNotificationFactory.Create())
         {
             notification.Register(config.TriggerDevice);
 

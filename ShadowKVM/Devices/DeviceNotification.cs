@@ -6,6 +6,19 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM;
 
+internal interface IDeviceNotificationFactory
+{
+    DeviceNotification Create();
+}
+
+internal class DeviceNotificationFactory(IWindowsAPI windowsAPI) : IDeviceNotificationFactory
+{
+    public DeviceNotification Create()
+    {
+        return new DeviceNotification(windowsAPI);
+    }
+}
+
 internal class DeviceNotification : IDisposable
 {
     public enum Action
@@ -13,8 +26,10 @@ internal class DeviceNotification : IDisposable
         Arrival, Removal
     }
 
-    public DeviceNotification()
+    public DeviceNotification(IWindowsAPI windowsAPI)
     {
+        _windowsAPI = windowsAPI;
+
         var channelOptions = new BoundedChannelOptions(16);
         channelOptions.FullMode = BoundedChannelFullMode.DropOldest;
         channelOptions.SingleReader = true;
@@ -93,6 +108,7 @@ internal class DeviceNotification : IDisposable
         }
     }
 
+    IWindowsAPI _windowsAPI;
     Channel<Action>? _channel;
     CM_Unregister_NotificationSafeHandle? _notification;
 }
