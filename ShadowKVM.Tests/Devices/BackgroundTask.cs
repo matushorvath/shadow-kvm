@@ -1,6 +1,7 @@
-using System.Threading.Channels;
 using Moq;
 using Serilog;
+using System.Threading.Channels;
+using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
@@ -8,6 +9,7 @@ public class BackgroundTaskTests
 {
     Mock<IDeviceNotificationService> _deviceNotificationServiceMock = new();
     Mock<IMonitorService> _monitorServiceMock = new();
+    Mock<IWindowsAPI> _windowsAPIMock = new();
     Mock<ILogger> _loggerMock = new();
 
     Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
@@ -44,7 +46,7 @@ public class BackgroundTaskTests
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel
         var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
-            _monitorServiceMock.Object, _loggerMock.Object);
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object);
         backgroundTask.Restart(config);
 
         // Task was originally stopped, so we don't expect first two log messages
@@ -69,7 +71,7 @@ public class BackgroundTaskTests
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel
         var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
-            _monitorServiceMock.Object, _loggerMock.Object);
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object);
         backgroundTask.Restart(config);
 
         // Task was originally stopped, so we don't expect first two log messages

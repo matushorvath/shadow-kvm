@@ -20,7 +20,7 @@ public partial class App : Application
 
         Services = new Services(_dataDirectory);
 
-        BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Log.Logger);
+        BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Services.WindowsAPI, Log.Logger);
     }
 
     protected override void OnStartup(StartupEventArgs e)

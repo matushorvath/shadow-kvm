@@ -25,6 +25,7 @@ Backlog
    - show which display is which in case they have same names
    - chocolatey/winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
+   - use new() wherever possible
 
 Build and Test
 ==============
