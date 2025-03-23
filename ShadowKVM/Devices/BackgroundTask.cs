@@ -1,12 +1,11 @@
-﻿using System.Windows;
-using Serilog;
-using Windows.Win32;
+﻿using Serilog;
 
 namespace ShadowKVM;
 
 public class BackgroundTask(
     IDeviceNotificationService deviceNotificationService,
     IMonitorService monitorService,
+    IWindowsAPI windowsAPI,
     ILogger logger
         ) : IDisposable
 {
@@ -16,7 +15,7 @@ public class BackgroundTask(
         {
             logger.Debug("Stopping background task");
 
-            _cancellationTokenSource!.Cancel();
+            _cancellationTokenSource.Cancel();
             _task.Wait();
         }
 
@@ -36,7 +35,7 @@ public class BackgroundTask(
         {
             try
             {
-                var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource!.Token);
+                var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
                 await foreach (IDeviceNotification.Action action in actions)
                 {
                     if (Enabled && lastAction != action)
@@ -89,7 +88,7 @@ public class BackgroundTask(
 
                 foreach (var matchingMonitor in matchingMonitors)
                 {
-                    PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
+                    windowsAPI.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
                     logger.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
                         actionConfig.Code.Raw, actionConfig.Value.Raw, matchingMonitor);
                 }
@@ -112,10 +111,8 @@ public class BackgroundTask(
             if (_task != null)
             {
                 // Cancel the task, wait up to five seconds for it to finish
-                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource.Cancel();
                 _task.Wait();
-
-                _cancellationTokenSource = null;
                 _task = null;
             }
         }
@@ -124,5 +121,5 @@ public class BackgroundTask(
     public bool Enabled { get; set; } = true;
 
     public Task? _task; // public for unit tests, don't use
-    CancellationTokenSource? _cancellationTokenSource;
+    CancellationTokenSource _cancellationTokenSource = new();
 }
