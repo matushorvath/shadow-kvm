@@ -224,7 +224,6 @@ public partial class MonitorService(IWindowsAPI windowsAPI, ILogger logger) : IM
             // Include each physical monitor
             var monitor = new Monitor
             {
-                Device = physicalMonitor.Device,
                 Description = physicalMonitor.Description,
                 Handle = new SafePhysicalMonitorHandle(windowsAPI, physicalMonitor.Handle, true)
             };

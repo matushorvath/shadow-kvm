@@ -60,7 +60,6 @@ public class Monitor : IDisposable
         }
     }
 
-    public required string Device { get; set; }
     public required string Description { get; set; }
     public required SafePhysicalMonitorHandle Handle { get; set; }
 

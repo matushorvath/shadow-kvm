@@ -32,7 +32,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -71,7 +70,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -106,7 +104,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -146,7 +143,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             // TODO we could still map to the adapter, but not to serial number
             Assert.Null(monitor.Adapter);
@@ -199,7 +195,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
         Assert.Collection(monitors,
         monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -207,7 +202,6 @@ public class MonitorService_LoadDisplayDevicesTests : MonitorServiceFixture
         },
         monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 2", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 2", monitor.Description);
             Assert.Equal("aDaPtEr 2", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);

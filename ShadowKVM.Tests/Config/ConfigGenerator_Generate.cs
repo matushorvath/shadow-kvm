@@ -28,12 +28,12 @@ public class ConfigGenerator_GenerateTest
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors
             {
-                new Monitor { Device = "dEvIcE", Description = "dEsCrIpTiOn", Handle = SafePhysicalMonitorHandle.Null }
+                new Monitor { Description = "dEsCrIpTiOn", Handle = SafePhysicalMonitorHandle.Null }
             });
 
         _monitorInputServiceMock
             .Setup(m => m.TryLoadMonitorInputs(
-                It.Is<Monitor>(m => m.Device == "dEvIcE"),
+                It.Is<Monitor>(m => m.Description == "dEsCrIpTiOn"),
                 out It.Ref<MonitorInputs?>.IsAny))
             .Throws(new Exception("tRyLoAdMoNiToUtPuTs tHrOwS"));
 
@@ -52,8 +52,8 @@ public class ConfigGenerator_GenerateTest
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors
             {
-                new Monitor { Device = "dEvIcE 1", Description = "", Handle = SafePhysicalMonitorHandle.Null },
-                new Monitor { Device = "dEvIcE 2", Description = "", Handle = SafePhysicalMonitorHandle.Null }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = SafePhysicalMonitorHandle.Null },
+                new Monitor { Description = "dEsCrIpTiOn 2", Handle = SafePhysicalMonitorHandle.Null }
             });
 
         MonitorInputs? inputs = new MonitorInputs { SelectedInput = 42, ValidInputs = new List<byte> { 17, 42, 123 } };
@@ -70,8 +70,8 @@ public class ConfigGenerator_GenerateTest
         Assert.StartsWith("# ShadowKVM automatically switches", text);
         Assert.EndsWith("version: 1\r\n", text);
 
-        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 1"), out inputs));
-        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Device == "dEvIcE 2"), out inputs));
+        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Description == "dEsCrIpTiOn 1"), out inputs));
+        _monitorInputServiceMock.Verify(m => m.TryLoadMonitorInputs(It.Is<Monitor>(m => m.Description == "dEsCrIpTiOn 2"), out inputs));
 
         if (withProgress)
         {
