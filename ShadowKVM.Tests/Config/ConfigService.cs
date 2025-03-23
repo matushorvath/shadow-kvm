@@ -2,8 +2,6 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace ShadowKVM.Tests;
 
-// TODO use """ strings for MockFileData, it gets rid of the extra whitespace
-
 public class ConfigServiceTests
 {
     [Fact]
@@ -11,7 +9,7 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData("mOcKcOnFiG") }
+            [@"x:\mOcKfS\config.yaml"] = "mOcKcOnFiG"
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -29,7 +27,7 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData("mOcKcOnFiG") }
+            [@"x:\mOcKfS\config.yaml"] = "mOcKcOnFiG"
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -43,7 +41,7 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData("mOcKcOnFiG") }
+            [@"x:\mOcKfS\config.yaml"] = "mOcKcOnFiG"
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -70,7 +68,7 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData("pRoP: - iNvAlIdYaMl") }
+            [@"x:\mOcKfS\config.yaml"] = "pRoP: - iNvAlIdYaMl"
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -84,14 +82,14 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -109,7 +107,7 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 # cOmMeNt1
                 version: 1 # cOmMeNt2
                 # cOmMeNt3
@@ -120,7 +118,7 @@ public class ConfigServiceTests
                       code: input-select
                       value: hdmi1
                   # cOmMeNt6
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -138,21 +136,21 @@ public class ConfigServiceTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: mOnItOr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ".ReplaceLineEndings("\r\n")) }
+                """.ReplaceLineEndings("\r\n")
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
         var config = configService.LoadConfig();
 
         // generate: String.Join(", ", config.LoadedChecksum.Select(x => $"0x{x:x}"))
-        byte[]? correctChecksum = [0x66, 0x38, 0xb4, 0x5a, 0x49, 0xee, 0xc4, 0xa0, 0x83, 0x8c, 0x66, 0x9, 0xcc, 0x80, 0x89, 0xf2];
+        byte[]? correctChecksum = [0xec, 0x2f, 0xb0, 0x72, 0x68, 0x99, 0x1f, 0xfa, 0x9a, 0x52, 0x2, 0xa1, 0xa3, 0xbb, 0xfb, 0x23];
         Assert.Equal(correctChecksum, config.LoadedChecksum);
     }
 }

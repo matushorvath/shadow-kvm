@@ -364,7 +364,7 @@ public class ConfigGenerator_TemplateTest
         // Load the config from a mock file system
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(text) }
+            [@"x:\mOcKfS\config.yaml"] = text
         });
 
         using (var stream = fileSystem.File.OpenRead(@"x:\mOcKfS\config.yaml"))
@@ -388,7 +388,7 @@ public class ConfigGenerator_TemplateTest
         // Load the config from a mock file system
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(text) }
+            [@"x:\mOcKfS\config.yaml"] = text
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);

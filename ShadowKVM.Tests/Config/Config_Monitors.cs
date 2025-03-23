@@ -10,9 +10,9 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -26,10 +26,10 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -43,13 +43,13 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -63,14 +63,14 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: dEsCrIpTiOn 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -89,14 +89,14 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - adapter: aDaPtEr 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -115,14 +115,14 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - serial-number: sErIaLnUmBeR 1
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -141,7 +141,7 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 monitors:
                   - description: dEsCrIpTiOn 1
@@ -150,7 +150,7 @@ public class ConfigMonitorsTests
                     attach:
                       code: input-select
                       value: hdmi1
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
@@ -169,7 +169,7 @@ public class ConfigMonitorsTests
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { @"x:\mOcKfS\config.yaml", new MockFileData(@"
+            [@"x:\mOcKfS\config.yaml"] = """
                 version: 1
                 trigger-device: mouse
                 monitors:
@@ -192,7 +192,7 @@ public class ConfigMonitorsTests
                     serial-number: sErIaLnUmBeR 3
                     description: dEsCrIpTiOn 3
                 log-level: fatal
-            ") }
+                """
         });
 
         var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
