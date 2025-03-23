@@ -37,7 +37,6 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Equal("sErIaL 1", monitor.SerialNumber);
@@ -107,7 +106,6 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);

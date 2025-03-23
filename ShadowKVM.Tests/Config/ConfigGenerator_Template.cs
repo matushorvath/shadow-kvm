@@ -64,7 +64,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -86,7 +86,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -109,7 +109,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -132,7 +132,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -156,7 +156,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -178,7 +178,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -200,7 +200,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -222,7 +222,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -244,7 +244,7 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
             monitorInputs =
             [
@@ -266,9 +266,9 @@ public class ConfigGenerator_TemplateTest
         {
             monitors = new()
             {
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 1", Handle = NH },
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
-                new Monitor { Device = "", Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
+                new Monitor { Description = "dEsCrIpTiOn 1", Handle = NH },
+                new Monitor { Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
+                new Monitor { Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
             },
             monitorInputs =
             [

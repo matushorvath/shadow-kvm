@@ -32,7 +32,6 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -72,7 +71,6 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Equal(string.Empty, monitor.SerialNumber);
@@ -118,7 +116,6 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Equal(serialExpected, monitor.SerialNumber);
@@ -156,7 +153,6 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
