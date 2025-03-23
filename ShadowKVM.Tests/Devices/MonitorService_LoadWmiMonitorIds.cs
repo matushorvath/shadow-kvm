@@ -23,11 +23,11 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
         ];
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -61,13 +61,13 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
         ];
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([new Dictionary<string, object> {
                     ["InstanceName"] = @"DISPLAY\DELA1CE\5&fc538b4&0&UID4357_0"
             }]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -113,7 +113,7 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
         ];
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -147,11 +147,11 @@ public class MonitorService_LoadWmiMonitorIds : MonitorServiceFixture
         ];
         SetupLoadDisplayDevices(loadDisplayDevicesData);
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns([new Dictionary<string, object> { ["SerialNumber"] = "sErIaL 1" }]);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>

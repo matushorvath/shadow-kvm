@@ -32,7 +32,7 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
         ];
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         Assert.Collection(monitors, monitor =>
@@ -91,7 +91,7 @@ public class MonitorService_ComplexTests : MonitorServiceFixture
         ];
         SetupLoadWmiMonitorIds(loadWmiMonitorIdsData);
 
-        var monitorService = new MonitorService(_monitorApiMock.Object, _loggerApiMock.Object);
+        var monitorService = new MonitorService(_windowsAPIMock.Object, _loggerApiMock.Object);
         var monitors = monitorService.LoadMonitors();
 
         if (warningMessage != null)

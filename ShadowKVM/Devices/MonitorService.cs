@@ -14,7 +14,7 @@ internal interface IMonitorService
 }
 
 // Partial class because of GeneratedRegex
-internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : IMonitorService
+internal partial class MonitorService(IWindowsAPI windowsAPI, ILogger logger) : IMonitorService
 {
     public Monitors LoadMonitors()
     {
@@ -46,7 +46,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             var monitorInfoEx = new MONITORINFOEXW();
             monitorInfoEx.monitorInfo.cbSize = (uint)Marshal.SizeOf(monitorInfoEx);
 
-            success = monitorAPI.GetMonitorInfo(hMonitor, ref monitorInfoEx);
+            success = windowsAPI.GetMonitorInfo(hMonitor, ref monitorInfoEx);
             if (!success)
             {
                 exception = new Exception("Getting monitor information failed");
@@ -54,7 +54,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             }
 
             uint numberOfPhysicalMonitors;
-            success = monitorAPI.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
+            success = windowsAPI.GetNumberOfPhysicalMonitorsFromHMONITOR(hMonitor, out numberOfPhysicalMonitors);
             if (!success)
             {
                 exception = new Exception("Getting physical monitor number failed");
@@ -73,7 +73,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             }
 
             var physicalMonitors = new PHYSICAL_MONITOR[numberOfPhysicalMonitors];
-            success = monitorAPI.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
+            success = windowsAPI.GetPhysicalMonitorsFromHMONITOR(hMonitor, physicalMonitors);
             if (!success)
             {
                 exception = new Exception("Getting physical monitor information failed");
@@ -97,7 +97,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             return true;
         }
 
-        BOOL success = monitorAPI.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
+        BOOL success = windowsAPI.EnumDisplayMonitors(HDC.Null, null, MonitorCallback, 0);
 
         if (exception != null)
         {
@@ -134,7 +134,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
         uint adapterIndex = 0;
         while (true)
         {
-            success = monitorAPI.EnumDisplayDevices(null, adapterIndex++, ref adapterDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            success = windowsAPI.EnumDisplayDevices(null, adapterIndex++, ref adapterDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
             if (!success)
             {
                 break;
@@ -142,7 +142,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
 
             // More than one monitor connected to the same adapter makes matching monitors impossible, so we don't support it
             var deviceName = adapterDevice.DeviceName.ToString();
-            success = monitorAPI.EnumDisplayDevices(deviceName, 0, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            success = windowsAPI.EnumDisplayDevices(deviceName, 0, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
             if (!success)
             {
                 continue;
@@ -156,7 +156,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             };
 
             // Try to get a second monitor to see if there's more than one
-            success = monitorAPI.EnumDisplayDevices(deviceName, 1, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
+            success = windowsAPI.EnumDisplayDevices(deviceName, 1, ref monitorDevice, 1 /* EDD_GET_DEVICE_INTERFACE_NAME */);
             if (success)
             {
                 logger.Warning("Multiple monitor devices connected via one adapter device are not supported");
@@ -181,7 +181,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
     {
         var wmiMonitorIds = new List<WmiMonitorId>();
 
-        var monitorIds = monitorAPI.SelectAllWMIMonitorIDs();
+        var monitorIds = windowsAPI.SelectAllWMIMonitorIDs();
         foreach (IDictionary<string, object> monitorId in monitorIds)
         {
             object? serialBytes;
@@ -226,7 +226,7 @@ internal partial class MonitorService(IMonitorAPI monitorAPI, ILogger logger) : 
             {
                 Device = physicalMonitor.Device,
                 Description = physicalMonitor.Description,
-                Handle = new SafePhysicalMonitorHandle(monitorAPI, physicalMonitor.Handle, true)
+                Handle = new SafePhysicalMonitorHandle(windowsAPI, physicalMonitor.Handle, true)
             };
 
             // Find display device for this physical monitor, if available

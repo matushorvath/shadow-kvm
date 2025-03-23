@@ -18,7 +18,7 @@ internal interface IMonitorInputService
     public bool TryLoadMonitorInputs(SafePhysicalMonitorHandle physicalMonitorHandle, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
 }
 
-internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
+internal class MonitorInputService(IWindowsAPI windowsAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
 {
     public bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs)
     {
@@ -54,7 +54,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser c
         // Find out which inputs are supported by this monitor
         uint capabilitiesLength;
 
-        result = monitorAPI.GetCapabilitiesStringLength(physicalMonitorHandle, out capabilitiesLength);
+        result = windowsAPI.GetCapabilitiesStringLength(physicalMonitorHandle, out capabilitiesLength);
         if (result != 1 || capabilitiesLength == 0)
         {
             return false;
@@ -63,7 +63,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser c
         var capabilitiesBuffer = new byte[capabilitiesLength];
         fixed (byte* capabilitiesPtr = &capabilitiesBuffer[0])
         {
-            result = monitorAPI.CapabilitiesRequestAndCapabilitiesReply(physicalMonitorHandle, new PSTR(capabilitiesPtr), capabilitiesLength);
+            result = windowsAPI.CapabilitiesRequestAndCapabilitiesReply(physicalMonitorHandle, new PSTR(capabilitiesPtr), capabilitiesLength);
             if (result != 1)
             {
                 return false;
@@ -108,7 +108,7 @@ internal class MonitorInputService(IMonitorAPI monitorAPI, ICapabilitiesParser c
         var vct = new MC_VCP_CODE_TYPE();
         uint selectedInputUint;
 
-        int result = monitorAPI.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, ref vct, out selectedInputUint, out _);
+        int result = windowsAPI.GetVCPFeatureAndVCPFeatureReply(physicalMonitorHandle, 0x60, ref vct, out selectedInputUint, out _);
         if (result != 1 || vct != MC_VCP_CODE_TYPE.MC_SET_PARAMETER)
         {
             return false;

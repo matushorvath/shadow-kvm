@@ -7,7 +7,7 @@ using Windows.Win32.Graphics.Gdi;
 
 namespace ShadowKVM;
 
-public interface IMonitorAPI
+public interface IWindowsAPI
 {
     // For MonitorService
     public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi);
@@ -33,7 +33,7 @@ public interface IMonitorAPI
         SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint pdwMaximumValue);
 }
 
-internal class MonitorAPI : IMonitorAPI
+internal class WindowsAPI : IWindowsAPI
 {
     // For MonitorService
     public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi)

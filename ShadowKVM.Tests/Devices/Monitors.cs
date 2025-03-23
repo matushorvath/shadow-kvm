@@ -6,7 +6,7 @@ namespace ShadowKVM.Tests;
 
 public class MonitorsTests
 {
-    Mock<IMonitorAPI> _monitorApiMock = new();
+    Mock<IWindowsAPI> _windowsAPIMock = new();
 
     [Fact]
     public void IEnumerable()
@@ -19,7 +19,7 @@ public class MonitorsTests
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
-                Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)54321u, false)
+                Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)54321u, false)
             },
             new Monitor
             {
@@ -27,7 +27,7 @@ public class MonitorsTests
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",
                 SerialNumber = "sErIaL 2",
-                Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)65432u, false)
+                Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)65432u, false)
             },
             new Monitor
             {
@@ -35,7 +35,7 @@ public class MonitorsTests
                 Description = "dEsCrIpTiOn 3",
                 Adapter = "aDaPtEr 3",
                 SerialNumber = "sErIaL 3",
-                Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)76543u, false)
+                Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)76543u, false)
             }
         };
 
@@ -51,7 +51,7 @@ public class MonitorsTests
     [Fact]
     public void IDisposable()
     {
-        _monitorApiMock.Setup(m => m.DestroyPhysicalMonitor(It.IsAny<HANDLE>())).Returns(true);
+        _windowsAPIMock.Setup(m => m.DestroyPhysicalMonitor(It.IsAny<HANDLE>())).Returns(true);
 
         using (var monitors = new Monitors())
         {
@@ -61,7 +61,7 @@ public class MonitorsTests
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
-                Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)54321u, false)
+                Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)54321u, false)
             });
             monitors.Add(new Monitor
             {
@@ -69,11 +69,11 @@ public class MonitorsTests
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",
                 SerialNumber = "sErIaL 2",
-                Handle = new SafePhysicalMonitorHandle(_monitorApiMock.Object, (HANDLE)65432u, true)
+                Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)65432u, true)
             });
         }
 
-        _monitorApiMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)54321u), Times.Never());
-        _monitorApiMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)65432u), Times.Once());
+        _windowsAPIMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)54321u), Times.Never());
+        _windowsAPIMock.Verify(m => m.DestroyPhysicalMonitor((HANDLE)65432u), Times.Once());
     }
 }

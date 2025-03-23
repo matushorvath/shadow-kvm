@@ -9,7 +9,7 @@ namespace ShadowKVM.Tests;
 
 public class MonitorServiceFixture
 {
-    internal Mock<IMonitorAPI> _monitorApiMock = new();
+    internal Mock<IWindowsAPI> _windowsAPIMock = new();
     internal Mock<ILogger> _loggerApiMock = new();
 
     protected class LoadPhysicalMonitors_Monitor
@@ -45,7 +45,7 @@ public class MonitorServiceFixture
 
     protected unsafe void SetupLoadPhysicalMonitors(IList<LoadPhysicalMonitors_Monitor> results)
     {
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayMonitors(HDC.Null, null, It.IsNotNull<MONITORENUMPROC>(), 0))
             .Returns(
                 (HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData) =>
@@ -61,7 +61,7 @@ public class MonitorServiceFixture
         var currentResultIndex = -1;
 
         var getMonitorInfoInvocation = 0;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetMonitorInfo(It.IsAny<HMONITOR>(), ref It.Ref<MONITORINFOEXW>.IsAny))
             .Returns(
                 (HMONITOR hMonitor, ref MONITORINFOEXW lpmi) =>
@@ -80,7 +80,7 @@ public class MonitorServiceFixture
 
 
         uint pdwNumberOfPhysicalMonitors;
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetNumberOfPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), out pdwNumberOfPhysicalMonitors))
             .Returns(
                 (HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors) =>
@@ -92,7 +92,7 @@ public class MonitorServiceFixture
             );
 
 
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.GetPhysicalMonitorsFromHMONITOR(It.IsAny<HMONITOR>(), It.IsAny<PHYSICAL_MONITOR[]>()))
             .Returns(
                 (HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray) =>
@@ -113,7 +113,7 @@ public class MonitorServiceFixture
 
     protected void SetupLoadDisplayDevices(List<LoadDisplayDevices_Adapter> adapters)
     {
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.EnumDisplayDevices(It.IsAny<string?>(), It.IsAny<uint>(), ref It.Ref<DISPLAY_DEVICEW>.IsAny, 1))
             .Returns(
                 (string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags) =>
@@ -157,7 +157,7 @@ public class MonitorServiceFixture
 
     protected void SetupLoadWmiMonitorIds(List<LoadWmiMonitorIds_Data> ids)
     {
-        _monitorApiMock
+        _windowsAPIMock
             .Setup(m => m.SelectAllWMIMonitorIDs())
             .Returns(
                 from id in ids
