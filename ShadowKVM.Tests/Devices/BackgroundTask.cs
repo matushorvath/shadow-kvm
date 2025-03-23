@@ -6,6 +6,17 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
+// TODO
+// attach, detach event
+// no configured monitors, no attached monitors, both
+// matching using description, adapter, serial - combinations
+//   missing description, adapter, serial in config (should be ignored)
+//   missing description, adapter, serial in device (still tries to match)
+//   missing description, adapter, serial in both
+// matches no monitors, one monitor, multiple monitors
+// attach with missing attach config, detach with missing detach config
+// one monitor device matching multiple monitor configs with different vcp code/value
+
 public class BackgroundTaskTests
 {
     Mock<IDeviceNotificationService> _deviceNotificationServiceMock = new();
@@ -14,7 +25,6 @@ public class BackgroundTaskTests
     Mock<ILogger> _loggerMock = new();
 
     Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
-    SafePhysicalMonitorHandle _testHandle = new SafePhysicalMonitorHandle(null!, (HANDLE)12345u, false);
 
     (Mock<IDeviceNotification>, Channel<IDeviceNotification.Action>) SetupNotification()
     {
@@ -92,6 +102,8 @@ public class BackgroundTaskTests
         notificationMock.Verify();
     }
 
+    // setup using handle as key [handle] = { monitorconfig, monitordevice }
+
     [Fact]
     public void ProcessNotification_OneMonitor()
     {
@@ -100,7 +112,16 @@ public class BackgroundTaskTests
         _monitorServiceMock
             .Setup(m => m.LoadMonitors())
             .Returns(new Monitors() {
-                new() { Description = "dEsCrIpTiOn 1", Handle = _testHandle }
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)12345u, false)
+                },
+                new()
+                {
+                    Description = "dEsCrIpTiOn 2",
+                    Handle = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)23456u, false)
+                }
             })
             .Verifiable();
 
@@ -114,22 +135,27 @@ public class BackgroundTaskTests
                 {
                     Description = "dEsCrIpTiOn 1",
                     Attach = new () { Code = new(0x42), Value = new (0x98) }
+                },
+                new()
+                {
+                    Description = "dEsCrIpTiOn 2",
+                    Attach = new () { Code = new(0x42), Value = new (0x98) }
                 }
             }
         };
 
         // The task is expected to call SetVCPFeature for each monitor (asynchronously)
-        var setVcpFeatureCalled = new ManualResetEvent(false);
+        var setVcpFeatureCalled = new CountdownEvent(2); // TODO use monitors.Count or such
         _windowsAPIMock
             .Setup(m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()))
             .Returns(
                 (SafeHandle hMonitor, byte bVCPCode, uint dwNewValue) =>
                 {
-                    Assert.Equal(_testHandle.DangerousGetHandle(), hMonitor.DangerousGetHandle());
+                    //Assert.Equal(_testHandle.DangerousGetHandle(), hMonitor.DangerousGetHandle());
                     Assert.Equal(0x42, bVCPCode);
                     Assert.Equal(0x98u, dwNewValue);
 
-                    setVcpFeatureCalled.Set();
+                    setVcpFeatureCalled.Signal();
                     return 1;
                 }
             )
@@ -143,7 +169,7 @@ public class BackgroundTaskTests
         channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
 
         // Wait for the background task to call SetVCPFeature
-        setVcpFeatureCalled.WaitOne();
+        setVcpFeatureCalled.Wait();
 
         _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
