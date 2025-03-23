@@ -19,7 +19,7 @@ namespace ShadowKVM.Tests;
 // - https://github.com/xunit/xunit/blob/3c10d5b009e6142c722364a04d251a29c678d25f/src/xunit.v3.core/Framework/TheoryDiscoverer.cs#L193
 // - https://github.com/xunit/xunit/issues/547
 
-public class ConfigGenerator_TemplateTest
+public class ConfigGenerator_TemplateTests
 {
     public Mock<IMonitorService> _monitorServiceMock = new();
     public Mock<IMonitorInputService> _monitorInputServiceMock = new();

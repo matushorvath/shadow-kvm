@@ -6,7 +6,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
-public class DeviceNotificationTest
+public class DeviceNotificationTests
 {
     public Mock<IWindowsAPI> _windowsAPIMock = new();
 
