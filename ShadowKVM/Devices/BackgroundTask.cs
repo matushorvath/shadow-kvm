@@ -22,7 +22,7 @@ public class BackgroundTask(
         logger.Debug("Starting background task");
 
         _cancellationTokenSource = new CancellationTokenSource();
-        _task = Task.Run(() => ProcessNotifications(config), _cancellationTokenSource.Token);
+        _task = Task.Run(() => ProcessNotifications(config));
     }
 
     async void ProcessNotifications(Config config)
