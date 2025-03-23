@@ -134,7 +134,6 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
 
         Assert.Collection(monitors, monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -198,7 +197,6 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         Assert.Collection(monitors,
         monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 1", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);
@@ -206,7 +204,6 @@ public class MonitorService_LoadPhysicalMonitorsTests : MonitorServiceFixture
         },
         monitor =>
         {
-            Assert.Equal("dEvIcEnAmE 2", monitor.Device);
             Assert.Equal("dEsCrIpTiOn 2", monitor.Description);
             Assert.Null(monitor.Adapter);
             Assert.Null(monitor.SerialNumber);

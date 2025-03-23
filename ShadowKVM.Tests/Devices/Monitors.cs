@@ -15,7 +15,6 @@ public class MonitorsTests
         {
             new Monitor
             {
-                Device = "dEvIcEnAmE 1",
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
@@ -23,7 +22,6 @@ public class MonitorsTests
             },
             new Monitor
             {
-                Device = "dEvIcEnAmE 2",
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",
                 SerialNumber = "sErIaL 2",
@@ -31,7 +29,6 @@ public class MonitorsTests
             },
             new Monitor
             {
-                Device = "dEvIcEnAmE 3",
                 Description = "dEsCrIpTiOn 3",
                 Adapter = "aDaPtEr 3",
                 SerialNumber = "sErIaL 3",
@@ -43,7 +40,7 @@ public class MonitorsTests
         foreach (var item in enumerable)
         {
             Assert.IsType<Monitor>(item);
-            Assert.Equal($"dEvIcEnAmE {index + 1}", ((Monitor)item).Device);
+            Assert.Equal($"dEsCrIpTiOn {index + 1}", ((Monitor)item).Description);
             index++;
         }
     }
@@ -57,7 +54,6 @@ public class MonitorsTests
         {
             monitors.Add(new Monitor
             {
-                Device = "dEvIcEnAmE 1",
                 Description = "dEsCrIpTiOn 1",
                 Adapter = "aDaPtEr 1",
                 SerialNumber = "sErIaL 1",
@@ -65,7 +61,6 @@ public class MonitorsTests
             });
             monitors.Add(new Monitor
             {
-                Device = "dEvIcEnAmE 2",
                 Description = "dEsCrIpTiOn 2",
                 Adapter = "aDaPtEr 2",
                 SerialNumber = "sErIaL 2",

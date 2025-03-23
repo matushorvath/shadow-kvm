@@ -32,7 +32,7 @@ public class MonitorInputServiceTest
 
         var service = new MonitorInputService(_windowsAPIMock.Object, _capabilitiesParser.Object, _loggerApiMock.Object);
 
-        var monitor = new Monitor { Handle = _handle12345, Device = "", Description = "" };
+        var monitor = new Monitor { Handle = _handle12345, Description = "" };
         MonitorInputs? inputs;
         Assert.False(service.TryLoadMonitorInputs(monitor, out inputs));
 
