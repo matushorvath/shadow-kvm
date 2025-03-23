@@ -113,7 +113,7 @@ public class BackgroundTask(
             {
                 // Cancel the task, wait up to five seconds for it to finish
                 _cancellationTokenSource?.Cancel();
-                _task.Wait(TimeSpan.FromSeconds(5));
+                _task.Wait();
 
                 _cancellationTokenSource = null;
                 _task = null;
@@ -123,6 +123,6 @@ public class BackgroundTask(
 
     public bool Enabled { get; set; } = true;
 
-    Task? _task;
+    public Task? _task; // public for unit tests, don't use
     CancellationTokenSource? _cancellationTokenSource;
 }
