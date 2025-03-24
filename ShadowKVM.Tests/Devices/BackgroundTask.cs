@@ -171,12 +171,7 @@ public class BackgroundTaskTests
         notificationMock.Verify();
     }
 
-    static Dictionary<string, (
-        Monitors monitorDevices,
-        MonitorConfig[] monitorConfigs,
-        IDeviceNotification.Action action,
-        Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations
-            )> TestData => new()
+    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[] monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
     {
         ["one monitor"] = new()
         {

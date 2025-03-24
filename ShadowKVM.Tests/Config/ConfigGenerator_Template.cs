@@ -29,7 +29,6 @@ public class ConfigGenerator_TemplateTests
     // Workaround for broken VS Code behavior when using theory data with objects (see above):
     // Save the actual theory data in a dictionary, pass dictionary keys to the theory.
 
-    // TODO improve by introducing TestValue class like in BackgroundTask.cs
     static Dictionary<string, (Monitors monitors, MonitorInputs?[] monitorInputs, string expectedFragment)> TestData => new()
     {
         ["all codes"] = new()
