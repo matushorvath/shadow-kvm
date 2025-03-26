@@ -18,6 +18,8 @@ Backlog
    - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
    - installer takes forever to kill running ShadowKVM.exe
       - maybe it's sending WM_CLOSE to wrong windows?
+   - use IClassFixture for UT
+      - https://stackoverflow.com/questions/46926852/xunit-constructor-runs-before-each-test
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
