@@ -27,7 +27,7 @@ public class BackgroundTask(
 
     async void ProcessNotifications(Config config)
     {
-        logger.Debug("Background task started");
+        logger.Debug("Background task started"); // used for synchronization in unit tests
 
         IDeviceNotification.Action? lastAction = null;
 
@@ -48,7 +48,7 @@ public class BackgroundTask(
             catch (OperationCanceledException)
             {
                 // Background task was cancelled from outside, just return
-                logger.Debug("Background task stopped");
+                logger.Debug("Background task stopped"); // used for synchronization in unit tests
             }
         }
     }
@@ -95,8 +95,7 @@ public class BackgroundTask(
             }
         }
 
-        // This log message is also used in unit test, to detect that all SetVCPFeature calls were made
-        logger.Debug("Device notification processed");
+        logger.Debug("Device notification processed"); // used for synchronization in unit tests
     }
 
     public void Dispose()
