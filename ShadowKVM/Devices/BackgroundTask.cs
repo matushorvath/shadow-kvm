@@ -95,6 +95,7 @@ public class BackgroundTask(
             }
         }
 
+        // This log message is also used in unit test, to detect that all SetVCPFeature calls were made
         logger.Debug("Device notification processed");
     }
 

@@ -7,15 +7,13 @@ using Windows.Win32.Foundation;
 namespace ShadowKVM.Tests;
 
 // TODO
-// attach, detach event
-// no configured monitors, no attached monitors, both
 // matching using description, adapter, serial - combinations
 //   missing description, adapter, serial in config (should be ignored)
 //   missing description, adapter, serial in device (still tries to match)
 //   missing description, adapter, serial in both
-// matches no monitors, one monitor, multiple monitors
-// attach with missing attach config, detach with missing detach config
-// one monitor device matching multiple monitor configs with different vcp code/value
+// matches multiple monitors with multiple configs
+// matches one monitor with multiple configs, with different vcp code/value
+// matches multiple monitors with one config
 
 public class BackgroundTaskTests
 {
@@ -103,6 +101,143 @@ public class BackgroundTaskTests
         notificationMock.Verify();
     }
 
+    static SafePhysicalMonitorHandle H(nuint value) => new SafePhysicalMonitorHandle(null!, (HANDLE)value, false);
+
+    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[] monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
+    {
+        ["attach one monitor"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x12345u) }
+            },
+            monitorConfigs =
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(17), Value = new (98) }
+                }
+            ],
+            action = IDeviceNotification.Action.Arrival,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+                [0x12345] = new() { Code = 17, Value = 98 }
+            }
+        },
+        ["detach one monitor"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x23456u) }
+            },
+            monitorConfigs =
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Detach = new () { Code = new(42), Value = new (76) }
+                }
+            ],
+            action = IDeviceNotification.Action.Removal,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+                [0x23456] = new() { Code = 42, Value = 76 }
+            }
+        },
+        ["no monitors"] = new()
+        {
+            monitorDevices = new()
+            {
+            },
+            monitorConfigs =
+            [
+            ],
+            action = IDeviceNotification.Action.Arrival,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+        ["no configured monitors"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x34567u) },
+                new() { Description = "dEsCrIpTiOn 2", Handle = H(0x45689u) }
+            },
+            monitorConfigs =
+            [
+            ],
+            action = IDeviceNotification.Action.Removal,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+        ["no monitor devices"] = new()
+        {
+            monitorDevices = new()
+            {
+            },
+            monitorConfigs =
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(42), Value = new (76) }
+                },
+                new()
+                {
+                    Description = "dEsCrIpTiOn 2",
+                    Attach = new () { Code = new(43), Value = new (75) }
+                }
+            ],
+            action = IDeviceNotification.Action.Arrival,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+        ["attach with missing attach config"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x56789u) }
+            },
+            monitorConfigs =
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Detach = new () { Code = new(17), Value = new (98) }
+                }
+            ],
+            action = IDeviceNotification.Action.Arrival,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+        ["detach with missing attach config"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x56789u) }
+            },
+            monitorConfigs =
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(17), Value = new (98) }
+                }
+            ],
+            action = IDeviceNotification.Action.Removal,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+    };
+
+    public static TheoryData<string> TestDataKeys => [.. TestData.Keys.AsEnumerable()];
+
     class SetVCPFeatureInvocation
     {
         public required byte Code { get; set; }
@@ -112,7 +247,7 @@ public class BackgroundTaskTests
     void SetupForProcessNotification(
         Monitors monitorDevices,
         IDictionary<nint, SetVCPFeatureInvocation> expectedInvocations,
-        CountdownEvent setVcpFeatureCalled)
+        ManualResetEventSlim processingActionFinished)
     {
         _monitorServiceMock
             .Setup(m => m.LoadMonitors())
@@ -131,11 +266,15 @@ public class BackgroundTaskTests
                     Assert.Equal(expectedInvocation.Code, bVCPCode);
                     Assert.Equal(expectedInvocation.Value, dwNewValue);
 
-                    setVcpFeatureCalled.Signal();
                     return 1;
                 }
             )
             .Verifiable();
+
+        // Once we receive this log message, we assume all SetVCPFeature calls were made
+        _loggerMock
+            .Setup(m => m.Debug("Device notification processed"))
+            .Callback(() => processingActionFinished.Set());
     }
 
     [Theory, MemberData(nameof(TestDataKeys))]
@@ -143,12 +282,17 @@ public class BackgroundTaskTests
     {
         var (monitorDevices, monitorConfigs, action, expectedInvocations) = TestData[testDataKey];
 
+        _deviceNotificationServiceMock.Reset();
+        _monitorServiceMock.Reset();
+        _windowsAPIMock.Reset();
+        _loggerMock.Reset();
+
         // The mock notification will pass data to this channel
         var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
         var notificationMock = SetupNotification(channel);
 
-        var setVcpFeatureCalled = new CountdownEvent(expectedInvocations.Count);
-        SetupForProcessNotification(monitorDevices, expectedInvocations, setVcpFeatureCalled);
+        var processingActionFinished = new ManualResetEventSlim(false);
+        SetupForProcessNotification(monitorDevices, expectedInvocations, processingActionFinished);
 
         var config = new Config
         {
@@ -164,40 +308,12 @@ public class BackgroundTaskTests
         channel.Writer.TryWrite(action);
 
         // Wait for the background task to make all calls to SetVCPFeature
-        Assert.True(setVcpFeatureCalled.Wait(TimeSpan.FromSeconds(5)));
+        Assert.True(processingActionFinished.Wait(TimeSpan.FromSeconds(5)));
+
+        // TODO check no other SetVCPFeature calls were made
 
         _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
-
-    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[] monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
-    {
-        ["one monitor"] = new()
-        {
-            monitorDevices = new()
-            {
-                new()
-                {
-                    Description = "dEsCrIpTiOn 1",
-                    Handle = new SafePhysicalMonitorHandle(null!, (HANDLE)12345u, false)
-                }
-            },
-            monitorConfigs =
-            [
-                new()
-                {
-                    Description = "dEsCrIpTiOn 1",
-                    Attach = new () { Code = new(0x42), Value = new (0x98) }
-                }
-            ],
-            action = IDeviceNotification.Action.Arrival,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-                [12345] = new() { Code = 0x42, Value = 0x98 }
-            }
-        }
-    };
-
-    public static TheoryData<string> TestDataKeys => [.. TestData.Keys.AsEnumerable()];
 }
