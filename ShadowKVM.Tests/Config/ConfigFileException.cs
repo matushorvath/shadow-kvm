@@ -31,9 +31,9 @@ public class ConfigFileExceptionTests
     {
         var exception = Assert.Throws<ConfigFileException>(
             void () => throw new ConfigFileException("tEsT pAtH",
-                new YamlException(new Mark(42, 69, 123), Mark.Empty, "iNnEr mEsSaGe")));
+                new YamlException(new Mark(42, 78, 123), Mark.Empty, "iNnEr mEsSaGe")));
 
-        Assert.Equal("tEsT pAtH(69,123): iNnEr mEsSaGe", exception.Message);
+        Assert.Equal("tEsT pAtH(78,123): iNnEr mEsSaGe", exception.Message);
     }
 
     [Fact]
