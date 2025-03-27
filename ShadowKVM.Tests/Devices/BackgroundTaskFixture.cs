@@ -10,8 +10,6 @@ namespace ShadowKVM.Tests;
 //   missing description, adapter, serial in config (should be ignored)
 //   missing description, adapter, serial in device (still tries to match)
 //   missing description, adapter, serial in both
-// matches one monitor with multiple configs, with different vcp code/value
-// matches multiple monitors with one config
 
 public class BackgroundTaskFixture
 {
