@@ -20,6 +20,7 @@ Backlog
       - maybe it's sending WM_CLOSE to wrong windows?
    - use IClassFixture for UT
       - https://stackoverflow.com/questions/46926852/xunit-constructor-runs-before-each-test
+   - try using record for MemberData in BackgroundTask test and other tests
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator

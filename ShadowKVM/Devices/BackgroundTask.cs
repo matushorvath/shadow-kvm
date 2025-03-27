@@ -22,38 +22,55 @@ public class BackgroundTask(
         logger.Debug("Starting background task");
 
         _cancellationTokenSource = new CancellationTokenSource();
-        _task = Task.Run(() => ProcessNotifications(config));
+        _task = Task.Run(() => Execute(config));
     }
 
-    async void ProcessNotifications(Config config)
+    async Task Execute(Config config)
     {
         logger.Debug("Background task started"); // used for synchronization in unit tests
 
+        try
+        {
+            using (var notification = deviceNotificationService.Register(config.TriggerDevice))
+            {
+                await ProcessNotifications(config, notification);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Background task was cancelled from outside, just return
+            logger.Debug("Background task stopped"); // used for synchronization in unit tests
+        }
+        catch (Exception exception)
+        {
+            logger.Warning("Background task failed: {Exception}", exception); // used for synchronization in unit tests
+        }
+    }
+
+    async Task ProcessNotifications(Config config, IDeviceNotification notification)
+    {
         IDeviceNotification.Action? lastAction = null;
 
-        using (var notification = deviceNotificationService.Register(config.TriggerDevice))
+        var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
+        await foreach (IDeviceNotification.Action action in actions)
         {
-            try
+            if (!Enabled)
             {
-                var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
-                await foreach (IDeviceNotification.Action action in actions)
-                {
-                    if (Enabled && lastAction != action)
-                    {
-                        ProcessNotification(config, action);
-                        lastAction = action;
-                    }
-                }
+                logger.Debug("Ignoring device notification while disabled, action {Action}", action); // used for synchronization in unit tests
             }
-            catch (OperationCanceledException)
+            else if (lastAction == action)
             {
-                // Background task was cancelled from outside, just return
-                logger.Debug("Background task stopped"); // used for synchronization in unit tests
+                logger.Debug("Ignoring duplicate device notification, action {Action}", action); // used for synchronization in unit tests
+            }
+            else
+            {
+                ProcessOneNotification(config, action);
+                lastAction = action;
             }
         }
     }
 
-    void ProcessNotification(Config config, IDeviceNotification.Action action)
+    void ProcessOneNotification(Config config, IDeviceNotification.Action action)
     {
         logger.Debug("Received device notification, action {Action}", action);
 
