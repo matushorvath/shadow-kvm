@@ -13,7 +13,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
         Monitors monitorDevices,
         MonitorConfig[]? monitorConfigs,
         IDeviceNotification.Action action,
-        Dictionary<nint, SetVCPFeatureInvocation> invocations);
+        Dictionary<nint, List<SetVCPFeatureInvocation>> invocations);
 
     static Dictionary<string, TestDatum> TestData => new()
     {
@@ -21,7 +21,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
             new Monitors(),
             [],
             IDeviceNotification.Action.Arrival,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["null configured monitors"] = new(
             new Monitors
@@ -31,7 +31,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
             },
             null,
             IDeviceNotification.Action.Removal,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["zero configured monitors"] = new(
             new Monitors
@@ -41,7 +41,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
             },
             [],
             IDeviceNotification.Action.Removal,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["no monitor devices"] = new(
             new Monitors(),
@@ -58,7 +58,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Arrival,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["attach with missing attach config"] = new(
             new Monitors
@@ -73,7 +73,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Arrival,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["detach with missing attach config"] = new(
             new Monitors
@@ -88,7 +88,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Removal,
-            new Dictionary<nint, SetVCPFeatureInvocation>()
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>()
         ),
         ["attach one monitor"] = new(
             new Monitors
@@ -103,9 +103,9 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Arrival,
-            new Dictionary<nint, SetVCPFeatureInvocation>
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>
             {
-                [0x12345] = new() { Code = 17, Value = 98 }
+                [0x12345] = [new() { Code = 17, Value = 98 }]
             }
         ),
         ["detach one monitor"] = new(
@@ -121,9 +121,36 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Removal,
-            new Dictionary<nint, SetVCPFeatureInvocation>
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>
             {
-                [0x23456] = new() { Code = 42, Value = 76 }
+                [0x23456] = [new() { Code = 42, Value = 76 }]
+            }
+        ),
+        ["one monitor matches multiple configs"] = new(
+            new Monitors
+            {
+                new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = H(0x23456u) }
+            },
+            [
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Detach = new () { Code = new(42), Value = new (76) }
+                },
+                new()
+                {
+                    Adapter = "aDaPtEr 1",
+                    Detach = new () { Code = new(43), Value = new (75) }
+                }
+            ],
+            IDeviceNotification.Action.Removal,
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>
+            {
+                [0x23456] =
+                [
+                    new() { Code = 42, Value = 76 },
+                    new() { Code = 43, Value = 75 }
+                ]
             }
         ),
         ["attach multiple monitors"] = new(
@@ -159,11 +186,11 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 }
             ],
             IDeviceNotification.Action.Arrival,
-            new Dictionary<nint, SetVCPFeatureInvocation>
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>
             {
-                [0x12345] = new() { Code = 17, Value = 98 },
-                [0x23456] = new() { Code = 18, Value = 97 },
-                [0x45678] = new() { Code = 19, Value = 96 }
+                [0x12345] = [new() { Code = 17, Value = 98 }],
+                [0x23456] = [new() { Code = 18, Value = 97 }],
+                [0x45678] = [new() { Code = 19, Value = 96 }]
             }
         ),
     };
@@ -204,7 +231,7 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
         _windowsAPIMock
             .Verify(
                 m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()),
-                Times.Exactly(invocations.Count));
+                Times.Exactly(invocations.Sum(i => i.Value.Count)));
 
         _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
