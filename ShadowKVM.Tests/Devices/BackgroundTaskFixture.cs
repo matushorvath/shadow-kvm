@@ -6,12 +6,6 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
-// TODO BackgroundTask tests
-// matching using description, adapter, serial - combinations
-//   missing description, adapter, serial in config (should be ignored)
-//   missing description, adapter, serial in device (still tries to match)
-//   missing description, adapter, serial in both
-
 public class BackgroundTaskFixture
 {
     protected Mock<IDeviceNotificationService> _deviceNotificationServiceMock = new();
