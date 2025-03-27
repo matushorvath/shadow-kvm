@@ -157,9 +157,168 @@ public class BackgroundTaskTests
         notificationMock.Verify();
     }
 
+    [Fact]
+    public void ProcessNotifications_IgnoreWhenDisabled()
+    {
+        // The mock notification will pass data to this channel
+        var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
+        var notificationMock = SetupNotification(channel);
+
+        // Synchronize with log messages that happen in another thread
+        var startedEvent = new AutoResetEvent(false);
+        _loggerMock
+            .Setup(m => m.Debug("Background task started"))
+            .Callback(() => startedEvent.Set());
+
+        var processedEvent = new AutoResetEvent(false);
+        _loggerMock
+            .Setup(m => m.Debug(
+                It.Is<string>(s => s.StartsWith("Ignoring device notification while disabled")),
+                It.IsAny<IDeviceNotification.Action>()))
+            .Callback(() => processedEvent.Set());
+
+        var config = new Config
+        {
+            TriggerDevice = new() { Raw = _testGuid },
+            Monitors = new ()
+            {
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(17), Value = new (98) }
+                }
+            }
+        };
+
+        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
+        {
+            backgroundTask.Restart(config);
+
+            // Make the test more challenging by waiting for the task to actually start before disabling it
+            Assert.True(startedEvent.WaitOne(TimeSpan.FromSeconds(5)));
+
+            backgroundTask.Enabled = false;
+
+            // Task is now running but disabled, send it an action
+            channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
+
+            // Wait for the action to be processed (by ignoring it)
+            Assert.True(processedEvent.WaitOne(TimeSpan.FromSeconds(5)));
+        }
+
+        // Don't expect any activity when background task is disabled
+        _loggerMock.Verify(m => m.Debug(
+            It.Is<string>(s => s.StartsWith("Ignoring device notification while disabled")),
+            It.IsAny<IDeviceNotification.Action>()));
+
+        _monitorServiceMock.Verify(m => m.LoadMonitors(), Times.Never);
+        _windowsAPIMock.Verify(m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()), Times.Never);
+
+        _deviceNotificationServiceMock.Verify();
+        notificationMock.Verify();
+    }
+
+    [Fact]
+    public void ProcessNotifications_IgnoreDuplicateAction()
+    {
+        // The mock notification will pass data to this channel
+        var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
+        var notificationMock = SetupNotification(channel);
+
+        // Return no monitor devices to simplify the test
+        _monitorServiceMock
+            .Setup(m => m.LoadMonitors())
+            .Returns([])
+            .Verifiable();
+
+        // Synchronize with log messages that happen in another thread
+        var startedEvent = new AutoResetEvent(false);
+        _loggerMock
+            .Setup(m => m.Debug("Background task started"))
+            .Callback(() => startedEvent.Set());
+
+        var processedEvent = new AutoResetEvent(false);
+        _loggerMock
+            .Setup(m => m.Debug(
+                It.Is<string>(s => s.StartsWith("Ignoring duplicate device notification")),
+                It.IsAny<IDeviceNotification.Action>()))
+            .Callback(() => processedEvent.Set());
+
+        var config = new Config
+        {
+            TriggerDevice = new() { Raw = _testGuid },
+            Monitors = new ()
+            {
+                new()
+                {
+                    Description = "dEsCrIpTiOn 1",
+                    Attach = new () { Code = new(17), Value = new (98) }
+                }
+            }
+        };
+
+        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
+        {
+            backgroundTask.Restart(config);
+
+            // Task is now running, send it an action, then the same action again
+            channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
+            channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
+
+            // Wait for the second duplicate action to be processed (by ignoring it)
+            Assert.True(processedEvent.WaitOne(TimeSpan.FromSeconds(5)));
+        }
+
+        // Expect a log message about ignoring the second action
+        _loggerMock.Verify(m => m.Debug(
+            It.Is<string>(s => s.StartsWith("Ignoring duplicate device notification")),
+            It.IsAny<IDeviceNotification.Action>()));
+
+        // Two actions, but LoadMonitors should have been only called for the first one
+        _monitorServiceMock.Verify(m => m.LoadMonitors(), Times.Once);
+
+        _deviceNotificationServiceMock.Verify();
+        notificationMock.Verify();
+    }
+
+    [Fact]
+    public void ProcessNotifications_FailsWhenRegisterThrows()
+    {
+        _deviceNotificationServiceMock
+            .Setup(m => m.Register(_testGuid))
+            .Throws(new Exception("rEgIsTeR"))
+            .Verifiable();
+
+        // Synchronize with log messages that happen in another thread
+        var failedEvent = new AutoResetEvent(false);
+        _loggerMock
+            .Setup(m => m.Warning(
+                It.Is<string>(s => s.StartsWith("Background task failed")),
+                It.IsAny<Exception>()))
+            .Callback(() => failedEvent.Set());
+
+        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
+        {
+            backgroundTask.Restart(new () { TriggerDevice = { Raw = _testGuid } });
+
+            // Wait for the task to fail as a reaction to IDeviceNotification.Register throwing
+            Assert.True(failedEvent.WaitOne(TimeSpan.FromSeconds(5)));
+        }
+
+        // Expect a log message about ignoring the second action
+        _loggerMock.Verify(m => m.Warning(
+            It.Is<string>(s => s.StartsWith("Background task failed")),
+            It.IsAny<Exception>()));
+
+        _deviceNotificationServiceMock.Verify();
+    }
+
     static SafePhysicalMonitorHandle H(nuint value) => new SafePhysicalMonitorHandle(null!, (HANDLE)value, false);
 
-    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[] monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
+    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[]? monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
     {
         ["attach one monitor"] = new()
         {
@@ -210,6 +369,19 @@ public class BackgroundTaskTests
             [
             ],
             action = IDeviceNotification.Action.Arrival,
+            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            {
+            }
+        },
+        ["null configured monitors"] = new()
+        {
+            monitorDevices = new()
+            {
+                new() { Description = "dEsCrIpTiOn 1", Handle = H(0x34567u) },
+                new() { Description = "dEsCrIpTiOn 2", Handle = H(0x45689u) }
+            },
+            monitorConfigs = null,
+            action = IDeviceNotification.Action.Removal,
             expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
             {
             }
@@ -300,7 +472,7 @@ public class BackgroundTaskTests
         public required uint Value { get; set; }
     }
 
-    void SetupForProcessNotification(
+    void SetupForProcessOneNotification(
         Monitors monitorDevices,
         IDictionary<nint, SetVCPFeatureInvocation> expectedInvocations,
         AutoResetEvent finishedEvent)
@@ -334,7 +506,7 @@ public class BackgroundTaskTests
     }
 
     [Theory, MemberData(nameof(TestDataKeys))]
-    public void ProcessNotification_Succeeds(string testDataKey)
+    public void ProcessOneNotification_Succeeds(string testDataKey)
     {
         var (monitorDevices, monitorConfigs, action, expectedInvocations) = TestData[testDataKey];
 
@@ -343,12 +515,12 @@ public class BackgroundTaskTests
         var notificationMock = SetupNotification(channel);
 
         var finishedEvent = new AutoResetEvent(false);
-        SetupForProcessNotification(monitorDevices, expectedInvocations, finishedEvent);
+        SetupForProcessOneNotification(monitorDevices, expectedInvocations, finishedEvent);
 
         var config = new Config
         {
             TriggerDevice = new() { Raw = _testGuid },
-            Monitors = monitorConfigs.ToList()
+            Monitors = monitorConfigs?.ToList()
         };
 
         using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
