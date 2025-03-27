@@ -48,7 +48,7 @@ public class BackgroundTaskFixture
 
     protected void SetupForProcessOneNotification(
         Monitors monitorDevices,
-        IDictionary<nint, SetVCPFeatureInvocation> invocations,
+        IDictionary<nint, List<SetVCPFeatureInvocation>> invocations,
         AutoResetEvent finishedEvent)
     {
         _monitorServiceMock
@@ -61,12 +61,12 @@ public class BackgroundTaskFixture
             .Returns(
                 (SafeHandle hMonitor, byte bVCPCode, uint dwNewValue) =>
                 {
-                    SetVCPFeatureInvocation? invocation;
+                    List<SetVCPFeatureInvocation>? handleInvocations;
                     Assert.True(invocations.TryGetValue(
-                        hMonitor.DangerousGetHandle(), out invocation));
+                        hMonitor.DangerousGetHandle(), out handleInvocations));
 
-                    Assert.Equal(invocation.Code, bVCPCode);
-                    Assert.Equal(invocation.Value, dwNewValue);
+                    Assert.Contains(handleInvocations, i => i.Code == bVCPCode);
+                    Assert.Contains(handleInvocations, i => i.Value == dwNewValue);
 
                     return 1;
                 }
