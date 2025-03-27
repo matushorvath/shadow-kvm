@@ -36,6 +36,9 @@ public interface IWindowsAPI
     // For DeviceNotificationService
     public CONFIGRET CM_Register_Notification(CM_NOTIFY_FILTER pFilter, nuint pContext,
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext);
+
+    // For BackgroundTask
+    public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
 }
 
 public class WindowsAPI : IWindowsAPI
@@ -111,5 +114,11 @@ public class WindowsAPI : IWindowsAPI
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext)
     {
         return PInvoke.CM_Register_Notification(pFilter, (void*)pContext, pCallback, out pNotifyContext);
+    }
+
+    // For BackgroundTask
+    public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue)
+    {
+        return PInvoke.SetVCPFeature(hMonitor, bVCPCode, dwNewValue);
     }
 }

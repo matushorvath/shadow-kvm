@@ -1,51 +1,78 @@
-﻿using System.Windows;
-using Serilog;
-using Windows.Win32;
+﻿using Serilog;
 
 namespace ShadowKVM;
 
 public class BackgroundTask(
-    Config config,
     IDeviceNotificationService deviceNotificationService,
-    IMonitorService monitorService) : IDisposable
+    IMonitorService monitorService,
+    IWindowsAPI windowsAPI,
+    ILogger logger
+        ) : IDisposable
 {
-    public void Start()
+    public void Restart(Config config)
     {
-        Log.Debug("Starting background task");
-        _task = Task.Run(ProcessNotifications);
+        if (_task != null)
+        {
+            logger.Debug("Stopping background task");
+
+            _cancellationTokenSource.Cancel();
+            _task.Wait();
+        }
+
+        logger.Debug("Starting background task");
+
+        _cancellationTokenSource = new CancellationTokenSource();
+        _task = Task.Run(() => Execute(config));
     }
 
-    async void ProcessNotifications()
+    async Task Execute(Config config)
     {
-        Log.Debug("Background task started");
+        logger.Debug("Background task started"); // used for synchronization in unit tests
 
+        try
+        {
+            using (var notification = deviceNotificationService.Register(config.TriggerDevice))
+            {
+                await ProcessNotifications(config, notification);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Background task was cancelled from outside, just return
+            logger.Debug("Background task stopped"); // used for synchronization in unit tests
+        }
+        catch (Exception exception)
+        {
+            logger.Warning("Background task failed: {Exception}", exception); // used for synchronization in unit tests
+        }
+    }
+
+    async Task ProcessNotifications(Config config, IDeviceNotification notification)
+    {
         IDeviceNotification.Action? lastAction = null;
 
-        using (var notification = deviceNotificationService.Register(config.TriggerDevice))
+        var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
+        await foreach (IDeviceNotification.Action action in actions)
         {
-            try
+            if (!Enabled)
             {
-                var actions = notification.Reader.ReadAllAsync(_cancellationTokenSource.Token);
-                await foreach (IDeviceNotification.Action action in actions)
-                {
-                    if (App.IsEnabled && lastAction != action)
-                    {
-                        ProcessNotification(action);
-                        lastAction = action;
-                    }
-                }
+                logger.Debug("Ignoring device notification while disabled, action {Action}", action); // used for synchronization in unit tests
             }
-            catch (OperationCanceledException)
+            else if (lastAction == action)
             {
-                // Background task was cancelled from outside, just return
-                Log.Debug("Background task stopped");
+                logger.Debug("Ignoring duplicate device notification, action {Action}", action); // used for synchronization in unit tests
+            }
+            else
+            {
+                ProcessOneNotification(config, action);
+                lastAction = action;
             }
         }
     }
 
-    void ProcessNotification(IDeviceNotification.Action action)
+    void ProcessOneNotification(Config config, IDeviceNotification.Action action)
     {
-        Log.Debug("Received device notification, action {Action}", action);
+        logger.Debug("Received device notification, action {Action}", action);
 
         using (var monitors = monitorService.LoadMonitors())
         {
@@ -58,7 +85,7 @@ public class BackgroundTask(
                     continue;
                 }
 
-                Log.Debug("Processing config {@MonitorConfig}", monitorConfig);
+                logger.Debug("Processing config {@MonitorConfig}", monitorConfig);
 
                 // Execute the action for matching monitors
                 var matchingMonitors =
@@ -70,22 +97,22 @@ public class BackgroundTask(
 
                 if (matchingMonitors.Count() == 0)
                 {
-                    Log.Warning("Did not find any monitors for config {@MonitorConfig}", monitorConfig);
-                    Log.Information("Following monitors exist: {@Monitors}", monitors);
+                    logger.Warning("Did not find any monitors for config {@MonitorConfig}", monitorConfig);
+                    logger.Information("Following monitors exist: {@Monitors}", monitors);
 
                     continue;
                 }
 
                 foreach (var matchingMonitor in matchingMonitors)
                 {
-                    PInvoke.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
-                    Log.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
+                    windowsAPI.SetVCPFeature(matchingMonitor.Handle, actionConfig.Code, actionConfig.Value);
+                    logger.Information("Executed action, code 0x{Code:x} value 0x{Value:x} monitor {@Monitor}",
                         actionConfig.Code.Raw, actionConfig.Value.Raw, matchingMonitor);
                 }
             }
         }
 
-        Log.Debug("Device notification processed");
+        logger.Debug("Device notification processed"); // used for synchronization in unit tests
     }
 
     public void Dispose()
@@ -102,15 +129,14 @@ public class BackgroundTask(
             {
                 // Cancel the task, wait up to five seconds for it to finish
                 _cancellationTokenSource.Cancel();
-                _task.Wait(TimeSpan.FromSeconds(5));
+                _task.Wait();
                 _task = null;
             }
         }
     }
 
-    Task? _task;
+    public bool Enabled { get; set; } = true;
 
+    public Task? _task; // public for unit tests, don't use
     CancellationTokenSource _cancellationTokenSource = new();
-
-    App App => (App)Application.Current;
 }

@@ -7,7 +7,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
-public class MonitorInputServiceTest
+public class MonitorInputServiceTests
 {
     public Mock<IWindowsAPI> _windowsAPIMock = new();
     public Mock<ICapabilitiesParser> _capabilitiesParser = new();
@@ -15,7 +15,7 @@ public class MonitorInputServiceTest
 
     SafePhysicalMonitorHandle _handle12345;
 
-    public MonitorInputServiceTest()
+    public MonitorInputServiceTests()
     {
         _handle12345 = new SafePhysicalMonitorHandle(_windowsAPIMock.Object, (HANDLE)12345u, false);
     }
