@@ -182,7 +182,7 @@ public class BackgroundTaskTests
         var config = new Config
         {
             TriggerDevice = new() { Raw = _testGuid },
-            Monitors = new ()
+            Monitors = new()
             {
                 new()
                 {
@@ -251,7 +251,7 @@ public class BackgroundTaskTests
         var config = new Config
         {
             TriggerDevice = new() { Raw = _testGuid },
-            Monitors = new ()
+            Monitors = new()
             {
                 new()
                 {
@@ -306,7 +306,7 @@ public class BackgroundTaskTests
         using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(new () { TriggerDevice = { Raw = _testGuid } });
+            backgroundTask.Restart(new() { TriggerDevice = { Raw = _testGuid } });
 
             // Wait for the task to fail as a reaction to IDeviceNotification.Register throwing
             Assert.True(failedEvent.WaitOne(TimeSpan.FromSeconds(5)));
