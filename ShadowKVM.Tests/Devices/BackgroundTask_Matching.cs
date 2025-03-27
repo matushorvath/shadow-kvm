@@ -5,7 +5,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
-public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
+public class BackgroundTask_MatchingTests : BackgroundTaskFixture
 {
     static Dictionary<string, TestDatum> TestData => new()
     {
