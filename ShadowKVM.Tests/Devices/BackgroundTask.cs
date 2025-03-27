@@ -357,35 +357,37 @@ public class BackgroundTaskTests
 
     static SafePhysicalMonitorHandle H(nuint value) => new SafePhysicalMonitorHandle(null!, (HANDLE)value, false);
 
-    static Dictionary<string, (Monitors monitorDevices, MonitorConfig[]? monitorConfigs, IDeviceNotification.Action action, Dictionary<nint, SetVCPFeatureInvocation> expectedInvocations)> TestData => new()
+    record TestDatum(
+        Monitors monitorDevices,
+        MonitorConfig[]? monitorConfigs,
+        IDeviceNotification.Action action,
+        Dictionary<nint, SetVCPFeatureInvocation> invocations);
+
+    static Dictionary<string, TestDatum> TestData => new()
     {
-        ["attach one monitor"] = new()
-        {
-            monitorDevices = new()
+        ["attach one monitor"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x12345u) }
             },
-            monitorConfigs =
             [
-                new()
+                new MonitorConfig
                 {
                     Description = "dEsCrIpTiOn 1",
                     Attach = new () { Code = new(17), Value = new (98) }
                 }
             ],
-            action = IDeviceNotification.Action.Arrival,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            IDeviceNotification.Action.Arrival,
+            new Dictionary<nint, SetVCPFeatureInvocation>
             {
                 [0x12345] = new() { Code = 17, Value = 98 }
             }
-        },
-        ["detach one monitor"] = new()
-        {
-            monitorDevices = new()
+        ),
+        ["detach one monitor"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x23456u) }
             },
-            monitorConfigs =
             [
                 new()
                 {
@@ -393,59 +395,40 @@ public class BackgroundTaskTests
                     Detach = new () { Code = new(42), Value = new (76) }
                 }
             ],
-            action = IDeviceNotification.Action.Removal,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
+            IDeviceNotification.Action.Removal,
+            new Dictionary<nint, SetVCPFeatureInvocation>
             {
                 [0x23456] = new() { Code = 42, Value = 76 }
             }
-        },
-        ["no monitors"] = new()
-        {
-            monitorDevices = new()
-            {
-            },
-            monitorConfigs =
-            [
-            ],
-            action = IDeviceNotification.Action.Arrival,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
-        ["null configured monitors"] = new()
-        {
-            monitorDevices = new()
+        ),
+        ["no monitors"] = new(
+            new Monitors(),
+            [],
+            IDeviceNotification.Action.Arrival,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        ),
+        ["null configured monitors"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x34567u) },
                 new() { Description = "dEsCrIpTiOn 2", Handle = H(0x45689u) }
             },
-            monitorConfigs = null,
-            action = IDeviceNotification.Action.Removal,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
-        ["no configured monitors"] = new()
-        {
-            monitorDevices = new()
+            null,
+            IDeviceNotification.Action.Removal,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        ),
+        ["no configured monitors"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x34567u) },
                 new() { Description = "dEsCrIpTiOn 2", Handle = H(0x45689u) }
             },
-            monitorConfigs =
-            [
-            ],
-            action = IDeviceNotification.Action.Removal,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
-        ["no monitor devices"] = new()
-        {
-            monitorDevices = new()
-            {
-            },
-            monitorConfigs =
+            [],
+            IDeviceNotification.Action.Removal,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        ),
+        ["no monitor devices"] = new(
+            new Monitors(),
             [
                 new()
                 {
@@ -458,18 +441,14 @@ public class BackgroundTaskTests
                     Attach = new () { Code = new(43), Value = new (75) }
                 }
             ],
-            action = IDeviceNotification.Action.Arrival,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
-        ["attach with missing attach config"] = new()
-        {
-            monitorDevices = new()
+            IDeviceNotification.Action.Arrival,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        ),
+        ["attach with missing attach config"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x56789u) }
             },
-            monitorConfigs =
             [
                 new()
                 {
@@ -477,18 +456,14 @@ public class BackgroundTaskTests
                     Detach = new () { Code = new(17), Value = new (98) }
                 }
             ],
-            action = IDeviceNotification.Action.Arrival,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
-        ["detach with missing attach config"] = new()
-        {
-            monitorDevices = new()
+            IDeviceNotification.Action.Arrival,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        ),
+        ["detach with missing attach config"] = new(
+            new Monitors
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = H(0x56789u) }
             },
-            monitorConfigs =
             [
                 new()
                 {
@@ -496,11 +471,9 @@ public class BackgroundTaskTests
                     Attach = new () { Code = new(17), Value = new (98) }
                 }
             ],
-            action = IDeviceNotification.Action.Removal,
-            expectedInvocations = new Dictionary<nint, SetVCPFeatureInvocation>
-            {
-            }
-        },
+            IDeviceNotification.Action.Removal,
+            new Dictionary<nint, SetVCPFeatureInvocation>()
+        )
     };
 
     public static TheoryData<string> TestDataKeys => [.. TestData.Keys.AsEnumerable()];
@@ -513,7 +486,7 @@ public class BackgroundTaskTests
 
     void SetupForProcessOneNotification(
         Monitors monitorDevices,
-        IDictionary<nint, SetVCPFeatureInvocation> expectedInvocations,
+        IDictionary<nint, SetVCPFeatureInvocation> invocations,
         AutoResetEvent finishedEvent)
     {
         _monitorServiceMock
@@ -526,12 +499,12 @@ public class BackgroundTaskTests
             .Returns(
                 (SafeHandle hMonitor, byte bVCPCode, uint dwNewValue) =>
                 {
-                    SetVCPFeatureInvocation? expectedInvocation;
-                    Assert.True(expectedInvocations.TryGetValue(
-                        hMonitor.DangerousGetHandle(), out expectedInvocation));
+                    SetVCPFeatureInvocation? invocation;
+                    Assert.True(invocations.TryGetValue(
+                        hMonitor.DangerousGetHandle(), out invocation));
 
-                    Assert.Equal(expectedInvocation.Code, bVCPCode);
-                    Assert.Equal(expectedInvocation.Value, dwNewValue);
+                    Assert.Equal(invocation.Code, bVCPCode);
+                    Assert.Equal(invocation.Value, dwNewValue);
 
                     return 1;
                 }
@@ -547,14 +520,14 @@ public class BackgroundTaskTests
     [Theory, MemberData(nameof(TestDataKeys))]
     public void ProcessOneNotification_Succeeds(string testDataKey)
     {
-        var (monitorDevices, monitorConfigs, action, expectedInvocations) = TestData[testDataKey];
+        var (monitorDevices, monitorConfigs, action, invocations) = TestData[testDataKey];
 
         // The mock notification will pass data to this channel
         var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
         var notificationMock = SetupNotification(channel);
 
         var finishedEvent = new AutoResetEvent(false);
-        SetupForProcessOneNotification(monitorDevices, expectedInvocations, finishedEvent);
+        SetupForProcessOneNotification(monitorDevices, invocations, finishedEvent);
 
         var config = new Config
         {

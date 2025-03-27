@@ -18,17 +18,13 @@ Backlog
    - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
    - installer takes forever to kill running ShadowKVM.exe
       - maybe it's sending WM_CLOSE to wrong windows?
-   - use IClassFixture for UT
-      - https://stackoverflow.com/questions/46926852/xunit-constructor-runs-before-each-test
-   - try using record for MemberData in BackgroundTask test and other tests
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
    - show which display is which in case they have same names
-   - chocolatey/winget support
+   - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
-   - use new() wherever possible
 
 Build and Test
 ==============
