@@ -89,6 +89,7 @@ public class BackgroundTaskTests
         // Dispose will stop the task
         _loggerMock.Verify(m => m.Debug("Background task stopped"), Times.Once);
 
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
@@ -153,6 +154,7 @@ public class BackgroundTaskTests
         // Dispose will stop the task
         _loggerMock.Verify(m => m.Debug("Background task stopped"), Times.Exactly(2));
 
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
@@ -215,6 +217,7 @@ public class BackgroundTaskTests
         _monitorServiceMock.Verify(m => m.LoadMonitors(), Times.Never);
         _windowsAPIMock.Verify(m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()), Times.Never);
 
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
@@ -279,6 +282,7 @@ public class BackgroundTaskTests
         // Two actions, but LoadMonitors should have been only called for the first one
         _monitorServiceMock.Verify(m => m.LoadMonitors(), Times.Once);
 
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
         notificationMock.Verify();
     }
@@ -313,7 +317,42 @@ public class BackgroundTaskTests
             It.Is<string>(s => s.StartsWith("Background task failed")),
             It.IsAny<Exception>()));
 
+        _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
+    }
+
+    [Fact]
+    public async Task ProcessNotifications_ReturnsOnClosedChannel()
+    {
+        // This test mostly exists to achieve 100% coverage of this class,
+        // in real use the channel will never be closed
+
+        // The mock notification will pass data to this channel
+        var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
+        var notificationMock = SetupNotification(channel);
+
+        var config = new Config
+        {
+            TriggerDevice = new() { Raw = _testGuid }
+        };
+
+        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+            _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
+        {
+            backgroundTask.Restart(config);
+
+            // Task is now running, close the channel
+            channel.Writer.Complete();
+
+            // Wait for the task to close cleanly
+            Assert.NotNull(backgroundTask._task);
+            await backgroundTask._task.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.True(backgroundTask._task.IsCompletedSuccessfully);
+        }
+
+        _monitorServiceMock.Verify();
+        _deviceNotificationServiceMock.Verify();
+        notificationMock.Verify();
     }
 
     static SafePhysicalMonitorHandle H(nuint value) => new SafePhysicalMonitorHandle(null!, (HANDLE)value, false);
