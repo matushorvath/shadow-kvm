@@ -4,7 +4,7 @@ using System.Threading.Channels;
 
 namespace ShadowKVM.Tests;
 
-public class BackgroundTask_ProcessNotificationsTests : BackgroundTaskFixture
+public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
 {
     [Fact]
     public void ProcessNotifications_IgnoreWhenDisabled()
