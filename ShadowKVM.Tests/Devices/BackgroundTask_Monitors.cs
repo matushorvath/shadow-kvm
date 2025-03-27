@@ -153,6 +153,26 @@ public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
                 ]
             }
         ),
+        ["multiple monitors match one config"] = new(
+            new Monitors
+            {
+                new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr", Handle = H(0x23456u) },
+                new() { Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr", Handle = H(0x34564u) }
+            },
+            [
+                new()
+                {
+                    Adapter = "aDaPtEr",
+                    Attach = new () { Code = new(17), Value = new (98) }
+                },
+            ],
+            IDeviceNotification.Action.Arrival,
+            new Dictionary<nint, List<SetVCPFeatureInvocation>>
+            {
+                [0x23456] = [new() { Code = 17, Value = 98 }],
+                [0x34564] = [new() { Code = 17, Value = 98 }],
+            }
+        ),
         ["attach multiple monitors"] = new(
             new Monitors
             {
