@@ -1,8 +1,3 @@
-using Moq;
-using System.Runtime.InteropServices;
-using System.Threading.Channels;
-using Windows.Win32.Foundation;
-
 namespace ShadowKVM.Tests;
 
 public class BackgroundTask_MonitorsTests : BackgroundTaskFixture
