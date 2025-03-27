@@ -29,48 +29,45 @@ public class ConfigGenerator_TemplateTests
     // Workaround for broken VS Code behavior when using theory data with objects (see above):
     // Save the actual theory data in a dictionary, pass dictionary keys to the theory.
 
-    static Dictionary<string, (Monitors monitors, MonitorInputs?[] monitorInputs, string expectedFragment)> TestData => new()
+    record TestDatum(Monitors monitors, MonitorInputs?[] monitorInputs, string expectedFragment);
+
+    static Dictionary<string, TestDatum> TestData => new()
     {
-        ["all codes"] = new()
-        {
-            monitors = new() { },
-            monitorInputs = [],
-            expectedFragment = """
+        ["all codes"] = new(
+            new Monitors(),
+            [],
+            """
             # Supported command code strings are:
             #   input-select (96)
             """
-        },
-        ["all values"] = new()
-        {
-            monitors = new() { },
-            monitorInputs = [],
-            expectedFragment = """
+        ),
+        ["all values"] = new(
+            new Monitors(),
+            [],
+            """
             # Supported command value strings are:
             #   analog1 (1) analog2 (2) dvi1 (3) dvi2 (4) composite1 (5) composite2 (6) s-video1 (7)
             #   s-video2 (8) tuner1 (9) tuner2 (10) tuner3 (11) component1 (12) component2 (13)
             #   component3 (14) display-port1 (15) display-port2 (16) hdmi1 (17) hdmi2 (18)
             """
-        },
-        ["no monitors"] = new()
-        {
-            monitors = new() { },
-            monitorInputs = [],
-            expectedFragment = """
+        ),
+        ["no monitors"] = new(
+            new Monitors(),
+            [],
+            """
             monitors:
             #
             """
-        },
-        ["monitor with no adapter or serial"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with no adapter or serial"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -81,18 +78,16 @@ public class ConfigGenerator_TemplateTests
                   value: 123
 
             """
-        },
-        ["monitor with adapter but no serial"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with adapter but no serial"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 adapter: aDaPtEr 1
@@ -104,18 +99,16 @@ public class ConfigGenerator_TemplateTests
                   value: 123
 
             """
-        },
-        ["monitor with serial but no adapter"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with serial but no adapter"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 serial-number: sErIaL 1
@@ -127,18 +120,16 @@ public class ConfigGenerator_TemplateTests
                   value: 123
 
             """
-        },
-        ["monitor with adapter and serial"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with adapter and serial"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Adapter = "aDaPtEr 1", SerialNumber = "sErIaL 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 adapter: aDaPtEr 1
@@ -151,18 +142,16 @@ public class ConfigGenerator_TemplateTests
                   value: 123
 
             """
-        },
-        ["inputs are enum values"] = new()
-        {
-            monitors = new()
+        ),
+        ["inputs are enum values"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 0x0f, ValidInputs = new() { 0x0f, 0x12 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -173,18 +162,16 @@ public class ConfigGenerator_TemplateTests
                   value: hdmi2
 
             """
-        },
-        ["monitor with no inputs"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with no inputs"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 null
             ],
-            expectedFragment = """
+            """
             monitors:
             # - description: dEsCrIpTiOn 1
             #   attach:
@@ -195,18 +182,16 @@ public class ConfigGenerator_TemplateTests
             #     value: # warning: no input sources found for this monitor
 
             """
-        },
-        ["monitor with single input"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with single input"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -217,18 +202,16 @@ public class ConfigGenerator_TemplateTests
                   value: 42    # warning: only one input source found for this monitor
 
             """
-        },
-        ["monitor with two inputs"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with two inputs"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 42, 123 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -239,18 +222,16 @@ public class ConfigGenerator_TemplateTests
                   value: 123
 
             """
-        },
-        ["monitor with multiple inputs"] = new()
-        {
-            monitors = new()
+        ),
+        ["monitor with multiple inputs"] = new(
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 0x07, 42, 123, 0x11 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -261,22 +242,20 @@ public class ConfigGenerator_TemplateTests
                   value: s-video1    # other options: 123 hdmi1
 
             """
-        },
-        ["multiple monitors"] = new() // this test data is used in multiple tests
-        {
-            monitors = new()
+        ),
+        ["multiple monitors"] = new( // this test datum is used in multiple tests
+            new Monitors()
             {
                 new() { Description = "dEsCrIpTiOn 1", Handle = NH },
                 new() { Description = "dEsCrIpTiOn 2", Adapter = "aDaPtEr 2", Handle = NH },
                 new() { Description = "dEsCrIpTiOn 3", SerialNumber = "sErIaL 3", Handle = NH }
             },
-            monitorInputs =
             [
                 new() { SelectedInput = 42, ValidInputs = new() { 0x0e, 42, 123, 0x03 } },
                 null,
                 new() { SelectedInput = 0x01, ValidInputs = new() { 0x01 } }
             ],
-            expectedFragment = """
+            """
             monitors:
               - description: dEsCrIpTiOn 1
                 attach:
@@ -305,7 +284,7 @@ public class ConfigGenerator_TemplateTests
                   value: analog1    # warning: only one input source found for this monitor
 
             """
-        },
+        )
     };
 
     public static TheoryData<string> TestDataKeys => [.. TestData.Keys.AsEnumerable()];
