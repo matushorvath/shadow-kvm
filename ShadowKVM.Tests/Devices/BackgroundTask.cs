@@ -6,7 +6,7 @@ using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;
 
-// TODO
+// TODO BackgroundTask tests
 // matching using description, adapter, serial - combinations
 //   missing description, adapter, serial in config (should be ignored)
 //   missing description, adapter, serial in device (still tries to match)
@@ -547,7 +547,11 @@ public class BackgroundTaskTests
             Assert.True(finishedEvent.WaitOne(TimeSpan.FromSeconds(5)));
         }
 
-        // TODO check no other SetVCPFeature calls were made
+        // Check no other SetVCPFeature calls were made
+        _windowsAPIMock
+            .Verify(
+                m => m.SetVCPFeature(It.IsAny<SafeHandle>(), It.IsAny<byte>(), It.IsAny<uint>()),
+                Times.Exactly(invocations.Count));
 
         _monitorServiceMock.Verify();
         _deviceNotificationServiceMock.Verify();
