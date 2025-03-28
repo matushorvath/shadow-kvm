@@ -88,7 +88,7 @@ public class ConfigService : IConfigService
             throw new ConfigException($"At least one monitor needs to be specified in configuration");
         }
 
-        foreach (var monitor in config.Monitors ?? [])
+        foreach (var monitor in config.Monitors)
         {
             if (monitor.Description == null && monitor.Adapter == null && monitor.SerialNumber == null)
             {

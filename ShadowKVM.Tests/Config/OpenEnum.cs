@@ -1,4 +1,6 @@
+using Moq;
 using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -42,6 +44,15 @@ public class OpenEnumByteTests
     }
 
     [Fact]
+    public void Raw_ThrowsWhenNotInitialized()
+    {
+        var openEnum = new OpenEnumByte<ByteEnum>();
+
+        Assert.Null(openEnum.Enum);
+        Assert.Throws<NullReferenceException>(() => { var _ = openEnum.Raw; });
+    }
+
+    [Fact]
     public void OperatorTRaw_WorksWithEnumValue()
     {
         var openEnum = new OpenEnumByte<ByteEnum>(ByteEnum.C);
@@ -50,12 +61,25 @@ public class OpenEnumByteTests
     }
 
     [Fact]
+    public void ReadYaml_WorksWithoutMarks()
+    {
+        ParsingEvent parsingEvent = new Scalar(AnchorName.Empty, TagName.Empty, "iNvAlid", ScalarStyle.Any, true, true, Mark.Empty, Mark.Empty);
+
+        var mockParser = new Mock<IParser>();
+        mockParser.Setup(p => p.Current).Returns(() => null);
+
+        var converter = new OpenEnumByteYamlTypeConverter<ByteEnum>(HyphenatedNamingConvention.Instance);
+
+        var exception = Assert.Throws<ArgumentNullException>(() =>
+            converter.ReadYaml(mockParser.Object, typeof(ByteEnum), null!));
+    }
+
+    [Fact]
     public void WriteYaml_ThrowsNotImplemented()
     {
         var converter = new OpenEnumByteYamlTypeConverter<ByteEnum>(HyphenatedNamingConvention.Instance);
 
-        Assert.Throws<NotImplementedException>(() => converter.WriteYaml(
-            (IEmitter)null!, null, typeof(byte), (ObjectSerializer)null!
-        ));
+        Assert.Throws<NotImplementedException>(() =>
+            converter.WriteYaml(null!, null, typeof(byte), null!));
     }
 }
