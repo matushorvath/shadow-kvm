@@ -3,9 +3,6 @@ using static Pidgin.Parser;
 using static Pidgin.Parser<char>;
 using Serilog;
 
-// Capabilities string format:
-// (prot(monitor)type(LCD)model(...)cmds(...)vcp(02 04 ... 14(05 08 0B 0C) ... 60(1B 11 12 ) ... FD)mswhql(1)asset_eep(40)mccs_ver(2.1))
-
 namespace ShadowKVM;
 
 public interface ICapabilitiesParser
@@ -112,7 +109,8 @@ public class CapabilitiesParser(ILogger logger) : ICapabilitiesParser
             .Labelled("component");
 
     static readonly Parser<char, List<ICapabilitiesParser.Component?>> _capabilities =
-        _openParen
+        SkipWhitespaces
+            .Then(_openParen)
             .Then(_component.Many().Select(components => components.ToList()))
             .Before(_closeParen);
 
