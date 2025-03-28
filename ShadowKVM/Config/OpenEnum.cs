@@ -6,6 +6,7 @@ namespace ShadowKVM;
 
 public abstract class OpenEnum<TEnum, TRaw>
     where TEnum : struct, Enum
+    where TRaw : struct
 {
     public OpenEnum()
     {
@@ -56,13 +57,19 @@ public abstract class OpenEnum<TEnum, TRaw>
 public abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingConvention namingConvention) : IYamlTypeConverter
     where TOpenEnum : OpenEnum<TEnum, TRaw>, new()
     where TEnum : struct, Enum
+    where TRaw : struct
 {
     public bool Accepts(Type type) => type == typeof(TOpenEnum);
 
     public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        var startMark = parser.Current?.Start ?? Mark.Empty;
-        var endMark = parser.Current?.End ?? Mark.Empty;
+        if (parser.Current == null)
+        {
+            throw new ArgumentNullException(nameof(parser));
+        }
+
+        var startMark = parser.Current.Start;
+        var endMark = parser.Current.End;
 
         var scalar = parser.Consume<Scalar>().Value;
         var reversedScalar = namingConvention.Reverse(scalar);

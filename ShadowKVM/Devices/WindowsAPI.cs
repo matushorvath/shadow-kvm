@@ -5,6 +5,7 @@ using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ShadowKVM;
 
@@ -41,6 +42,8 @@ public interface IWindowsAPI
     public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
 }
 
+[ExcludeFromCodeCoverage(
+    Justification = "Implementation of the interface used for mocking Win32 API calls.")] 
 public class WindowsAPI : IWindowsAPI
 {
     // For MonitorService
