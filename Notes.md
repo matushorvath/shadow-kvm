@@ -25,6 +25,7 @@ Backlog
    - show which display is which in case they have same names
    - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
+   - check coverage of branches against the HTML report, not all branches are covered
 
 Build and Test
 ==============
@@ -61,3 +62,4 @@ Unit tests:
 https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-test
 https://github.com/devlooped/moq/wiki/Quickstart
 https://www.roundthecode.com/dotnet-tutorials/moq-mocking-objects-xunit-dotnet
+https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/MSBuildIntegration.md
