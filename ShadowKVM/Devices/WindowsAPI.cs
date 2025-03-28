@@ -42,8 +42,7 @@ public interface IWindowsAPI
     public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
 }
 
-[ExcludeFromCodeCoverage(
-    Justification = "Implementation of the interface used for mocking Win32 API calls.")] 
+[ExcludeFromCodeCoverage(Justification = "Productive implementation of the Windows API interface")] 
 public class WindowsAPI : IWindowsAPI
 {
     // For MonitorService
