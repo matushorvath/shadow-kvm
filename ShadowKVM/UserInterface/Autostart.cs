@@ -23,7 +23,7 @@ public static class Autostart
     {
         if (value)
         {
-            string executable = $"\"{System.Reflection.Assembly.GetExecutingAssembly().Location}\"";
+            string executable = $"\"{Environment.ProcessPath}\"";
             Registry.CurrentUser.CreateSubKey(EnabledRegistryKey, true).SetValue(EnabledRegistryValue, executable);
         }
         else
