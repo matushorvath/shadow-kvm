@@ -123,19 +123,24 @@ public class MonitorInputsTemplateData(MonitorInputs? inputs)
                 select input
             ).ToArray();
 
-            if (inputs?.SelectedInput == null && unselectedInputs.Length == 0)
+            if (unselectedInputs.Length == 0)
             {
-                return $"{FormatInputString(null)}";
-            }
-            else if (unselectedInputs.Length == 0)
-            {
-                // There is just one input; use that, although it doesn't make much sense
-                return $"{FormatInputString(inputs?.SelectedInput)}    # warning: only one input source found for this monitor";
+                var selectedInput = inputs?.SelectedInput;
+                if (selectedInput == null)
+                {
+                    // No inputs at all; use a comment
+                    return FormatInputString(null);
+                }
+                else
+                {
+                    // There is just one input; use that, although it doesn't make much sense
+                    return $"{FormatInputString(selectedInput)}    # warning: only one input source found for this monitor";
+                }
             }
             else if (unselectedInputs.Length == 1)
             {
                 // There is exactly one other input
-                return $"{FormatInputString(unselectedInputs[0])}";
+                return FormatInputString(unselectedInputs[0]);
             }
             else
             {
@@ -166,7 +171,7 @@ public class MonitorInputsTemplateData(MonitorInputs? inputs)
         }
         else
         {
-            return inputByte.ToString() ?? string.Empty;
+            return inputByte.ToString()!;
         }
     }
 }

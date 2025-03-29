@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using Serilog;
 
 namespace ShadowKVM;
 
+[ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")]
 public class Services
 {
     public Services(string dataDirectory)
