@@ -20,8 +20,6 @@ Backlog
    - real configuration UI
    - installer takes forever to kill running ShadowKVM.exe
       - maybe it's sending WM_CLOSE to wrong windows?
-   - dependabot skips updating many dependencies because of errors like this:  
-     The package Microsoft.NET.Test.Sdk.17.13.0 is not compatible. Incompatible project frameworks: net9.0-windows8.0
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
