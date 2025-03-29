@@ -2,6 +2,10 @@
 
   <!-- Dependabot does not support .wixproj files, but it does support .csproj -->
 
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows8.0</TargetFramework>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="6.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
