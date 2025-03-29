@@ -19,9 +19,10 @@ Backlog
 - useful
    - finish unit tests in C#
    - real configuration UI
-   - mark callbacks in UT as .Verifiable() and call Mock.Verify() at the end
    - installer takes forever to kill running ShadowKVM.exe
       - maybe it's sending WM_CLOSE to wrong windows?
+   - dependabot skips updating many dependencies because of errors like this:  
+     The package Microsoft.NET.Test.Sdk.17.13.0 is not compatible. Incompatible project frameworks: net9.0-windows8.0
 
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
@@ -32,7 +33,7 @@ Backlog
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
    - dependabot support for Installer
        - Directory.Packages.props? https://devblogs.microsoft.com/nuget/introducing-central-package-management/
-       - or file.proj?
+       - or file.proj? https://github.com/search?q=repo%3Adependabot%2Fdependabot-core+csproj&type=code
 
 Build and Test
 ==============

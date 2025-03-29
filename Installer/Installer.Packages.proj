@@ -1,6 +1,6 @@
 <Project>
 
-  <!-- Dependabot does not support .wixproj files, but it does support .props -->
+  <!-- Dependabot does not support .wixproj files, but it does support .proj -->
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="6.1.0">
