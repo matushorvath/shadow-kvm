@@ -1,7 +1,9 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /Installer # for Installer/Dependabot.csproj
     schedule:
       interval: weekly
   - package-ecosystem: nuget
