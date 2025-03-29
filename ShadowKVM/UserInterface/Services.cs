@@ -4,7 +4,7 @@ using Serilog;
 
 namespace ShadowKVM;
 
-[ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")] 
+[ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")]
 public class Services
 {
     public Services(string dataDirectory)

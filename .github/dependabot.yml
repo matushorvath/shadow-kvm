@@ -5,6 +5,8 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: nuget
-    directory: /ShadowKVM
+    directories:
+      - /ShadowKVM
+      - /ShadowKVM.Tests
     schedule:
       interval: weekly
