@@ -11,4 +11,3 @@ updates:
       - /ShadowKVM.Tests
     schedule:
       interval: weekly
- 
