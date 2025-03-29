@@ -18,7 +18,7 @@
     <PackageVersion Include="ReportGenerator" Version="5.4.5" />
     <PackageVersion Include="Serilog" Version="4.2.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageVersion Include="System.Management" Version="9.0.2" />
+    <PackageVersion Include="System.Management" Version="9.0.3" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.12" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.12" />
     <PackageVersion Include="WixToolset.Netfx.wixext" Version="5.0.2" />
