@@ -42,7 +42,7 @@ public interface IWindowsAPI
     public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
 }
 
-[ExcludeFromCodeCoverage(Justification = "Productive implementation of the Windows API interface")] 
+[ExcludeFromCodeCoverage(Justification = "Productive implementation of the Windows API interface")]
 public class WindowsAPI : IWindowsAPI
 {
     // For MonitorService
