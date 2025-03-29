@@ -2,7 +2,6 @@ Backlog
 =======
 
 - required
-   - !!! fix autostart, currently it opens dependency walker
    - add installation and usage to README.md
    - about box, with link to page, licenses
       - version:
@@ -31,9 +30,6 @@ Backlog
    - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
-   - dependabot support for Installer
-       - Directory.Packages.props? https://devblogs.microsoft.com/nuget/introducing-central-package-management/
-       - or file.proj? https://github.com/search?q=repo%3Adependabot%2Fdependabot-core+csproj&type=code
 
 Build and Test
 ==============

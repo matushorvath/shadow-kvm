@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows8.0</TargetFramework>
-    <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
+    <TargetFramework>net9.0-windows8</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
