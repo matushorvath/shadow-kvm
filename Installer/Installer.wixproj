@@ -9,6 +9,16 @@
     <ProjectReference Include="..\ShadowKVM\ShadowKVM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="WixToolset.Netfx.wixext" />
+    <PackageReference Include="WixToolset.UI.wixext" />
+    <PackageReference Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+
   <Target Name="PassGitVersionToWiX" AfterTargets="GenerateGitVersionInformation">
     <PropertyGroup>
       <DefineConstants>MajorMinorPatch=$(GitVersion_MajorMinorPatch)</DefineConstants>
