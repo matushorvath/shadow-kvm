@@ -9,7 +9,7 @@
     <ProjectReference Include="..\ShadowKVM\ShadowKVM.csproj" />
   </ItemGroup>
 
-  <Import Project="Installer.Packages.proj" />
+  <Import Project="Installer.Packages.csproj" />
 
   <Target Name="PassGitVersionToWiX" AfterTargets="GenerateGitVersionInformation">
     <PropertyGroup>
