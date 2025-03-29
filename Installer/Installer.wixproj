@@ -9,15 +9,7 @@
     <ProjectReference Include="..\ShadowKVM\ShadowKVM.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="6.1.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="WixToolset.Netfx.wixext" Version="5.0.2" />
-    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
-    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
-  </ItemGroup>
+  <Import Project="Installer.Packages.props" />
 
   <Target Name="PassGitVersionToWiX" AfterTargets="GenerateGitVersionInformation">
     <PropertyGroup>
