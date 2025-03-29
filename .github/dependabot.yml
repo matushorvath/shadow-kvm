@@ -10,3 +10,4 @@ updates:
       - /Installer # for Installer/Dependabot.csproj
     schedule:
       interval: weekly
+ 
