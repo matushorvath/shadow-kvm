@@ -21,12 +21,12 @@ public partial class App : Application
         Services = new Services(_dataDirectory);
 
         BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Services.WindowsAPI, Log.Logger);
+
+        Startup += OnStartupAsync;
     }
 
-    protected override void OnStartup(StartupEventArgs e)
+    async void OnStartupAsync(object sender, StartupEventArgs e)
     {
-        base.OnStartup(e);
-
         Directory.CreateDirectory(_dataDirectory);
 
         InitLogger();
@@ -47,7 +47,7 @@ public partial class App : Application
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
 
-        InitConfig();
+        await InitConfig();
 
         // Debug log can only be enabled after loading config
         Log.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
@@ -66,7 +66,7 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
-    void InitConfig()
+    async Task InitConfig()
     {
         try
         {
@@ -83,7 +83,7 @@ public partial class App : Application
             }
 
             // Create a new config file
-            GenerateConfigWithProgress();
+            await GenerateConfigWithProgress();
 
             var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
@@ -104,9 +104,14 @@ public partial class App : Application
         }
     }
 
-    void GenerateConfigWithProgress()
+    async Task GenerateConfigWithProgress()
     {
-        ConfigGeneratorWindow.Execute(progress =>
+        var configGeneratorWindow = new ConfigGeneratorWindow();
+        configGeneratorWindow.Show();
+
+        var progress = configGeneratorWindow.ViewModel.Progress;
+
+        await Task.Run(() =>
         {
             var configText = Services.ConfigGenerator.Generate(progress);
             using (var output = new StreamWriter(Services.ConfigService.ConfigPath))
@@ -114,6 +119,8 @@ public partial class App : Application
                 output.Write(configText);
             }
         });
+
+        configGeneratorWindow.Close();
     }
 
     public async Task EditConfig()
