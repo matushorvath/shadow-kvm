@@ -13,7 +13,7 @@ public partial class NotifyIconViewModel : ObservableObject
         _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
         _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
 
-        IsAutostart = Autostart.IsEnabled();
+        isAutostart = Autostart.IsEnabled();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
