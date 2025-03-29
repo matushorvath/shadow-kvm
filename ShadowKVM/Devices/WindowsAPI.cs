@@ -6,6 +6,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Versioning;
 
 namespace ShadowKVM;
 
@@ -112,6 +113,7 @@ public class WindowsAPI : IWindowsAPI
     }
 
     // For DeviceNotificationService
+    [SupportedOSPlatform("windows8.0")]
     public unsafe CONFIGRET CM_Register_Notification(CM_NOTIFY_FILTER pFilter, nuint pContext,
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext)
     {
