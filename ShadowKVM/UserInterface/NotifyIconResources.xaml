@@ -11,12 +11,15 @@
             FontWeight="Bold"
             Header="{Binding EnableDisableText}" />
         <MenuItem
-            Command="{Binding ConfigureCommand}"
-            Header="Configure…" />
-        <MenuItem
             Header="Start automatically"
             IsCheckable="True"
             IsChecked="{Binding IsAutostart, Mode=TwoWay}" />
+        <MenuItem
+            Command="{Binding ConfigureCommand}"
+            Header="Configure…" />
+        <MenuItem
+            Command="{Binding AboutCommand}"
+            Header="About…" />
         <Separator />
         <MenuItem
             Command="{Binding ExitCommand}"
