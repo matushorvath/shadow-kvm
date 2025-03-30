@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Win32;
 using Serilog;
 
 namespace ShadowKVM;
 
+[ExcludeFromCodeCoverage(Justification = "Wrapper for the Registry API")]
 public static class Autostart
 {
     static string EnabledRegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";

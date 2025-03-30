@@ -7,6 +7,8 @@ using System.Diagnostics;
 
 namespace ShadowKVM;
 
+// TODO make testable, write unit tests
+
 public partial class App : Application
 {
     public App()
