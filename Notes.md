@@ -3,15 +3,6 @@ Backlog
 
 - required
    - add installation and usage to README.md
-   - about box, with link to page, licenses
-      - version:
-         GitVersionInformation.ShortSha = "1e9324f"
-         GitVersionInformation.SemVer = "0.6.4-small-improvements.1"
-         GitVersionInformation.FullSemVer = "0.6.4-small-improvements.1+9",
-         GitVersionInformation.InformationalVersion = "0.6.4-small-improvements.1+9.Branch.small-improvements.Sha.1e9324fae87029676c462dd83fb92dbb04cd51d6",
-         GitVersionInformation.CommitDate = "2025-03-23",
-      - icon? name, version, author, license + copyright, OK button, title "About ShadowKVM", Apache license mention, link to github releases, to readme?
-         - check for latest version? "<version xyz> is available online"?
    - test installer on a machine without .NET 9.0
       - test on windows 7 and 8?
 
@@ -24,10 +15,15 @@ Backlog
 - nice to have
    - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
+      - perhaps add to about box: "<version xyz> is available online"?
    - show which display is which in case they have same names
    - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
+   - decide about <xxx/> vs <xxx /> in XML
+   - VS Code wants the System imports first in source files
+   - apply windows 11 design guidelines
+      - https://learn.microsoft.com/en-us/windows/apps/design/
 
 Build and Test
 ==============

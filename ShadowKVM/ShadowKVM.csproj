@@ -42,6 +42,7 @@
   <ItemGroup>
     <ApplicationDefinition Include="UserInterface/App.xaml" />
     <EmbeddedResource Include="Config/DefaultConfig.hbs" />
+    <Resource Include="UserInterface/Application.ico" />
     <Resource Include="UserInterface/TrayEnabled.ico" />
     <Resource Include="UserInterface/TrayDisabled.ico" />
   </ItemGroup>

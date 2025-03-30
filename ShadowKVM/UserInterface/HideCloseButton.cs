@@ -7,6 +7,8 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace ShadowKVM;
 
+// TODO write unit tests
+
 public class HideCloseButton : Behavior<Window>
 {
     protected override void OnAttached()

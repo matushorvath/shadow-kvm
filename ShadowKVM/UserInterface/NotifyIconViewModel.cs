@@ -6,6 +6,8 @@ using System.Windows.Media.Imaging;
 
 namespace ShadowKVM;
 
+// TODO remove the App dependency, write unit tests
+
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
@@ -19,6 +21,7 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public async Task Configure()
     {
+        // Making this async grays out the menu item while editing config
         await App.EditConfig();
         App.ReloadConfig(message: true);
     }
@@ -26,7 +29,21 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand]
     public void Exit()
     {
+        // TODO probably use an event to avoid tight coupling
         Application.Current.Shutdown();
+    }
+
+    [RelayCommand(FlowExceptionsToTaskScheduler = true)]
+    public Task About()
+    {
+        // Making this async grays out the menu item while the window is open
+        var tcs = new TaskCompletionSource();
+
+        var aboutWindow = new AboutWindow();
+        aboutWindow.Closed += (_, _) => tcs.SetResult();
+        aboutWindow.Show();
+
+        return tcs.Task;
     }
 
     [ObservableProperty]
