@@ -6,6 +6,8 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace ShadowKVM;
 
+// TODO move PInvoke to IWindowsAPI, write unit tests
+
 // Hidden window that responds to WM_CLOSE, needed to exit cleanly when running the installer
 public class HiddenWindow : IDisposable
 {

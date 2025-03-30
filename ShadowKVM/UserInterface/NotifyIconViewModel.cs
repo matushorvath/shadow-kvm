@@ -6,6 +6,8 @@ using System.Windows.Media.Imaging;
 
 namespace ShadowKVM;
 
+// TODO remove the App dependency, write unit tests
+
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
