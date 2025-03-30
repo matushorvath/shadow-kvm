@@ -16,8 +16,16 @@
         <local:HideCloseButton />
     </b:Interaction.Behaviors>
 
+    <Window.DataContext>
+        <local:ConfigGeneratorViewModel />
+    </Window.DataContext>
+
     <StackPanel Orientation="Vertical">
         <Label Content="Generating new configuration" />
-        <ProgressBar Name="progressBar" Width="300" Height="20" />
+        <ProgressBar
+            Width="300"
+            Height="20"
+            Maximum="{Binding Maximum}"
+            Value="{Binding Current}" />
     </StackPanel>
 </Window>

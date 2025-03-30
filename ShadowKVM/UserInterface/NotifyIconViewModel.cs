@@ -30,7 +30,7 @@ public partial class NotifyIconViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private bool isAutostart;
+    bool isAutostart;
 
     partial void OnIsAutostartChanged(bool value)
     {
