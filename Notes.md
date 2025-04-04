@@ -4,7 +4,6 @@ Backlog
 - required
    - add installation and usage to README.md
    - test installer on a machine without .NET 9.0
-      - test on windows 7 and 8?
 
 - useful
    - finish unit tests in C#
@@ -24,6 +23,7 @@ Backlog
    - VS Code wants the System imports first in source files
    - apply windows 11 design guidelines
       - https://learn.microsoft.com/en-us/windows/apps/design/
+      - dark mode
 
 Build and Test
 ==============
