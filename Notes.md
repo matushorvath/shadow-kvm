@@ -3,9 +3,6 @@ Backlog
 
 - required
    - add installation and usage to README.md
-   - test installer on a machine without .NET 9.0
-      - it asks to install Microsoft Windows Desktop Runtime on first run
-      - re-check after changing installer
 
 - useful
    - finish unit tests in C#
@@ -62,3 +59,6 @@ https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-with-dotnet-t
 https://github.com/devlooped/moq/wiki/Quickstart
 https://www.roundthecode.com/dotnet-tutorials/moq-mocking-objects-xunit-dotnet
 https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/MSBuildIntegration.md
+
+Install .NET:
+https://aka.ms/dotnet-core-applaunch?missing_runtime=true&&arch=x64&&rid=win-x64&&os=win10&&apphost_version=9.0.4&&gui=true

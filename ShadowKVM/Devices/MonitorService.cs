@@ -1,4 +1,5 @@
 using Serilog;
+using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -181,35 +182,44 @@ public partial class MonitorService(IWindowsAPI windowsAPI, ILogger logger) : IM
     {
         var wmiMonitorIds = new List<WmiMonitorId>();
 
-        var monitorIds = windowsAPI.SelectAllWMIMonitorIDs();
-        foreach (IDictionary<string, object> monitorId in monitorIds)
+        try
         {
-            object? serialBytes;
-            monitorId.TryGetValue("SerialNumberID", out serialBytes);
-
-            var serialNumberBytes =
-                from ch in serialBytes as ushort[] ?? []
-                where ch != 0
-                select (byte)ch;
-
-            var serialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray());
-            if (serialNumber == "0")
+            var monitorIds = windowsAPI.SelectAllWMIMonitorIDs();
+            foreach (IDictionary<string, object> monitorId in monitorIds)
             {
-                serialNumber = string.Empty;
+                object? serialBytes;
+                monitorId.TryGetValue("SerialNumberID", out serialBytes);
+
+                var serialNumberBytes =
+                    from ch in serialBytes as ushort[] ?? []
+                    where ch != 0
+                    select (byte)ch;
+
+                var serialNumber = Encoding.ASCII.GetString(serialNumberBytes.ToArray());
+                if (serialNumber == "0")
+                {
+                    serialNumber = string.Empty;
+                }
+
+                object? instanceName;
+                monitorId.TryGetValue("InstanceName", out instanceName);
+
+                var wmiMonitorId = new WmiMonitorId
+                {
+                    InstanceName = instanceName?.ToString() ?? string.Empty,
+                    SerialNumber = serialNumber
+                };
+
+                wmiMonitorIds.Add(wmiMonitorId);
+
+                logger.Debug("WMI monitor id: {@WmiMonitorId}", wmiMonitorId);
             }
-
-            object? instanceName;
-            monitorId.TryGetValue("InstanceName", out instanceName);
-
-            var wmiMonitorId = new WmiMonitorId
-            {
-                InstanceName = instanceName?.ToString() ?? string.Empty,
-                SerialNumber = serialNumber
-            };
-
-            wmiMonitorIds.Add(wmiMonitorId);
-
-            logger.Debug("WMI monitor id: {@WmiMonitorId}", wmiMonitorId);
+        }
+        catch (ManagementException exception)
+        {
+            // If there's a WMI error, return an empty list
+            logger.Warning("WMI exception: {@Exception}", exception);
+            return new List<WmiMonitorId>();
         }
 
         return wmiMonitorIds;
