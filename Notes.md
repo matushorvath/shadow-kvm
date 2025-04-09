@@ -4,7 +4,8 @@ Backlog
 - required
    - add installation and usage to README.md
    - test installer on a machine without .NET 9.0
-      - test on windows 7 and 8?
+      - it asks to install Microsoft Windows Desktop Runtime on first run
+      - re-check after changing installer
 
 - useful
    - finish unit tests in C#
