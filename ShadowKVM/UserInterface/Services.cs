@@ -5,7 +5,7 @@ using Serilog;
 namespace ShadowKVM;
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")]
-public class Services
+public class Services : IDisposable
 {
     public Services(string dataDirectory)
     {
@@ -21,6 +21,26 @@ public class Services
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
 
         DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
+
+        BackgroundTask = new BackgroundTask(DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            if (!_disposed)
+            {
+                BackgroundTask.Dispose();
+                _disposed = true;
+            }
+        }
     }
 
     public ICapabilitiesParser CapabilitiesParser { get; }
@@ -31,4 +51,7 @@ public class Services
     public IWindowsAPI WindowsAPI { get; }
     public IMonitorInputService MonitorInputService { get; }
     public IMonitorService MonitorService { get; }
+    public IBackgroundTask BackgroundTask { get; }
+
+    bool _disposed = false;
 }

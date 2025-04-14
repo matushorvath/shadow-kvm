@@ -10,8 +10,10 @@ namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
 {
-    public NotifyIconViewModel()
+    public NotifyIconViewModel(IBackgroundTask? backgroundTask = default)
     {
+        BackgroundTask = backgroundTask ?? App.Services.BackgroundTask;
+
         _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
         _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
 
@@ -30,7 +32,7 @@ public partial class NotifyIconViewModel : ObservableObject
     public void Exit()
     {
         // TODO probably use an event to avoid tight coupling
-        Application.Current.Shutdown();
+        App.Shutdown();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
@@ -57,18 +59,20 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand]
     public void EnableDisable()
     {
-        App.BackgroundTask.Enabled = !App.BackgroundTask.Enabled;
+        BackgroundTask.Enabled = !BackgroundTask.Enabled;
 
         OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(EnableDisableText));
     }
 
-    public string EnableDisableText => App.BackgroundTask.Enabled ? "Disable" : "Enable";
+    public string EnableDisableText => BackgroundTask.Enabled ? "Disable" : "Enable";
 
     ImageSource _enabledIcon;
     ImageSource _disabledIcon;
 
-    public ImageSource Icon => App.BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
+    public ImageSource Icon => BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
+
+    IBackgroundTask BackgroundTask { get; }
 
     App App => (App)Application.Current;
 }

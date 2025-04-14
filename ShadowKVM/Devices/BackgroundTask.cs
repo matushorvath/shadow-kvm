@@ -2,12 +2,18 @@
 
 namespace ShadowKVM;
 
+public interface IBackgroundTask : IDisposable
+{
+    void Restart(Config config);
+    bool Enabled { get; set; }
+}
+
 public class BackgroundTask(
     IDeviceNotificationService deviceNotificationService,
     IMonitorService monitorService,
     IWindowsAPI windowsAPI,
     ILogger logger
-        ) : IDisposable
+        ) : IBackgroundTask
 {
     public void Restart(Config config)
     {
