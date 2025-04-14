@@ -191,7 +191,7 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
 
         _configServiceMock
             .SetupGet(m => m.Config)
-                .Returns(new Config
+            .Returns(new Config
             {
                 TriggerDevice = new() { Raw = _testGuid }
             });
