@@ -68,9 +68,19 @@ public partial class App : Application
 
     async Task InitConfig()
     {
+        // Reinitialize whenever the config file is changed
+        Services.ConfigService.ConfigChanged += (configService) =>
+        {
+            // Set up logging level based on config file
+            _loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
+
+            Services.BackgroundTask.Restart();
+        };
+
+        // First load of the config file
         try
         {
-            ReloadConfig();
+            Services.ConfigService.ReloadConfig();
         }
         catch (FileNotFoundException)
         {
@@ -85,6 +95,7 @@ public partial class App : Application
             // Create a new config file
             await GenerateConfigWithProgress();
 
+            // TODO don't edit config using the notify icon (but remember to disable the menu)
             var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
@@ -99,6 +110,7 @@ public partial class App : Application
                 return;
             }
 
+            // TODO don't edit config using the notify icon (but remember to disable the menu)
             var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
             viewModel.ConfigureCommand.Execute(null);
         }
@@ -135,27 +147,17 @@ public partial class App : Application
         await process.WaitForExitAsync();
     }
 
-    public void ReloadConfig(bool message = false)
+    public void ReloadConfig()
     {
-        if (_config != null && !Services.ConfigService.NeedReloadConfig(_config))
+        bool reloaded = Services.ConfigService.ReloadConfig();
+        if (!reloaded)
         {
             Log.Information("Configuration file has not changed, skipping reload");
             return;
         }
 
-        Log.Information("Loading configuration from {ConfigPath}", Services.ConfigService.ConfigPath);
-        _config = Services.ConfigService.LoadConfig();
-
-        if (message)
-        {
-            MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        // Set up logging level based on config file
-        _loggingLevelSwitch.MinimumLevel = _config.LogLevel;
-
-        Services.BackgroundTask.Restart(_config);
+        MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
+            MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -201,6 +203,5 @@ public partial class App : Application
     string _dataDirectory;
     string _logPath;
 
-    Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
 }

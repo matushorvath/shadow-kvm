@@ -33,12 +33,12 @@ public partial class AboutViewModel : ObservableObject
 
     IUrlOpener UrlOpener { get; }
 
-    public event EventHandler? RequestClose;
+    public event Action? RequestClose;
 
     [RelayCommand]
     public void Close()
     {
-        RequestClose?.Invoke(this, EventArgs.Empty);
+        RequestClose?.Invoke();
     }
 
     [ObservableProperty]
