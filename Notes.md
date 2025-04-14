@@ -16,7 +16,6 @@ Backlog
    - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
-   - VS Code wants the System imports first in source files
    - apply windows 11 design guidelines
       - https://learn.microsoft.com/en-us/windows/apps/design/
 

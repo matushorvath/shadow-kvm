@@ -1,12 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
+using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
-using Windows.Win32.Devices.DeviceAndDriverInstallation;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Versioning;
 
 namespace ShadowKVM;
 
