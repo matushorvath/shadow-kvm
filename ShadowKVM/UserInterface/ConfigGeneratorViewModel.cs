@@ -2,8 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace ShadowKVM;
 
-// TODO write unit tests
-
 public partial class ConfigGeneratorViewModel : ObservableObject
 {
     public ConfigGeneratorViewModel()
