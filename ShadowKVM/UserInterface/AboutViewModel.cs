@@ -21,10 +21,9 @@ public class UrlOpener : IUrlOpener
 
 public partial class AboutViewModel : ObservableObject
 {
-    [ExcludeFromCodeCoverage(Justification = "Productive implementation of the URL Opener interface")]
     public AboutViewModel(IUrlOpener? urlOpener = default)
     {
-        UrlOpener = urlOpener ?? new UrlOpener();
+        UrlOpener = urlOpener ?? new UrlOpener(); // TODO use Services.UrlOpener?
     }
 
     IUrlOpener UrlOpener { get; }

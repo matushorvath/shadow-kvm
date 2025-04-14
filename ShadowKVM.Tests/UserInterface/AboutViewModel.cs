@@ -7,6 +7,12 @@ public class AboutViewModelTests
     Mock<IUrlOpener> _urlOpenerMock = new();
 
     [Fact]
+    public void Constructs_WithDefaultUrlOpener()
+    {
+        new AboutViewModel();
+    }
+
+    [Fact]
     public void Close_WithNoEventHandler()
     {
         var model = new AboutViewModel(_urlOpenerMock.Object);

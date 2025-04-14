@@ -22,8 +22,6 @@ public partial class App : Application
 
         Services = new Services(_dataDirectory);
 
-        BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Services.WindowsAPI, Log.Logger);
-
         Startup += OnStartupAsync;
     }
 
@@ -157,17 +155,17 @@ public partial class App : Application
         // Set up logging level based on config file
         _loggingLevelSwitch.MinimumLevel = _config.LogLevel;
 
-        BackgroundTask.Restart(_config);
+        Services.BackgroundTask.Restart(_config);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         Log.Information("Shutting down");
 
-        BackgroundTask.Dispose();
         _notifyIcon?.Dispose();
-
         _hiddenWindow?.Dispose();
+
+        Services.Dispose();
 
         base.OnExit(e);
     }
@@ -192,17 +190,15 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    Services Services { get; }
-
-    public BackgroundTask BackgroundTask { get; }
+    // TODO service discovery should not use App.Services
+    public Services Services { get; }
 
     TaskbarIcon? _notifyIcon;
+    HiddenWindow? _hiddenWindow;
 
     string _dataDirectory;
     string _logPath;
 
     Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
-
-    HiddenWindow? _hiddenWindow;
 }
