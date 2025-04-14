@@ -24,17 +24,12 @@ public class AboutViewModelTests
     {
         var model = new AboutViewModel(_urlOpenerMock.Object);
 
-        var called = false;
-        model.RequestClose += (sender, args) =>
-        {
-            Assert.Equal(model, sender);
-            Assert.Equal(args, EventArgs.Empty);
-            called = true;
-        };
+        var eventTriggered = false;
+        model.RequestClose += () => { eventTriggered = true; };
 
         model.Close();
 
-        Assert.True(called);
+        Assert.True(eventTriggered);
     }
 
     [Theory]

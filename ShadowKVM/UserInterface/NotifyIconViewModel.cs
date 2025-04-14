@@ -31,7 +31,7 @@ public partial class NotifyIconViewModel : ObservableObject
     {
         // Making this async grays out the menu item while editing config
         await App.Current.EditConfig();
-        App.Current.ReloadConfig(message: true);
+        App.Current.ReloadConfig();
     }
 
     [RelayCommand]

@@ -1,12 +1,16 @@
 using System.IO.Abstractions.TestingHelpers;
+using Moq;
+using Serilog;
 using Serilog.Events;
 
 namespace ShadowKVM.Tests;
 
 public class ConfigMonitorsTests
 {
+    protected Mock<ILogger> _loggerMock = new();
+
     [Fact]
-    public void LoadConfig_ThrowsWithMissingMonitors()
+    public void ReloadConfig_ThrowsWithMissingMonitors()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -15,14 +19,14 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
     }
 
     [Fact]
-    public void LoadConfig_ThrowsWithZeroMonitors()
+    public void ReloadConfig_ThrowsWithZeroMonitors()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -32,14 +36,14 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
     }
 
     [Fact]
-    public void LoadConfig_ThrowsWithNoMonitorId()
+    public void ReloadConfig_ThrowsWithNoMonitorId()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -52,14 +56,14 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Either description, adapter or serial-number needs to be specified for each monitor", exception.Message);
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithDescription()
+    public void ReloadConfig_LoadsMonitorWithDescription()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -73,10 +77,10 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Null(monitor.Adapter);
@@ -85,7 +89,7 @@ public class ConfigMonitorsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithAdapter()
+    public void ReloadConfig_LoadsMonitorWithAdapter()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -99,10 +103,10 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Null(monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
@@ -111,7 +115,7 @@ public class ConfigMonitorsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithSerialNumber()
+    public void ReloadConfig_LoadsMonitorWithSerialNumber()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -125,10 +129,10 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Null(monitor.Description);
             Assert.Null(monitor.Adapter);
@@ -137,7 +141,7 @@ public class ConfigMonitorsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithAllIds()
+    public void ReloadConfig_LoadsMonitorWithAllIds()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -153,10 +157,10 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);
             Assert.Equal("aDaPtEr 1", monitor.Adapter);
@@ -165,7 +169,7 @@ public class ConfigMonitorsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsComplexMonitors()
+    public void ReloadConfig_LoadsComplexMonitors()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -195,16 +199,16 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(1, config.Version);
-        Assert.Equal(LogEventLevel.Fatal, config.LogLevel);
+        Assert.Equal(1, configService.Config.Version);
+        Assert.Equal(LogEventLevel.Fatal, configService.Config.LogLevel);
 
-        Assert.Equal(TriggerDeviceType.Mouse, config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{378DE44C-56EF-11D1-BC8C-00A0C91405DD}"), config.TriggerDevice.Raw);
+        Assert.Equal(TriggerDeviceType.Mouse, configService.Config.TriggerDevice.Enum);
+        Assert.Equal(new Guid("{378DE44C-56EF-11D1-BC8C-00A0C91405DD}"), configService.Config.TriggerDevice.Raw);
 
-        Assert.Collection(config.Monitors ?? [],
+        Assert.Collection(configService.Config.Monitors ?? [],
         monitor =>
         {
             Assert.Null(monitor.Description);

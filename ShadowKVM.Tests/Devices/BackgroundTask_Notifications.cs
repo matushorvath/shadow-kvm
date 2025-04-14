@@ -26,23 +26,26 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
                 It.IsAny<IDeviceNotification.Action>()))
             .Callback(() => processedEvent.Set());
 
-        var config = new Config
-        {
-            TriggerDevice = new() { Raw = _testGuid },
-            Monitors = new()
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config
             {
-                new()
+                TriggerDevice = new() { Raw = _testGuid },
+                Monitors = new()
                 {
-                    Description = "dEsCrIpTiOn 1",
-                    Attach = new () { Code = new(17), Value = new (98) }
+                    new()
+                    {
+                        Description = "dEsCrIpTiOn 1",
+                        Attach = new () { Code = new(17), Value = new (98) }
+                    }
                 }
-            }
-        };
+            });
 
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Make the test more challenging by waiting for the task to actually start before disabling it
             Assert.True(startedEvent.WaitOne(TimeSpan.FromSeconds(5)));
@@ -95,23 +98,26 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
                 It.IsAny<IDeviceNotification.Action>()))
             .Callback(() => processedEvent.Set());
 
-        var config = new Config
-        {
-            TriggerDevice = new() { Raw = _testGuid },
-            Monitors = new()
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config
             {
-                new()
+                TriggerDevice = new() { Raw = _testGuid },
+                Monitors = new()
                 {
-                    Description = "dEsCrIpTiOn 1",
-                    Attach = new () { Code = new(17), Value = new (98) }
+                    new()
+                    {
+                        Description = "dEsCrIpTiOn 1",
+                        Attach = new () { Code = new(17), Value = new (98) }
+                    }
                 }
-            }
-        };
+            });
 
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Task is now running, send it an action, then the same action again
             channel.Writer.TryWrite(IDeviceNotification.Action.Arrival);
@@ -150,10 +156,15 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
                 It.IsAny<Exception>()))
             .Callback(() => failedEvent.Set());
 
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config { TriggerDevice = { Raw = _testGuid } });
+
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(new() { TriggerDevice = { Raw = _testGuid } });
+            backgroundTask.Restart();
 
             // Wait for the task to fail as a reaction to IDeviceNotification.Register throwing
             Assert.True(failedEvent.WaitOne(TimeSpan.FromSeconds(5)));
@@ -178,15 +189,18 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
         var channel = Channel.CreateUnbounded<IDeviceNotification.Action>();
         var notificationMock = SetupNotification(channel);
 
-        var config = new Config
-        {
-            TriggerDevice = new() { Raw = _testGuid }
-        };
+        _configServiceMock
+            .SetupGet(m => m.Config)
+                .Returns(new Config
+            {
+                TriggerDevice = new() { Raw = _testGuid }
+            });
 
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Task is now running, close the channel
             channel.Writer.Complete();

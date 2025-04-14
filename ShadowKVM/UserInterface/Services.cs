@@ -10,7 +10,7 @@ public class Services : IDisposable
     public Services(string dataDirectory)
     {
         FileSystem = new FileSystem();
-        ConfigService = new ConfigService(dataDirectory, FileSystem);
+        ConfigService = new ConfigService(dataDirectory, FileSystem, Log.Logger);
 
         WindowsAPI = new WindowsAPI();
         MonitorService = new MonitorService(WindowsAPI, Log.Logger);
@@ -21,7 +21,7 @@ public class Services : IDisposable
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
 
         DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
-        BackgroundTask = new BackgroundTask(DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
+        BackgroundTask = new BackgroundTask(ConfigService, DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
 
         Autostart = new Autostart(Log.Logger);
     }

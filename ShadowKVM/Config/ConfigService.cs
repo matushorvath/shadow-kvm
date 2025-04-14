@@ -1,6 +1,7 @@
 using System.IO;
 using System.IO.Abstractions;
 using System.Security.Cryptography;
+using Serilog;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -9,25 +10,48 @@ namespace ShadowKVM;
 
 public interface IConfigService
 {
-    public string ConfigPath { get; }
-    bool NeedReloadConfig(Config config);
-    public Config LoadConfig();
+    string ConfigPath { get; }
+    Config Config { get; }
+    event Action<IConfigService>? ConfigChanged;
+
+    bool ReloadConfig();
 }
 
 public class ConfigService : IConfigService
 {
-    public ConfigService(string dataDirectory, IFileSystem fileSystem)
+    public ConfigService(string dataDirectory, IFileSystem fileSystem, ILogger logger)
     {
         ConfigPath = Path.Combine(dataDirectory, "config.yaml");
+
         FileSystem = fileSystem;
+        Logger = logger;
     }
 
     public string ConfigPath { get; }
-    IFileSystem FileSystem { get; }
 
-    public bool NeedReloadConfig(Config config)
+    Config? _config;
+    public Config Config => _config ?? throw new InvalidOperationException("Configuration is not loaded");
+
+    public event Action<IConfigService>? ConfigChanged;
+
+    IFileSystem FileSystem { get; }
+    ILogger Logger { get; }
+
+    public bool ReloadConfig()
     {
-        if (config.LoadedChecksum == null)
+        if (!IsConfigChanged())
+        {
+            Logger.Information("Configuration file {ConfigPath} has not changed, skipping reload", ConfigPath);
+            return false;
+        }
+
+        LoadConfig();
+        return true;
+    }
+
+    bool IsConfigChanged()
+    {
+        if (_config?.LoadedChecksum == null)
         {
             return true;
         }
@@ -35,14 +59,16 @@ public class ConfigService : IConfigService
         using (var stream = FileSystem.File.OpenRead(ConfigPath))
         using (var md5 = MD5.Create())
         {
-            return !config.LoadedChecksum.SequenceEqual(md5.ComputeHash(stream));
+            return !_config.LoadedChecksum.SequenceEqual(md5.ComputeHash(stream));
         }
     }
 
-    public Config LoadConfig()
+    void LoadConfig()
     {
         try
         {
+            Logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
+
             var namingConvention = HyphenatedNamingConvention.Instance;
 
             var deserializer = new DeserializerBuilder()
@@ -52,23 +78,21 @@ public class ConfigService : IConfigService
                 .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
                 .Build();
 
-            Config config;
-
             using (var stream = FileSystem.File.OpenRead(ConfigPath))
             using (var input = new StreamReader(stream))
             {
-                config = deserializer.Deserialize<Config>(input);
+                _config = deserializer.Deserialize<Config>(input);
             }
 
-            ValidateConfig(config);
+            ValidateConfig();
 
             using (var stream = FileSystem.File.OpenRead(ConfigPath))
             using (var md5 = MD5.Create())
             {
-                config.LoadedChecksum = md5.ComputeHash(stream);
+                Config.LoadedChecksum = md5.ComputeHash(stream);
             }
 
-            return config;
+            ConfigChanged?.Invoke(this);
         }
         catch (YamlException exception)
         {
@@ -76,19 +100,19 @@ public class ConfigService : IConfigService
         }
     }
 
-    void ValidateConfig(Config config)
+    void ValidateConfig()
     {
-        if (config.Version != 1)
+        if (Config.Version != 1)
         {
-            throw new ConfigException($"Unsupported configuration version (found {config.Version}, supporting 1)");
+            throw new ConfigException($"Unsupported configuration version (found {Config.Version}, supporting 1)");
         }
 
-        if (config.Monitors == null || config.Monitors.Count == 0)
+        if (Config.Monitors == null || Config.Monitors.Count == 0)
         {
             throw new ConfigException($"At least one monitor needs to be specified in configuration");
         }
 
-        foreach (var monitor in config.Monitors)
+        foreach (var monitor in Config.Monitors)
         {
             if (monitor.Description == null && monitor.Adapter == null && monitor.SerialNumber == null)
             {
