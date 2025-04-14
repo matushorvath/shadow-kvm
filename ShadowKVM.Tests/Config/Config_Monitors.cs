@@ -1,5 +1,5 @@
-using Serilog.Events;
 using System.IO.Abstractions.TestingHelpers;
+using Serilog.Events;
 
 namespace ShadowKVM.Tests;
 

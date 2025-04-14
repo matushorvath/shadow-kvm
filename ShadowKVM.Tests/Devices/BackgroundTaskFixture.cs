@@ -1,7 +1,7 @@
-using Moq;
-using Serilog;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
+using Moq;
+using Serilog;
 using Windows.Win32.Foundation;
 
 namespace ShadowKVM.Tests;

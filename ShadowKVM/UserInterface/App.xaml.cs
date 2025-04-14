@@ -1,6 +1,6 @@
-﻿using H.NotifyIcon;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
+using H.NotifyIcon;
 using Serilog;
 using Serilog.Core;
 using System.Diagnostics;

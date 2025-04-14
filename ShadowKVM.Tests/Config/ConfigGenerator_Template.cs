@@ -1,5 +1,4 @@
 using System.IO.Abstractions.TestingHelpers;
-using System.Text.RegularExpressions;
 using Moq;
 using Serilog.Events;
 using YamlDotNet.Serialization;

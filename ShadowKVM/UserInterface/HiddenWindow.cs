@@ -1,5 +1,5 @@
-using Serilog;
 using System.Windows;
+using Serilog;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;

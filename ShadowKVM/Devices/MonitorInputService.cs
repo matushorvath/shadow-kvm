@@ -1,6 +1,6 @@
-using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Serilog;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Foundation;
 

@@ -1,5 +1,5 @@
-using Moq;
 using System.Threading.Channels;
+using Moq;
 
 namespace ShadowKVM.Tests;
 
