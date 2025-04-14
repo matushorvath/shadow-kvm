@@ -83,7 +83,7 @@
         Sequence="ui" />
 
     <!-- Launch checkbox is checked by default -->
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
 
     <UI>
       <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
@@ -97,7 +97,7 @@
     </UI>
 
     <!-- Custom action to launch the application from the installer -->
-    <Property Id="WixShellExecTarget" Value="[#EXECUTABLE]"/>
+    <Property Id="WixShellExecTarget" Value="[#EXECUTABLE]" />
     <CustomAction
         Id="LaunchApplication"
         BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"

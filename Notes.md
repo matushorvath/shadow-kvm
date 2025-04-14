@@ -11,14 +11,11 @@ Backlog
       - maybe it's sending WM_CLOSE to wrong windows?
 
 - nice to have
-   - parallelize monitorInputService.TryLoadMonitorInputs in ConfigGenerator
    - add a way to check for updates
       - perhaps add to about box: "<version xyz> is available online"?
-   - show which display is which in case they have same names
    - winget support
    - the "config reloaded succesfully" window does not have focus and sometimes opens in background
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
-   - decide about <xxx/> vs <xxx /> in XML
    - VS Code wants the System imports first in source files
    - apply windows 11 design guidelines
       - https://learn.microsoft.com/en-us/windows/apps/design/
