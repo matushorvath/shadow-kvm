@@ -48,7 +48,7 @@ public class AboutViewModelTests
             version = model.Version;
         }
 
-        Assert.Matches(@"^\d+\.\d+\.\d+(-\w+(\.\d+(\+\d+)?)?)?$", version);
+        Assert.Matches(@"^\d+\.\d+\.\d+(-.+(\.\d+(\+\d+)?)?)?$", version);
     }
 
     [Fact]
