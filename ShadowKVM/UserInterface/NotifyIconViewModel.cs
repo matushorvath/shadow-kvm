@@ -11,13 +11,14 @@ namespace ShadowKVM;
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
-        : this(App.Current.Services.BackgroundTask)
+        : this(App.Current.Services.BackgroundTask, App.Current.Services.Autostart)
     {
     }
 
-    public NotifyIconViewModel(IBackgroundTask backgroundTask)
+    public NotifyIconViewModel(IBackgroundTask backgroundTask, IAutostart autostart)
     {
         BackgroundTask = backgroundTask;
+        Autostart = autostart;
 
         _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
         _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
@@ -70,12 +71,13 @@ public partial class NotifyIconViewModel : ObservableObject
         OnPropertyChanged(nameof(EnableDisableText));
     }
 
+    IBackgroundTask BackgroundTask { get; }
+    IAutostart Autostart { get; }
+
     public string EnableDisableText => BackgroundTask.Enabled ? "Disable" : "Enable";
 
     ImageSource _enabledIcon;
     ImageSource _disabledIcon;
 
     public ImageSource Icon => BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
-
-    IBackgroundTask BackgroundTask { get; }
 }
