@@ -36,9 +36,9 @@ public partial class App : Application
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
-        if (!Autostart.IsConfigured())
+        if (!Services.Autostart.IsConfigured())
         {
-            Autostart.SetEnabled(true);
+            Services.Autostart.SetEnabled(true);
         }
 
         _hiddenWindow = new();

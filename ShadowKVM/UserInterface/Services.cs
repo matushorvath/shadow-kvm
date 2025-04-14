@@ -21,8 +21,9 @@ public class Services : IDisposable
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
 
         DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
-
         BackgroundTask = new BackgroundTask(DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
+
+        Autostart = new Autostart(Log.Logger);
     }
 
     public void Dispose()
@@ -52,6 +53,7 @@ public class Services : IDisposable
     public IMonitorInputService MonitorInputService { get; }
     public IMonitorService MonitorService { get; }
     public IBackgroundTask BackgroundTask { get; }
+    public IAutostart Autostart { get; }
 
     bool _disposed = false;
 }
