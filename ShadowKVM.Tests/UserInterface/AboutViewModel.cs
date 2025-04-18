@@ -4,7 +4,7 @@ namespace ShadowKVM.Tests;
 
 public class AboutViewModelTests
 {
-    Mock<IUrlOpener> _urlOpenerMock = new();
+    Mock<INativeUserInterface> _nativeUserInterfaceMock = new();
 
     [Fact]
     public void Constructs_WithDefaultUrlOpener()
@@ -15,14 +15,14 @@ public class AboutViewModelTests
     [Fact]
     public void Close_WithNoEventHandler()
     {
-        var model = new AboutViewModel(_urlOpenerMock.Object);
+        var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
         model.Close();
     }
 
     [Fact]
     public void Close_CallsEventHandler()
     {
-        var model = new AboutViewModel(_urlOpenerMock.Object);
+        var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
 
         var eventTriggered = false;
         model.RequestClose += () => { eventTriggered = true; };
@@ -45,7 +45,7 @@ public class AboutViewModelTests
         // (basically we are testing this test, because it needs to work with various inputs)
         if (version == default)
         {
-            var model = new AboutViewModel(_urlOpenerMock.Object);
+            var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
             version = model.Version;
         }
 
@@ -55,39 +55,39 @@ public class AboutViewModelTests
     [Fact]
     public void OpenLicense_CallsUrlOpener()
     {
-        _urlOpenerMock
-            .Setup(m => m.Open("https://opensource.org/license/mit"))
+        _nativeUserInterfaceMock
+            .Setup(m => m.OpenUrl("https://opensource.org/license/mit"))
             .Verifiable();
 
-        var model = new AboutViewModel(_urlOpenerMock.Object);
+        var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
         model.OpenLicense();
 
-        _urlOpenerMock.Verify();
+        _nativeUserInterfaceMock.Verify();
     }
 
     [Fact]
     public void OpenManual_CallsUrlOpener()
     {
-        _urlOpenerMock
-            .Setup(m => m.Open("https://github.com/matushorvath/shadow-kvm#readme-ov-file"))
+        _nativeUserInterfaceMock
+            .Setup(m => m.OpenUrl("https://github.com/matushorvath/shadow-kvm#readme-ov-file"))
             .Verifiable();
 
-        var model = new AboutViewModel(_urlOpenerMock.Object);
+        var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
         model.OpenManual();
 
-        _urlOpenerMock.Verify();
+        _nativeUserInterfaceMock.Verify();
     }
 
     [Fact]
     public void OpenReleases_CallsUrlOpener()
     {
-        _urlOpenerMock
-            .Setup(m => m.Open("https://github.com/matushorvath/shadow-kvm/releases"))
+        _nativeUserInterfaceMock
+            .Setup(m => m.OpenUrl("https://github.com/matushorvath/shadow-kvm/releases"))
             .Verifiable();
 
-        var model = new AboutViewModel(_urlOpenerMock.Object);
+        var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
         model.OpenReleases();
 
-        _urlOpenerMock.Verify();
+        _nativeUserInterfaceMock.Verify();
     }
 }

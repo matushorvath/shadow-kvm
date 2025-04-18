@@ -3,13 +3,17 @@ using System.Windows;
 using H.NotifyIcon;
 using Serilog;
 using Serilog.Core;
-using System.Diagnostics;
 
 namespace ShadowKVM;
 
 // TODO make testable, write unit tests
 
-public partial class App : Application
+public interface IApp
+{
+    void Shutdown();
+}
+
+public partial class App : Application, IApp
 {
     public App()
     {
@@ -46,6 +50,8 @@ public partial class App : Application
 
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
+
+        // TODO bind config editor events to disable/enable the notify icon menu item
 
         await InitConfig();
 
@@ -92,12 +98,9 @@ public partial class App : Application
                 return;
             }
 
-            // Create a new config file
+            // Create and edit a new config file
             await GenerateConfigWithProgress();
-
-            // TODO don't edit config using the notify icon (but remember to disable the menu)
-            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
-            viewModel.ConfigureCommand.Execute(null);
+            await Services.ConfigEditor.EditConfig();
         }
         catch (ConfigFileException exception)
         {
@@ -110,9 +113,8 @@ public partial class App : Application
                 return;
             }
 
-            // TODO don't edit config using the notify icon (but remember to disable the menu)
-            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
-            viewModel.ConfigureCommand.Execute(null);
+            // Edit the existing config file
+            await Services.ConfigEditor.EditConfig();
         }
     }
 
@@ -133,31 +135,6 @@ public partial class App : Application
         });
 
         configGeneratorWindow.Close();
-    }
-
-    public async Task EditConfig()
-    {
-        // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", Services.ConfigService.ConfigPath);
-        if (process == null)
-        {
-            throw new Exception("Failed to start notepad");
-        }
-
-        await process.WaitForExitAsync();
-    }
-
-    public void ReloadConfig()
-    {
-        bool reloaded = Services.ConfigService.ReloadConfig();
-        if (!reloaded)
-        {
-            Log.Information("Configuration file has not changed, skipping reload");
-            return;
-        }
-
-        MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
-            MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     protected override void OnExit(ExitEventArgs e)

@@ -20,6 +20,9 @@ public class Services : IDisposable
 
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
 
+        NativeUserInterface = new NativeUserInterface();
+        ConfigEditor = new ConfigEditor(ConfigService, NativeUserInterface, Log.Logger);
+
         DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
         BackgroundTask = new BackgroundTask(ConfigService, DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
 
@@ -54,6 +57,8 @@ public class Services : IDisposable
     public IMonitorService MonitorService { get; }
     public IBackgroundTask BackgroundTask { get; }
     public IAutostart Autostart { get; }
+    public INativeUserInterface NativeUserInterface { get; }
+    public IConfigEditor ConfigEditor { get; }
 
     bool _disposed = false;
 }
