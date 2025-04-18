@@ -10,14 +10,16 @@ namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
 {
+    // TODO get Services without App dependency
     public NotifyIconViewModel()
-        : this(App.Current.Services.BackgroundTask, App.Current.Services.Autostart)
+        : this(App.Current.Services.BackgroundTask, App.Current.Services.ConfigEditor, App.Current.Services.Autostart)
     {
     }
 
-    public NotifyIconViewModel(IBackgroundTask backgroundTask, IAutostart autostart)
+    public NotifyIconViewModel(IBackgroundTask backgroundTask, IConfigEditor configEditor, IAutostart autostart)
     {
         BackgroundTask = backgroundTask;
+        ConfigEditor = configEditor;
         Autostart = autostart;
 
         _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
@@ -30,8 +32,7 @@ public partial class NotifyIconViewModel : ObservableObject
     public async Task Configure()
     {
         // Making this async grays out the menu item while editing config
-        await App.Current.EditConfig();
-        App.Current.ReloadConfig();
+        await ConfigEditor.EditConfig();
     }
 
     [RelayCommand]
@@ -72,6 +73,7 @@ public partial class NotifyIconViewModel : ObservableObject
     }
 
     IBackgroundTask BackgroundTask { get; }
+    IConfigEditor ConfigEditor { get; }
     IAutostart Autostart { get; }
 
     public string EnableDisableText => BackgroundTask.Enabled ? "Disable" : "Enable";
