@@ -13,34 +13,34 @@ namespace ShadowKVM;
 public interface IWindowsAPI
 {
     // For MonitorService
-    public BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi);
+    BOOL GetMonitorInfo(HMONITOR hMonitor, ref MONITORINFOEXW lpmi);
 
-    public BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors);
-    public BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray);
+    BOOL GetNumberOfPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, out uint pdwNumberOfPhysicalMonitors);
+    BOOL GetPhysicalMonitorsFromHMONITOR(HMONITOR hMonitor, PHYSICAL_MONITOR[] pPhysicalMonitorArray);
 
-    public BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
-    public BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
+    BOOL EnumDisplayMonitors(HDC hdc, RECT? lprcClip, MONITORENUMPROC lpfnEnum, LPARAM dwData);
+    BOOL EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICEW lpDisplayDevice, uint dwFlags);
 
-    public IEnumerable<IDictionary<string, object>> SelectAllWMIMonitorIDs();
+    IEnumerable<IDictionary<string, object>> SelectAllWMIMonitorIDs();
 
     // For SafePhysicalMonitorHandle
-    public BOOL DestroyPhysicalMonitor(HANDLE hMonitor);
+    BOOL DestroyPhysicalMonitor(HANDLE hMonitor);
 
     // For MonitorInputService
-    public int GetCapabilitiesStringLength(SafeHandle hMonitor, out uint pdwCapabilitiesStringLengthInCharacters);
+    int GetCapabilitiesStringLength(SafeHandle hMonitor, out uint pdwCapabilitiesStringLengthInCharacters);
 
-    public int CapabilitiesRequestAndCapabilitiesReply(
+    int CapabilitiesRequestAndCapabilitiesReply(
         SafeHandle hMonitor, PSTR pszASCIICapabilitiesString, uint dwCapabilitiesStringLengthInCharacters);
 
-    public int GetVCPFeatureAndVCPFeatureReply(
+    int GetVCPFeatureAndVCPFeatureReply(
         SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint pdwMaximumValue);
 
     // For DeviceNotificationService
-    public CONFIGRET CM_Register_Notification(CM_NOTIFY_FILTER pFilter, nuint pContext,
+    CONFIGRET CM_Register_Notification(CM_NOTIFY_FILTER pFilter, nuint pContext,
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext);
 
     // For BackgroundTask
-    public int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
+    int SetVCPFeature(SafeHandle hMonitor, byte bVCPCode, uint dwNewValue);
 }
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementation of the Windows API interface")]

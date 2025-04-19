@@ -14,7 +14,7 @@ public class ConfigGeneratorStatus
 
 public interface IConfigGenerator
 {
-    public string Generate(IProgress<ConfigGeneratorStatus>? progress = null);
+    string Generate(IProgress<ConfigGeneratorStatus>? progress = null);
 }
 
 public class ConfigGenerator(IMonitorService monitorService, IMonitorInputService monitorInputService) : IConfigGenerator

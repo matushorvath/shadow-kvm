@@ -7,16 +7,16 @@ namespace ShadowKVM;
 
 public interface ICapabilitiesParser
 {
-    public abstract class Component
+    abstract class Component
     {
     }
 
-    public class VcpComponent : Component
+    class VcpComponent : Component
     {
         public required Dictionary<byte, List<byte>> Codes { get; set; }
     }
 
-    public VcpComponent? Parse(string input);
+    VcpComponent? Parse(string input);
 }
 
 public class CapabilitiesParser(ILogger logger) : ICapabilitiesParser
