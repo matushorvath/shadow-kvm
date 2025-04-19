@@ -8,12 +8,12 @@ namespace ShadowKVM;
 
 // TODO make testable, write unit tests
 
-public interface IApp
+public interface IAppControl
 {
     void Shutdown();
 }
 
-public partial class App : Application, IApp
+public partial class App : Application, IAppControl
 {
     public App()
     {
