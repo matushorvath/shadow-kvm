@@ -190,6 +190,8 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
+    new public static App Current => (App)Application.Current;
+
     // TODO service discovery should not use App.Services
     public Services Services { get; }
 

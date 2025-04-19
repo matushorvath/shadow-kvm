@@ -21,9 +21,14 @@ public class UrlOpener : IUrlOpener
 
 public partial class AboutViewModel : ObservableObject
 {
-    public AboutViewModel(IUrlOpener? urlOpener = default)
+    public AboutViewModel()
+        : this(new UrlOpener()) // TODO use Services.UrlOpener?
     {
-        UrlOpener = urlOpener ?? new UrlOpener(); // TODO use Services.UrlOpener?
+    }
+
+    public AboutViewModel(IUrlOpener urlOpener)
+    {
+        UrlOpener = urlOpener;
     }
 
     IUrlOpener UrlOpener { get; }

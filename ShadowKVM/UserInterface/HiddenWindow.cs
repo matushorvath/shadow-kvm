@@ -45,7 +45,7 @@ public class HiddenWindow : IDisposable
         if (msg == PInvoke.WM_CLOSE)
         {
             Log.Information("Received WM_CLOSE, shutting down");
-            Application.Current.Dispatcher.Invoke(Application.Current.Shutdown);
+            App.Current.Dispatcher.Invoke(App.Current.Shutdown);
             return new LRESULT();
         }
 
