@@ -1,29 +1,24 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace ShadowKVM;
 
-// TODO remove the App dependency, write unit tests
+// TODO write unit tests
+// TODO get Services without App dependency
 
 public partial class NotifyIconViewModel : ObservableObject
 {
-    // TODO get Services without App dependency
     public NotifyIconViewModel()
-        : this(App.Current.Services.BackgroundTask, App.Current.Services.ConfigEditor, App.Current.Services.Autostart)
+        : this(App.Current, App.Current.Services.BackgroundTask, App.Current.Services.ConfigEditor, App.Current.Services.Autostart)
     {
     }
 
-    public NotifyIconViewModel(IBackgroundTask backgroundTask, IConfigEditor configEditor, IAutostart autostart)
+    public NotifyIconViewModel(IAppControl appControl, IBackgroundTask backgroundTask, IConfigEditor configEditor, IAutostart autostart)
     {
+        AppControl = appControl;
         BackgroundTask = backgroundTask;
         ConfigEditor = configEditor;
         Autostart = autostart;
-
-        _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
-        _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
 
         isAutostart = Autostart.IsEnabled();
     }
@@ -38,8 +33,7 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand]
     public void Exit()
     {
-        // TODO probably use an event to avoid tight coupling
-        App.Current.Shutdown();
+        AppControl.Shutdown();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
@@ -68,18 +62,18 @@ public partial class NotifyIconViewModel : ObservableObject
     {
         BackgroundTask.Enabled = !BackgroundTask.Enabled;
 
-        OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(EnableDisableText));
+        OnPropertyChanged(nameof(IconUri));
     }
-
-    IBackgroundTask BackgroundTask { get; }
-    IConfigEditor ConfigEditor { get; }
-    IAutostart Autostart { get; }
 
     public string EnableDisableText => BackgroundTask.Enabled ? "Disable" : "Enable";
 
-    ImageSource _enabledIcon;
-    ImageSource _disabledIcon;
+    public string IconUri => BackgroundTask.Enabled
+        ? "pack://application:,,,/UserInterface/TrayEnabled.ico"
+        : "pack://application:,,,/UserInterface/TrayDisabled.ico";
 
-    public ImageSource Icon => BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
+    IAppControl AppControl { get; }
+    IBackgroundTask BackgroundTask { get; }
+    IConfigEditor ConfigEditor { get; }
+    IAutostart Autostart { get; }
 }
