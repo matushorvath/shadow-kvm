@@ -10,9 +10,14 @@ namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
 {
-    public NotifyIconViewModel(IBackgroundTask? backgroundTask = default)
+    public NotifyIconViewModel()
+        : this(App.Current.Services.BackgroundTask)
     {
-        BackgroundTask = backgroundTask ?? App.Services.BackgroundTask;
+    }
+
+    public NotifyIconViewModel(IBackgroundTask backgroundTask)
+    {
+        BackgroundTask = backgroundTask;
 
         _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
         _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
@@ -24,15 +29,15 @@ public partial class NotifyIconViewModel : ObservableObject
     public async Task Configure()
     {
         // Making this async grays out the menu item while editing config
-        await App.EditConfig();
-        App.ReloadConfig(message: true);
+        await App.Current.EditConfig();
+        App.Current.ReloadConfig(message: true);
     }
 
     [RelayCommand]
     public void Exit()
     {
         // TODO probably use an event to avoid tight coupling
-        App.Shutdown();
+        App.Current.Shutdown();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
@@ -73,6 +78,4 @@ public partial class NotifyIconViewModel : ObservableObject
     public ImageSource Icon => BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
 
     IBackgroundTask BackgroundTask { get; }
-
-    App App => (App)Application.Current;
 }
