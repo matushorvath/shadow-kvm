@@ -24,14 +24,17 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
             .Callback(() => stoppedEvent.Set());
 
         // The task will be restarted with this config
-        var config = new Config { TriggerDevice = new() { Raw = _testGuid } };
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config { TriggerDevice = new() { Raw = _testGuid } });
 
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Wait for the other thread to react
             Assert.True(startedEvent.WaitOne(TimeSpan.FromSeconds(5)));
@@ -76,14 +79,17 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
             .Callback(() => stoppedEvent.Set());
 
         // The task will be restarted with this config
-        var config = new Config { TriggerDevice = new() { Raw = _testGuid } };
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config { TriggerDevice = new() { Raw = _testGuid } });
 
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Wait for the other thread to react
             Assert.True(startedEvent.WaitOne(TimeSpan.FromSeconds(5)));
@@ -95,7 +101,7 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
             _loggerMock.Verify(m => m.Debug("Background task started"), Times.Once);
 
             // Restart second time
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Wait for the other thread to react
             Assert.True(stoppedEvent.WaitOne(TimeSpan.FromSeconds(5)));

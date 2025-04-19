@@ -2,14 +2,21 @@
 
 namespace ShadowKVM;
 
+public interface IBackgroundTask : IDisposable
+{
+    void Restart();
+    bool Enabled { get; set; }
+}
+
 public class BackgroundTask(
+    IConfigService configService,
     IDeviceNotificationService deviceNotificationService,
     IMonitorService monitorService,
     IWindowsAPI windowsAPI,
     ILogger logger
-        ) : IDisposable
+        ) : IBackgroundTask
 {
-    public void Restart(Config config)
+    public void Restart()
     {
         if (_task != null)
         {
@@ -22,18 +29,18 @@ public class BackgroundTask(
         logger.Debug("Starting background task");
 
         _cancellationTokenSource = new CancellationTokenSource();
-        _task = Task.Run(() => Execute(config));
+        _task = Task.Run(() => Execute());
     }
 
-    async Task Execute(Config config)
+    async Task Execute()
     {
         logger.Debug("Background task started"); // used for synchronization in unit tests
 
         try
         {
-            using (var notification = deviceNotificationService.Register(config.TriggerDevice))
+            using (var notification = deviceNotificationService.Register(configService.Config.TriggerDevice))
             {
-                await ProcessNotifications(config, notification);
+                await ProcessNotifications(notification);
             }
         }
         catch (OperationCanceledException)
@@ -47,7 +54,7 @@ public class BackgroundTask(
         }
     }
 
-    async Task ProcessNotifications(Config config, IDeviceNotification notification)
+    async Task ProcessNotifications(IDeviceNotification notification)
     {
         IDeviceNotification.Action? lastAction = null;
 
@@ -64,19 +71,19 @@ public class BackgroundTask(
             }
             else
             {
-                ProcessOneNotification(config, action);
+                ProcessOneNotification(action);
                 lastAction = action;
             }
         }
     }
 
-    void ProcessOneNotification(Config config, IDeviceNotification.Action action)
+    void ProcessOneNotification(IDeviceNotification.Action action)
     {
         logger.Debug("Received device notification, action {Action}", action);
 
         using (var monitors = monitorService.LoadMonitors())
         {
-            foreach (var monitorConfig in config.Monitors ?? [])
+            foreach (var monitorConfig in configService.Config.Monitors ?? [])
             {
                 // Find the action config for this device action
                 var actionConfig = action == IDeviceNotification.Action.Arrival ? monitorConfig.Attach : monitorConfig.Detach;

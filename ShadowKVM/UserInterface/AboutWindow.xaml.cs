@@ -10,7 +10,7 @@ public partial class AboutWindow : Window
     {
         InitializeComponent();
 
-        ViewModel.RequestClose += (_, _) => Close();
+        ViewModel.RequestClose += Close;
     }
 
     public AboutViewModel ViewModel => (AboutViewModel)DataContext;

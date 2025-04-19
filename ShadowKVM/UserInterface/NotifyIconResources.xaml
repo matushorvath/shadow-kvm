@@ -30,7 +30,7 @@
         x:Key="NotifyIcon"
         ContextMenu="{StaticResource TrayMenu}"
         DoubleClickCommand="{Binding EnableDisableCommand}"
-        IconSource="{Binding Icon}"
+        IconSource="{Binding IconUri}"
         MenuActivation="LeftOrRightClick"
         ToolTipText="Shadow KVM">
 

@@ -1,11 +1,15 @@
 using System.IO.Abstractions.TestingHelpers;
+using Moq;
+using Serilog;
 
 namespace ShadowKVM.Tests;
 
 public class ConfigActionsTests
 {
+    protected Mock<ILogger> _loggerMock = new();
+
     [Fact]
-    public void LoadConfig_ThrowsWithMissingActions()
+    public void ReloadConfig_ThrowsWithMissingActions()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -16,14 +20,14 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Either attach or detach action needs to be specified for each monitor", exception.Message);
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithAttach()
+    public void ReloadConfig_LoadsMonitorWithAttach()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -37,10 +41,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Equal(VcpCodeEnum.InputSelect, monitor.Attach.Code.Enum);
@@ -49,7 +53,7 @@ public class ConfigActionsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithDetach()
+    public void ReloadConfig_LoadsMonitorWithDetach()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -63,10 +67,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Null(monitor.Attach);
             Assert.NotNull(monitor.Detach);
@@ -75,7 +79,7 @@ public class ConfigActionsTests
     }
 
     [Fact]
-    public void LoadConfig_LoadsMonitorWithAttachAndDetach()
+    public void ReloadConfig_LoadsMonitorWithAttachAndDetach()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -92,10 +96,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Equal(0x42, monitor.Attach.Code.Raw);
@@ -106,7 +110,7 @@ public class ConfigActionsTests
 
     [Theory]
     [InlineData("input-select", VcpCodeEnum.InputSelect, 0x60)]
-    public void LoadConfig_LoadsEnumVcpCode(string enumString, VcpCodeEnum enumValue, byte rawValue)
+    public void ReloadConfig_LoadsEnumVcpCode(string enumString, VcpCodeEnum enumValue, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -120,10 +124,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Equal(enumValue, monitor.Attach.Code.Enum);
@@ -134,7 +138,7 @@ public class ConfigActionsTests
     [Theory]
     [InlineData("0x4a", 0x4a)]
     [InlineData("42", 42)]
-    public void LoadConfig_LoadsByteVcpCode(string rawString, byte rawValue)
+    public void ReloadConfig_LoadsByteVcpCode(string rawString, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -148,10 +152,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Null(monitor.Attach.Code.Enum);
@@ -164,7 +168,7 @@ public class ConfigActionsTests
     [InlineData("-1")]
     [InlineData("256")]
     [InlineData("0xzz")]
-    public void LoadConfig_ThrowsWithInvalidVcpCode(string invalidString)
+    public void ReloadConfig_ThrowsWithInvalidVcpCode(string invalidString)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -178,8 +182,8 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(5,13): Invalid value \"{invalidString}\"", exception.Message);
     }
@@ -203,7 +207,7 @@ public class ConfigActionsTests
     [InlineData("display-port2", VcpValueEnum.DisplayPort2, 0x10)]
     [InlineData("hdmi1", VcpValueEnum.Hdmi1, 0x11)]
     [InlineData("hdmi2", VcpValueEnum.Hdmi2, 0x12)]
-    public void LoadConfig_LoadsEnumVcpValue(string enumString, VcpValueEnum enumValue, byte rawValue)
+    public void ReloadConfig_LoadsEnumVcpValue(string enumString, VcpValueEnum enumValue, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -217,10 +221,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Equal(enumValue, monitor.Attach.Value.Enum);
@@ -231,7 +235,7 @@ public class ConfigActionsTests
     [Theory]
     [InlineData("0x4a", 0x4a)]
     [InlineData("42", 42)]
-    public void LoadConfig_LoadsByteVcpValue(string rawString, byte rawValue)
+    public void ReloadConfig_LoadsByteVcpValue(string rawString, byte rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -245,10 +249,10 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.Collection(config.Monitors ?? [], monitor =>
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.NotNull(monitor.Attach);
             Assert.Null(monitor.Attach.Value.Enum);
@@ -261,7 +265,7 @@ public class ConfigActionsTests
     [InlineData("-1")]
     [InlineData("256")]
     [InlineData("0xzz")]
-    public void LoadConfig_ThrowsWithInvalidVcpValue(string invalidString)
+    public void ReloadConfig_ThrowsWithInvalidVcpValue(string invalidString)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -275,8 +279,8 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var exception = Assert.Throws<ConfigFileException>(configService.LoadConfig);
+        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(6,14): Invalid value \"{invalidString}\"", exception.Message);
     }
