@@ -24,7 +24,7 @@ public partial class App : Application, IAppControl
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
         _loggingLevelSwitch = new();
 
-        Services = new Services(_dataDirectory);
+        Services = new(_dataDirectory);
 
         Startup += OnStartupAsync;
     }

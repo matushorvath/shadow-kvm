@@ -14,8 +14,8 @@ public class MonitorInputs
 
 public interface IMonitorInputService
 {
-    public bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
-    public bool TryLoadMonitorInputs(SafePhysicalMonitorHandle physicalMonitorHandle, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
+    bool TryLoadMonitorInputs(Monitor monitor, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
+    bool TryLoadMonitorInputs(SafePhysicalMonitorHandle physicalMonitorHandle, [NotNullWhen(true)] out MonitorInputs? monitorInputs);
 }
 
 public class MonitorInputService(IWindowsAPI windowsAPI, ICapabilitiesParser capabilitiesParser, ILogger logger) : IMonitorInputService
