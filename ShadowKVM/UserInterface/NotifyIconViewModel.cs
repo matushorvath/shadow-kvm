@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 namespace ShadowKVM;
 
 // TODO write unit tests
-// TODO get Services without App dependency
 
 public partial class NotifyIconViewModel : ObservableObject
 {
@@ -21,14 +20,20 @@ public partial class NotifyIconViewModel : ObservableObject
         Autostart = autostart;
 
         isAutostart = Autostart.IsEnabled();
+
+        // Disable the menu item while the config editor is open
+        configEditor.ConfigEditorOpened += () => IsConfigEditorEnabled = false;
+        configEditor.ConfigEditorClosed += () => IsConfigEditorEnabled = true;
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public async Task Configure()
     {
-        // Making this async grays out the menu item while editing config
         await ConfigEditor.EditConfig();
     }
+
+    [ObservableProperty]
+    bool isConfigEditorEnabled = true;
 
     [RelayCommand]
     public void Exit()

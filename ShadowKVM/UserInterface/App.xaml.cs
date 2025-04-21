@@ -51,8 +51,6 @@ public partial class App : Application, IAppControl
         _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
         _notifyIcon.ForceCreate();
 
-        // TODO bind config editor events to disable/enable the notify icon menu item
-
         await InitConfig();
 
         // Debug log can only be enabled after loading config

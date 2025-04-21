@@ -16,7 +16,8 @@
             IsChecked="{Binding IsAutostart, Mode=TwoWay}" />
         <MenuItem
             Command="{Binding ConfigureCommand}"
-            Header="Configure…" />
+            Header="Configure…"
+            IsEnabled="{Binding IsConfigEditorEnabled}" />
         <MenuItem
             Command="{Binding AboutCommand}"
             Header="About…" />
