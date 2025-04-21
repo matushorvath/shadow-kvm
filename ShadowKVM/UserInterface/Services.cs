@@ -7,10 +7,14 @@ namespace ShadowKVM;
 [ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")]
 public class Services : IDisposable
 {
-    public Services(string dataDirectory)
+    public static Services Instance = new();
+
+    Services()
     {
+        AppControl = new AppControl();
+
         FileSystem = new FileSystem();
-        ConfigService = new ConfigService(dataDirectory, FileSystem, Log.Logger);
+        ConfigService = new ConfigService(FileSystem, Log.Logger);
 
         WindowsAPI = new WindowsAPI();
         MonitorService = new MonitorService(WindowsAPI, Log.Logger);
@@ -47,6 +51,7 @@ public class Services : IDisposable
         }
     }
 
+    public IAppControl AppControl { get; }
     public ICapabilitiesParser CapabilitiesParser { get; }
     public IConfigGenerator ConfigGenerator { get; }
     public IConfigService ConfigService { get; }

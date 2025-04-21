@@ -371,7 +371,9 @@ public class ConfigGenerator_TemplateTests
             [@"x:\mOcKfS\config.yaml"] = text
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);

@@ -6,7 +6,7 @@ namespace ShadowKVM;
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
-        : this(App.Current, App.Current.Services.BackgroundTask, App.Current.Services.ConfigEditor, App.Current.Services.Autostart)
+        : this(Services.Instance.AppControl, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor, Services.Instance.Autostart)
     {
     }
 
@@ -42,7 +42,7 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public Task About()
     {
-        // TODO refactor to make this testable (this should not open a window directly)
+        // TODO refactor to make this testable (do not open a window directly)
 
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();

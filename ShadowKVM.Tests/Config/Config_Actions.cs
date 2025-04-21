@@ -20,7 +20,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Either attach or detach action needs to be specified for each monitor", exception.Message);
@@ -41,7 +43,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -67,7 +71,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -96,7 +102,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -124,7 +132,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -152,7 +162,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -182,7 +194,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(5,13): Invalid value \"{invalidString}\"", exception.Message);
@@ -221,7 +235,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -249,7 +265,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -279,7 +297,9 @@ public class ConfigActionsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(6,14): Invalid value \"{invalidString}\"", exception.Message);

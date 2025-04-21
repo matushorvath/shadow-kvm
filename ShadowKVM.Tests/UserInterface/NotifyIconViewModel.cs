@@ -2,7 +2,6 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
-[Collection("AppFixture")] // This test uses AppFixture
 public class NotifyIconViewModelTests
 {
     Mock<IAppControl> _appControlMock = new();
@@ -13,7 +12,6 @@ public class NotifyIconViewModelTests
     [Fact]
     public void Construct_WithDefaultServices()
     {
-        // Depends on AppFixture already having created the App
         new NotifyIconViewModel();
     }
 

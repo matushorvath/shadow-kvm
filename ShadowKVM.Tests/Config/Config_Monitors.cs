@@ -19,7 +19,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
@@ -36,7 +38,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
@@ -56,7 +60,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Either description, adapter or serial-number needs to be specified for each monitor", exception.Message);
@@ -77,7 +83,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -103,7 +111,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -129,7 +139,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -157,7 +169,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
@@ -199,7 +213,9 @@ public class ConfigMonitorsTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);

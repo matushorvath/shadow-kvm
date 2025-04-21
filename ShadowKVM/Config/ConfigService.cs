@@ -11,37 +11,34 @@ namespace ShadowKVM;
 public interface IConfigService
 {
     string ConfigPath { get; }
+    void SetDataDirectory(string dataDirectory);
+
     Config Config { get; }
     event Action<IConfigService>? ConfigChanged;
 
     bool ReloadConfig();
 }
 
-public class ConfigService : IConfigService
+public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigService
 {
-    public ConfigService(string dataDirectory, IFileSystem fileSystem, ILogger logger)
+    string? _configPath;
+    public string ConfigPath => _configPath ?? throw new InvalidOperationException("Data directory is not set");
+
+    public void SetDataDirectory(string dataDirectory)
     {
-        ConfigPath = Path.Combine(dataDirectory, "config.yaml");
-
-        FileSystem = fileSystem;
-        Logger = logger;
+        _configPath = Path.Combine(dataDirectory, "config.yaml");
     }
-
-    public string ConfigPath { get; }
 
     Config? _config;
     public Config Config => _config ?? throw new InvalidOperationException("Configuration is not loaded");
 
     public event Action<IConfigService>? ConfigChanged;
 
-    IFileSystem FileSystem { get; }
-    ILogger Logger { get; }
-
     public bool ReloadConfig()
     {
         if (!IsConfigChanged())
         {
-            Logger.Information("Configuration file {ConfigPath} has not changed, skipping reload", ConfigPath);
+            logger.Information("Configuration file {ConfigPath} has not changed, skipping reload", ConfigPath);
             return false;
         }
 
@@ -56,7 +53,7 @@ public class ConfigService : IConfigService
             return true;
         }
 
-        using (var stream = FileSystem.File.OpenRead(ConfigPath))
+        using (var stream = fileSystem.File.OpenRead(ConfigPath))
         using (var md5 = MD5.Create())
         {
             return !_config.LoadedChecksum.SequenceEqual(md5.ComputeHash(stream));
@@ -67,7 +64,7 @@ public class ConfigService : IConfigService
     {
         try
         {
-            Logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
+            logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
 
             var namingConvention = HyphenatedNamingConvention.Instance;
 
@@ -78,7 +75,7 @@ public class ConfigService : IConfigService
                 .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
                 .Build();
 
-            using (var stream = FileSystem.File.OpenRead(ConfigPath))
+            using (var stream = fileSystem.File.OpenRead(ConfigPath))
             using (var input = new StreamReader(stream))
             {
                 _config = deserializer.Deserialize<Config>(input);
@@ -86,7 +83,7 @@ public class ConfigService : IConfigService
 
             ValidateConfig();
 
-            using (var stream = FileSystem.File.OpenRead(ConfigPath))
+            using (var stream = fileSystem.File.OpenRead(ConfigPath))
             using (var md5 = MD5.Create())
             {
                 Config.LoadedChecksum = md5.ComputeHash(stream);

@@ -25,7 +25,8 @@ public class ConfigServiceTests
             [@"x:\mOcKfS\config.yaml"] = _validConfig
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         // First load returns true
         Assert.True(configService.ReloadConfig());
@@ -41,7 +42,8 @@ public class ConfigServiceTests
             [@"x:\mOcKfS\config.yaml"] = _validConfig
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         // First load returns true
         Assert.True(configService.ReloadConfig());
@@ -60,7 +62,8 @@ public class ConfigServiceTests
             [@"x:\mOcKfS\config.yaml"] = _validConfig
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         // First load returns true
         Assert.True(configService.ReloadConfig());
@@ -84,7 +87,9 @@ public class ConfigServiceTests
     public void ReloadConfig_ThrowsWithNoConfigFile()
     {
         var fileSystem = new MockFileSystem();
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         Assert.Throws<FileNotFoundException>(() => configService.ReloadConfig());
     }
@@ -97,7 +102,9 @@ public class ConfigServiceTests
             [@"x:\mOcKfS\config.yaml"] = "pRoP: - iNvAlIdYaMl"
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"x:\mOcKfS\config.yaml(1,7): Block sequence entries are not allowed in this context.", exception.Message);
@@ -118,7 +125,9 @@ public class ConfigServiceTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);
@@ -147,7 +156,9 @@ public class ConfigServiceTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);
@@ -172,7 +183,9 @@ public class ConfigServiceTests
                 """.ReplaceLineEndings("\r\n")
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         // generate: String.Join(", ", config.LoadedChecksum.Select(x => $"0x{x:x}"))
@@ -188,7 +201,8 @@ public class ConfigServiceTests
             [@"x:\mOcKfS\config.yaml"] = _validConfig
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         var eventTriggered = false;
         configService.ConfigChanged += (sender) =>
@@ -206,7 +220,9 @@ public class ConfigServiceTests
     public void Config_ThrowsBeforeLoading()
     {
         var fileSystem = new MockFileSystem();
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
         Assert.Throws<InvalidOperationException>(() => configService.Config);
     }

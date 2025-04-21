@@ -2,7 +2,6 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
-[Collection("AppFixture")] // This test uses AppFixture
 public class AboutViewModelTests
 {
     Mock<INativeUserInterface> _nativeUserInterfaceMock = new();
@@ -10,7 +9,6 @@ public class AboutViewModelTests
     [Fact]
     public void Construct_WithDefaultServices()
     {
-        // Depends on AppFixture already having created the App
         new AboutViewModel();
     }
 

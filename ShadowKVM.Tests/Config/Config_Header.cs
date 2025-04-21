@@ -23,7 +23,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Unsupported configuration version (found 0, supporting 1)", exception.Message);
@@ -44,7 +46,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Unsupported configuration version (found 987, supporting 1)", exception.Message);
@@ -65,7 +69,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);
@@ -86,7 +92,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(LogEventLevel.Information, configService.Config.LogLevel);
@@ -114,7 +122,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(enumValue, configService.Config.LogLevel);
@@ -136,7 +146,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"x:\mOcKfS\config.yaml(2,12): Exception during deserialization: Requested value 'iNvAlIdLoGlEvEl' was not found.", exception.Message);
@@ -157,7 +169,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
@@ -182,7 +196,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(enumValue, configService.Config.TriggerDevice.Enum);
@@ -205,7 +221,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         Assert.True(configService.ReloadConfig());
 
         Assert.Null(configService.Config.TriggerDevice.Enum);
@@ -228,7 +246,9 @@ public class ConfigHeaderTests
                 """
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem, _loggerMock.Object);
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal("x:\\mOcKfS\\config.yaml(2,17): Invalid value \"iNvAlIdDeViCe\"", exception.Message);

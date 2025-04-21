@@ -6,7 +6,7 @@ namespace ShadowKVM;
 public partial class AboutViewModel : ObservableObject
 {
     public AboutViewModel()
-        : this(App.Current.Services.NativeUserInterface)
+        : this(Services.Instance.NativeUserInterface)
     {
     }
 

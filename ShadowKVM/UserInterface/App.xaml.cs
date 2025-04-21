@@ -8,12 +8,7 @@ namespace ShadowKVM;
 
 // TODO make testable, write unit tests
 
-public interface IAppControl
-{
-    void Shutdown();
-}
-
-public partial class App : Application, IAppControl
+public partial class App : Application
 {
     public App()
     {
@@ -24,7 +19,7 @@ public partial class App : Application, IAppControl
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
         _loggingLevelSwitch = new();
 
-        Services = new(_dataDirectory);
+        Services.Instance.ConfigService.SetDataDirectory(_dataDirectory);
 
         Startup += OnStartupAsync;
     }
@@ -40,9 +35,9 @@ public partial class App : Application, IAppControl
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
-        if (!Services.Autostart.IsConfigured())
+        if (!Services.Instance.Autostart.IsConfigured())
         {
-            Services.Autostart.SetEnabled(true);
+            Services.Instance.Autostart.SetEnabled(true);
         }
 
         _hiddenWindow = new();
@@ -73,18 +68,18 @@ public partial class App : Application, IAppControl
     async Task InitConfig()
     {
         // Reinitialize whenever the config file is changed
-        Services.ConfigService.ConfigChanged += (configService) =>
+        Services.Instance.ConfigService.ConfigChanged += (configService) =>
         {
             // Set up logging level based on config file
             _loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
 
-            Services.BackgroundTask.Restart();
+            Services.Instance.BackgroundTask.Restart();
         };
 
         // First load of the config file
         try
         {
-            Services.ConfigService.ReloadConfig();
+            Services.Instance.ConfigService.ReloadConfig();
         }
         catch (FileNotFoundException)
         {
@@ -98,7 +93,7 @@ public partial class App : Application, IAppControl
 
             // Create and edit a new config file
             await GenerateConfigWithProgress();
-            await Services.ConfigEditor.EditConfig();
+            await Services.Instance.ConfigEditor.EditConfig();
         }
         catch (ConfigFileException exception)
         {
@@ -112,7 +107,7 @@ public partial class App : Application, IAppControl
             }
 
             // Edit the existing config file
-            await Services.ConfigEditor.EditConfig();
+            await Services.Instance.ConfigEditor.EditConfig();
         }
     }
 
@@ -125,8 +120,8 @@ public partial class App : Application, IAppControl
 
         await Task.Run(() =>
         {
-            var configText = Services.ConfigGenerator.Generate(progress);
-            using (var output = new StreamWriter(Services.ConfigService.ConfigPath))
+            var configText = Services.Instance.ConfigGenerator.Generate(progress);
+            using (var output = new StreamWriter(Services.Instance.ConfigService.ConfigPath))
             {
                 output.Write(configText);
             }
@@ -142,7 +137,7 @@ public partial class App : Application, IAppControl
         _notifyIcon?.Dispose();
         _hiddenWindow?.Dispose();
 
-        Services.Dispose();
+        Services.Instance.Dispose();
 
         base.OnExit(e);
     }
@@ -166,11 +161,6 @@ public partial class App : Application, IAppControl
 
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
-
-    new public static App Current => (App)Application.Current;
-
-    // TODO service discovery should not use App.Services
-    public Services Services { get; }
 
     TaskbarIcon? _notifyIcon;
     HiddenWindow? _hiddenWindow;
