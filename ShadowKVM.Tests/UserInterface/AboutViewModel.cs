@@ -2,13 +2,15 @@ using Moq;
 
 namespace ShadowKVM.Tests;
 
+[Collection("AppFixture")] // This test uses AppFixture
 public class AboutViewModelTests
 {
     Mock<INativeUserInterface> _nativeUserInterfaceMock = new();
 
     [Fact]
-    public void Constructs_WithDefaultUrlOpener()
+    public void Construct_WithDefaultServices()
     {
+        // Depends on AppFixture already having created the App
         new AboutViewModel();
     }
 
@@ -16,7 +18,7 @@ public class AboutViewModelTests
     public void Close_WithNoEventHandler()
     {
         var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
-        model.Close();
+        model.CloseCommand.Execute(null);
     }
 
     [Fact]
@@ -27,7 +29,7 @@ public class AboutViewModelTests
         var eventTriggered = false;
         model.RequestClose += () => { eventTriggered = true; };
 
-        model.Close();
+        model.CloseCommand.Execute(null);
 
         Assert.True(eventTriggered);
     }
@@ -60,7 +62,7 @@ public class AboutViewModelTests
             .Verifiable();
 
         var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
-        model.OpenLicense();
+        model.OpenLicenseCommand.Execute(null);
 
         _nativeUserInterfaceMock.Verify();
     }
@@ -73,7 +75,7 @@ public class AboutViewModelTests
             .Verifiable();
 
         var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
-        model.OpenManual();
+        model.OpenManualCommand.Execute(null);
 
         _nativeUserInterfaceMock.Verify();
     }
@@ -86,7 +88,7 @@ public class AboutViewModelTests
             .Verifiable();
 
         var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
-        model.OpenReleases();
+        model.OpenReleasesCommand.Execute(null);
 
         _nativeUserInterfaceMock.Verify();
     }

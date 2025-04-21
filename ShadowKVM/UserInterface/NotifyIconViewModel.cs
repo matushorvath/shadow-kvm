@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace ShadowKVM;
 
-// TODO write unit tests
-
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
@@ -44,6 +42,8 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public Task About()
     {
+        // TODO refactor to make this testable (this should not open a window directly)
+
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();
 
@@ -55,7 +55,7 @@ public partial class NotifyIconViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    bool isAutostart;
+    bool isAutostart = false;
 
     partial void OnIsAutostartChanged(bool value)
     {
