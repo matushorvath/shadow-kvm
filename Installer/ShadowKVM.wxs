@@ -29,7 +29,12 @@
        DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
     <!-- Send WM_CLOSE to ShadowKVM.exe if it is running, to allow replacing the file -->
-    <util:CloseApplication Target="ShadowKVM.exe" CloseMessage="yes" RebootPrompt="no" />
+    <util:CloseApplication Id="CloseShadowKVM" Target="ShadowKVM.exe" CloseMessage="yes" RebootPrompt="no" />
+
+    <!-- Schedule closing of ShadowKVM.exe before MSI checks whether the files are in use -->
+    <InstallExecuteSequence>
+      <Custom Action="override Wix4CloseApplications_X86" Before="InstallValidate" />
+    </InstallExecuteSequence>
 
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)" />
