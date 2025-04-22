@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using Serilog;
 using Windows.Win32;
@@ -6,9 +7,8 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace ShadowKVM;
 
-// TODO move PInvoke to IWindowsAPI, write unit tests
-
 // Hidden window that responds to WM_CLOSE, needed to exit cleanly when running the installer
+[ExcludeFromCodeCoverage(Justification = "User interface code")]
 public class HiddenWindow : IDisposable
 {
     public unsafe void Create()
@@ -45,7 +45,7 @@ public class HiddenWindow : IDisposable
         if (msg == PInvoke.WM_CLOSE)
         {
             Log.Information("Received WM_CLOSE, shutting down");
-            Application.Current.Dispatcher.Invoke(Application.Current.Shutdown);
+            Application.Current.Dispatcher.Invoke(Application.Current.Shutdown); // TODO use IAppControl.Shutdown
             return new LRESULT();
         }
 

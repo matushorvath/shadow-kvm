@@ -1,41 +1,49 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace ShadowKVM;
 
-// TODO remove the App dependency, write unit tests
-
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
+        : this(Services.Instance.AppControl, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor, Services.Instance.Autostart)
     {
-        _enabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayEnabled.ico"));
-        _disabledIcon = new BitmapImage(new Uri("pack://application:,,,/UserInterface/TrayDisabled.ico"));
+    }
+
+    public NotifyIconViewModel(IAppControl appControl, IBackgroundTask backgroundTask, IConfigEditor configEditor, IAutostart autostart)
+    {
+        AppControl = appControl;
+        BackgroundTask = backgroundTask;
+        ConfigEditor = configEditor;
+        Autostart = autostart;
 
         isAutostart = Autostart.IsEnabled();
+
+        // Disable the menu item while the config editor is open
+        configEditor.ConfigEditorOpened += () => IsConfigEditorEnabled = false;
+        configEditor.ConfigEditorClosed += () => IsConfigEditorEnabled = true;
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public async Task Configure()
     {
-        // Making this async grays out the menu item while editing config
-        await App.EditConfig();
-        App.ReloadConfig(message: true);
+        await ConfigEditor.EditConfig();
     }
+
+    [ObservableProperty]
+    bool isConfigEditorEnabled = true;
 
     [RelayCommand]
     public void Exit()
     {
-        // TODO probably use an event to avoid tight coupling
-        Application.Current.Shutdown();
+        AppControl.Shutdown();
     }
 
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public Task About()
     {
+        // TODO refactor to make this testable (do not open a window directly)
+
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();
 
@@ -47,7 +55,7 @@ public partial class NotifyIconViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    bool isAutostart;
+    bool isAutostart = false;
 
     partial void OnIsAutostartChanged(bool value)
     {
@@ -57,18 +65,20 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand]
     public void EnableDisable()
     {
-        App.BackgroundTask.Enabled = !App.BackgroundTask.Enabled;
+        BackgroundTask.Enabled = !BackgroundTask.Enabled;
 
-        OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(EnableDisableText));
+        OnPropertyChanged(nameof(IconUri));
     }
 
-    public string EnableDisableText => App.BackgroundTask.Enabled ? "Disable" : "Enable";
+    public string EnableDisableText => BackgroundTask.Enabled ? "Disable" : "Enable";
 
-    ImageSource _enabledIcon;
-    ImageSource _disabledIcon;
+    public string IconUri => BackgroundTask.Enabled
+        ? "pack://application:,,,/UserInterface/TrayEnabled.ico"
+        : "pack://application:,,,/UserInterface/TrayDisabled.ico";
 
-    public ImageSource Icon => App.BackgroundTask.Enabled ? _enabledIcon : _disabledIcon;
-
-    App App => (App)Application.Current;
+    IAppControl AppControl { get; }
+    IBackgroundTask BackgroundTask { get; }
+    IConfigEditor ConfigEditor { get; }
+    IAutostart Autostart { get; }
 }

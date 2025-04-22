@@ -9,6 +9,7 @@ Backlog
    - real configuration UI
    - installer takes forever to kill running ShadowKVM.exe
       - maybe it's sending WM_CLOSE to wrong windows?
+   - better UI for invalid config file, it looks like a crash now
 
 - nice to have
    - add a way to check for updates

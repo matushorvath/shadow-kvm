@@ -8,6 +8,7 @@ namespace ShadowKVM.Tests;
 
 public class BackgroundTaskFixture
 {
+    protected Mock<IConfigService> _configServiceMock = new();
     protected Mock<IDeviceNotificationService> _deviceNotificationServiceMock = new();
     protected Mock<IMonitorService> _monitorServiceMock = new();
     protected Mock<IWindowsAPI> _windowsAPIMock = new();
@@ -92,16 +93,19 @@ public class BackgroundTaskFixture
         var finishedEvent = new AutoResetEvent(false);
         SetupForProcessOneNotification(monitorDevices, invocations, finishedEvent);
 
-        var config = new Config
-        {
-            TriggerDevice = new() { Raw = _testGuid },
-            Monitors = monitorConfigs?.ToList()
-        };
+        _configServiceMock
+            .SetupGet(m => m.Config)
+            .Returns(new Config
+            {
+                TriggerDevice = new() { Raw = _testGuid },
+                Monitors = monitorConfigs?.ToList()
+            });
 
-        using (var backgroundTask = new BackgroundTask(_deviceNotificationServiceMock.Object,
+        using (var backgroundTask = new BackgroundTask(
+            _configServiceMock.Object, _deviceNotificationServiceMock.Object,
             _monitorServiceMock.Object, _windowsAPIMock.Object, _loggerMock.Object))
         {
-            backgroundTask.Restart(config);
+            backgroundTask.Restart();
 
             // Task is now running, send it an action
             channel.Writer.TryWrite(action);

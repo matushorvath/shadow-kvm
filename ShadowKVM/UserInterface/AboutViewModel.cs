@@ -1,24 +1,29 @@
-using System.Diagnostics;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace ShadowKVM;
 
-// TODO write unit tests
-
 public partial class AboutViewModel : ObservableObject
 {
-    public event EventHandler? RequestClose;
+    public AboutViewModel()
+        : this(Services.Instance.NativeUserInterface)
+    {
+    }
+
+    public AboutViewModel(INativeUserInterface nativeUserInterface)
+    {
+        NativeUserInterface = nativeUserInterface;
+    }
+
+    INativeUserInterface NativeUserInterface { get; }
+
+    public event Action? RequestClose;
 
     [RelayCommand]
     public void Close()
     {
-        RequestClose?.Invoke(this, EventArgs.Empty);
+        RequestClose?.Invoke();
     }
-
-    public ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/UserInterface/Application.ico"));
 
     [ObservableProperty]
     string version = GitVersionInformation.FullSemVer;
@@ -26,30 +31,18 @@ public partial class AboutViewModel : ObservableObject
     [RelayCommand]
     public void OpenLicense()
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "https://opensource.org/license/mit",
-            UseShellExecute = true
-        });
+        NativeUserInterface.OpenUrl("https://opensource.org/license/mit");
     }
 
     [RelayCommand]
     public void OpenManual()
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "https://github.com/matushorvath/shadow-kvm#readme-ov-file",
-            UseShellExecute = true
-        });
+        NativeUserInterface.OpenUrl("https://github.com/matushorvath/shadow-kvm#readme-ov-file");
     }
 
     [RelayCommand]
     public void OpenReleases()
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "https://github.com/matushorvath/shadow-kvm/releases",
-            UseShellExecute = true
-        });
+        NativeUserInterface.OpenUrl("https://github.com/matushorvath/shadow-kvm/releases");
     }
 }

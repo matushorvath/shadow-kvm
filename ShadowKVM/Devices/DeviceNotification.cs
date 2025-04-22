@@ -23,12 +23,12 @@ public class DeviceNotificationService(IWindowsAPI windowsAPI) : IDeviceNotifica
 
 public interface IDeviceNotification : IDisposable
 {
-    public enum Action
+    enum Action
     {
         Arrival, Removal
     }
 
-    public ChannelReader<Action> Reader { get; }
+    ChannelReader<Action> Reader { get; }
 }
 
 public class DeviceNotification : IDeviceNotification

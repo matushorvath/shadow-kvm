@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Interop;
 using Microsoft.Xaml.Behaviors;
@@ -9,6 +10,7 @@ namespace ShadowKVM;
 
 // TODO write unit tests
 
+[ExcludeFromCodeCoverage(Justification = "User interface code")]
 public class HideCloseButton : Behavior<Window>
 {
     protected override void OnAttached()

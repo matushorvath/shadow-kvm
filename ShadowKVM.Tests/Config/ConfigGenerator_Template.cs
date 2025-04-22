@@ -1,5 +1,6 @@
 using System.IO.Abstractions.TestingHelpers;
 using Moq;
+using Serilog;
 using Serilog.Events;
 using YamlDotNet.Serialization;
 
@@ -22,6 +23,7 @@ public class ConfigGenerator_TemplateTests
 {
     public Mock<IMonitorService> _monitorServiceMock = new();
     public Mock<IMonitorInputService> _monitorInputServiceMock = new();
+    public Mock<ILogger> _loggerMock = new();
 
     static SafePhysicalMonitorHandle NH = SafePhysicalMonitorHandle.Null; // short name for null handle
 
@@ -369,15 +371,17 @@ public class ConfigGenerator_TemplateTests
             [@"x:\mOcKfS\config.yaml"] = text
         });
 
-        var configService = new ConfigService(@"x:\mOcKfS", fileSystem);
-        var config = configService.LoadConfig();
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
 
-        Assert.Equal(1, config.Version);
-        Assert.Equal(TriggerDeviceType.Keyboard, config.TriggerDevice.Enum);
-        Assert.Equal(LogEventLevel.Information, config.LogLevel);
+        Assert.True(configService.ReloadConfig());
 
-        Assert.NotNull(config.Monitors);
-        Assert.Collection(config.Monitors,
+        Assert.Equal(1, configService.Config.Version);
+        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
+        Assert.Equal(LogEventLevel.Information, configService.Config.LogLevel);
+
+        Assert.NotNull(configService.Config.Monitors);
+        Assert.Collection(configService.Config.Monitors,
         monitor =>
         {
             Assert.Equal("dEsCrIpTiOn 1", monitor.Description);

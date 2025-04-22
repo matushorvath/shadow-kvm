@@ -3,7 +3,6 @@ using System.Windows;
 using H.NotifyIcon;
 using Serilog;
 using Serilog.Core;
-using System.Diagnostics;
 
 namespace ShadowKVM;
 
@@ -20,9 +19,7 @@ public partial class App : Application
         _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
         _loggingLevelSwitch = new();
 
-        Services = new Services(_dataDirectory);
-
-        BackgroundTask = new(Services.DeviceNotificationService, Services.MonitorService, Services.WindowsAPI, Log.Logger);
+        Services.Instance.ConfigService.SetDataDirectory(_dataDirectory);
 
         Startup += OnStartupAsync;
     }
@@ -38,9 +35,9 @@ public partial class App : Application
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
-        if (!Autostart.IsConfigured())
+        if (!Services.Instance.Autostart.IsConfigured())
         {
-            Autostart.SetEnabled(true);
+            Services.Instance.Autostart.SetEnabled(true);
         }
 
         _hiddenWindow = new();
@@ -70,9 +67,19 @@ public partial class App : Application
 
     async Task InitConfig()
     {
+        // Reinitialize whenever the config file is changed
+        Services.Instance.ConfigService.ConfigChanged += (configService) =>
+        {
+            // Set up logging level based on config file
+            _loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
+
+            Services.Instance.BackgroundTask.Restart();
+        };
+
+        // First load of the config file
         try
         {
-            ReloadConfig();
+            Services.Instance.ConfigService.ReloadConfig();
         }
         catch (FileNotFoundException)
         {
@@ -84,11 +91,9 @@ public partial class App : Application
                 return;
             }
 
-            // Create a new config file
+            // Create and edit a new config file
             await GenerateConfigWithProgress();
-
-            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
-            viewModel.ConfigureCommand.Execute(null);
+            await Services.Instance.ConfigEditor.EditConfig();
         }
         catch (ConfigFileException exception)
         {
@@ -101,8 +106,8 @@ public partial class App : Application
                 return;
             }
 
-            var viewModel = (NotifyIconViewModel)_notifyIcon!.DataContext;
-            viewModel.ConfigureCommand.Execute(null);
+            // Edit the existing config file
+            await Services.Instance.ConfigEditor.EditConfig();
         }
     }
 
@@ -115,8 +120,8 @@ public partial class App : Application
 
         await Task.Run(() =>
         {
-            var configText = Services.ConfigGenerator.Generate(progress);
-            using (var output = new StreamWriter(Services.ConfigService.ConfigPath))
+            var configText = Services.Instance.ConfigGenerator.Generate(progress);
+            using (var output = new StreamWriter(Services.Instance.ConfigService.ConfigPath))
             {
                 output.Write(configText);
             }
@@ -125,49 +130,14 @@ public partial class App : Application
         configGeneratorWindow.Close();
     }
 
-    public async Task EditConfig()
-    {
-        // Open notepad to edit the config file and wait for it to close
-        var process = Process.Start("notepad.exe", Services.ConfigService.ConfigPath);
-        if (process == null)
-        {
-            throw new Exception("Failed to start notepad");
-        }
-
-        await process.WaitForExitAsync();
-    }
-
-    public void ReloadConfig(bool message = false)
-    {
-        if (_config != null && !Services.ConfigService.NeedReloadConfig(_config))
-        {
-            Log.Information("Configuration file has not changed, skipping reload");
-            return;
-        }
-
-        Log.Information("Loading configuration from {ConfigPath}", Services.ConfigService.ConfigPath);
-        _config = Services.ConfigService.LoadConfig();
-
-        if (message)
-        {
-            MessageBox.Show("Configuration file loaded successfully", "Shadow KVM",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        // Set up logging level based on config file
-        _loggingLevelSwitch.MinimumLevel = _config.LogLevel;
-
-        BackgroundTask.Restart(_config);
-    }
-
     protected override void OnExit(ExitEventArgs e)
     {
         Log.Information("Shutting down");
 
-        BackgroundTask.Dispose();
         _notifyIcon?.Dispose();
-
         _hiddenWindow?.Dispose();
+
+        Services.Instance.Dispose();
 
         base.OnExit(e);
     }
@@ -192,17 +162,11 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    Services Services { get; }
-
-    public BackgroundTask BackgroundTask { get; }
-
     TaskbarIcon? _notifyIcon;
+    HiddenWindow? _hiddenWindow;
 
     string _dataDirectory;
     string _logPath;
 
-    Config? _config;
     LoggingLevelSwitch _loggingLevelSwitch;
-
-    HiddenWindow? _hiddenWindow;
 }

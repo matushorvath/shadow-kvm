@@ -4,8 +4,15 @@ using Serilog;
 
 namespace ShadowKVM;
 
-[ExcludeFromCodeCoverage(Justification = "Wrapper for the Registry API")]
-public static class Autostart
+public interface IAutostart
+{
+    bool IsEnabled();
+    void SetEnabled(bool value);
+    bool IsConfigured();
+}
+
+[ExcludeFromCodeCoverage(Justification = "Productive implementation of the Autostart interface")]
+public class Autostart(ILogger logger) : IAutostart
 {
     static string EnabledRegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     static string EnabledRegistryValue = "Shadow KVM";
@@ -15,13 +22,13 @@ public static class Autostart
     static string ConfiguredRegistryValue = "AutostartConfigured";
 
     // Is autostart enabled?
-    public static bool IsEnabled()
+    public bool IsEnabled()
     {
         return Registry.CurrentUser.OpenSubKey(EnabledRegistryKey)?.GetValue(EnabledRegistryValue) != null;
     }
 
     // Enable/disable autostart
-    public static void SetEnabled(bool value)
+    public void SetEnabled(bool value)
     {
         if (value)
         {
@@ -35,11 +42,11 @@ public static class Autostart
 
         Registry.CurrentUser.CreateSubKey(ConfiguredRegistryKey, true).SetValue(ConfiguredRegistryValue, 1);
 
-        Log.Information("Autostart is now {Value}", value ? "enabled" : "disabled");
+        logger.Information("Autostart is now {Value}", value ? "enabled" : "disabled");
     }
 
     // Have we already configured autostart for this user in the past?
-    public static bool IsConfigured()
+    public bool IsConfigured()
     {
         return Registry.CurrentUser.OpenSubKey(ConfiguredRegistryKey)?.GetValue(ConfiguredRegistryValue) != null;
     }

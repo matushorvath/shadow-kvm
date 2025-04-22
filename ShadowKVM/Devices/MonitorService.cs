@@ -11,7 +11,7 @@ namespace ShadowKVM;
 
 public interface IMonitorService
 {
-    public Monitors LoadMonitors();
+    Monitors LoadMonitors();
 }
 
 // Partial class because of GeneratedRegex
