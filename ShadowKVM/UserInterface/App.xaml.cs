@@ -11,49 +11,60 @@ namespace ShadowKVM;
 public partial class App : Application
 {
     public App()
+        : this(Services.Instance.Autostart, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor,
+            Services.Instance.ConfigGenerator, Services.Instance.ConfigService)
     {
-        // Set up data directory
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        _dataDirectory = Path.Combine(appData, "Shadow KVM");
+    }
 
-        _logPath = Path.Combine(_dataDirectory, "logs", "shadow-kvm-.log");
-        _loggingLevelSwitch = new();
-
-        Services.Instance.ConfigService.SetDataDirectory(_dataDirectory);
+    public App(IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
+        IConfigGenerator configGenerator, IConfigService configService)
+    {
+        Autostart = autostart;
+        BackgroundTask = backgroundTask;
+        ConfigEditor = configEditor;
+        ConfigGenerator = configGenerator;
+        ConfigService = configService;
 
         Startup += OnStartupAsync;
     }
 
     async void OnStartupAsync(object sender, StartupEventArgs e)
     {
-        Directory.CreateDirectory(_dataDirectory);
+        // Set up data directory
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-        InitLogger();
+        var dataDirectory = Path.Combine(appData, "Shadow KVM");
+        Directory.CreateDirectory(dataDirectory);
+
+        InitLogger(dataDirectory);
 
         Log.Information("Initializing, version {FullSemVer} ({CommitDate})",
             GitVersionInformation.FullSemVer, GitVersionInformation.CommitDate);
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
-        if (!Services.Instance.Autostart.IsConfigured())
+        if (!Autostart.IsConfigured())
         {
-            Services.Instance.Autostart.SetEnabled(true);
+            Autostart.SetEnabled(true);
         }
 
-        _hiddenWindow = new();
-        _hiddenWindow.Create();
+        // Hidden window to listen for WM_CLOSE from installer
+        HiddenWindow.Create();
 
-        _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
-        _notifyIcon.ForceCreate();
+        // Taskbar icon
+        NotifyIcon.ForceCreate();
 
-        await InitConfig();
+        // Create or load the config file
+        await InitConfig(dataDirectory);
 
         // Debug log can only be enabled after loading config
         Log.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
     }
 
-    void InitLogger()
+    void InitLogger(string dataDirectory)
     {
+        _logPath = Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
+
         // Set up logger
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.ControlledBy(_loggingLevelSwitch)
@@ -65,21 +76,23 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
-    async Task InitConfig()
+    async Task InitConfig(string dataDirectory)
     {
+        ConfigService.SetDataDirectory(dataDirectory);
+
         // Reinitialize whenever the config file is changed
-        Services.Instance.ConfigService.ConfigChanged += (configService) =>
+        ConfigService.ConfigChanged += (configService) =>
         {
             // Set up logging level based on config file
             _loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
 
-            Services.Instance.BackgroundTask.Restart();
+            BackgroundTask.Restart();
         };
 
         // First load of the config file
         try
         {
-            Services.Instance.ConfigService.ReloadConfig();
+            ConfigService.ReloadConfig();
         }
         catch (FileNotFoundException)
         {
@@ -93,7 +106,7 @@ public partial class App : Application
 
             // Create and edit a new config file
             await GenerateConfigWithProgress();
-            await Services.Instance.ConfigEditor.EditConfig();
+            await ConfigEditor.EditConfig();
         }
         catch (ConfigFileException exception)
         {
@@ -107,7 +120,7 @@ public partial class App : Application
             }
 
             // Edit the existing config file
-            await Services.Instance.ConfigEditor.EditConfig();
+            await ConfigEditor.EditConfig();
         }
     }
 
@@ -120,8 +133,8 @@ public partial class App : Application
 
         await Task.Run(() =>
         {
-            var configText = Services.Instance.ConfigGenerator.Generate(progress);
-            using (var output = new StreamWriter(Services.Instance.ConfigService.ConfigPath))
+            var configText = ConfigGenerator.Generate(progress);
+            using (var output = new StreamWriter(ConfigService.ConfigPath))
             {
                 output.Write(configText);
             }
@@ -134,8 +147,8 @@ public partial class App : Application
     {
         Log.Information("Shutting down");
 
-        _notifyIcon?.Dispose();
-        _hiddenWindow?.Dispose();
+        NotifyIcon.Dispose();
+        HiddenWindow.Dispose();
 
         Services.Instance.Dispose();
 
@@ -162,11 +175,15 @@ public partial class App : Application
         Log.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    TaskbarIcon? _notifyIcon;
-    HiddenWindow? _hiddenWindow;
+    IAutostart Autostart { get; }
+    IBackgroundTask BackgroundTask { get; }
+    IConfigEditor ConfigEditor { get; }
+    IConfigGenerator ConfigGenerator { get; }
+    IConfigService ConfigService { get; }
 
-    string _dataDirectory;
-    string _logPath;
+    TaskbarIcon NotifyIcon => (TaskbarIcon)FindResource("NotifyIcon");
+    HiddenWindow HiddenWindow { get; } = new();
 
-    LoggingLevelSwitch _loggingLevelSwitch;
+    LoggingLevelSwitch _loggingLevelSwitch = new();
+    string? _logPath;
 }
