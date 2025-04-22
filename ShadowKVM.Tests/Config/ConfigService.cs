@@ -226,4 +226,14 @@ public class ConfigServiceTests
 
         Assert.Throws<InvalidOperationException>(() => configService.Config);
     }
+
+    [Fact]
+    public void Config_ThrowsWithoutDataDirectory()
+    {
+        var fileSystem = new MockFileSystem();
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+
+        Assert.Throws<InvalidOperationException>(() => configService.ConfigPath);
+    }
 }
