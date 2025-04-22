@@ -5,9 +5,7 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: nuget
-    directories:
-      - /
-      - /Installer # for Installer/Dependabot.csproj
+    directory: /
     schedule:
       interval: weekly
  
