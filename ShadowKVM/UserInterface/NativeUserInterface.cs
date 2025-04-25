@@ -12,6 +12,8 @@ public interface INativeUserInterface
     void ErrorBox(string message, string title);
     void InfoBox(string message, string title);
     bool QuestionBox(string message, string title);
+
+    void ShowWindow(Window window);
 }
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementation of the native UI interface")]
@@ -47,5 +49,10 @@ public class NativeUserInterface : INativeUserInterface
     {
         var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
         return result == MessageBoxResult.Yes;
+    }
+
+    public void ShowWindow(Window window)
+    {
+        window.Show();
     }
 }

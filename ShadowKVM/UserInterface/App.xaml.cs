@@ -8,7 +8,6 @@ using Serilog.Core;
 namespace ShadowKVM;
 
 // TODO write unit tests
-// TODO use NativeUserInterface for configGeneratorWindow.Show()
 
 public partial class App : Application
 {
@@ -135,7 +134,7 @@ public partial class App : Application
     async Task GenerateConfigWithProgress()
     {
         var configGeneratorWindow = new ConfigGeneratorWindow();
-        configGeneratorWindow.Show(); // TODO not testable
+        NativeUserInterface.ShowWindow(configGeneratorWindow);
 
         var progress = configGeneratorWindow.ViewModel.Progress;
 
