@@ -7,8 +7,7 @@ using Serilog.Core;
 
 namespace ShadowKVM;
 
-// TODO make testable, write unit tests
-// TODO use NativeUserInterface for MessageBox.Show
+// TODO write unit tests
 // TODO use NativeUserInterface for configGeneratorWindow.Show()
 
 public partial class App : Application
@@ -26,28 +25,29 @@ public partial class App : Application
             .CreateLogger();
 
         Construct(Services.Instance.Autostart, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor,
-            Services.Instance.ConfigGenerator, Services.Instance.ConfigService);
+            Services.Instance.ConfigGenerator, Services.Instance.ConfigService, Services.Instance.NativeUserInterface);
     }
 
     public App(string dataDirectory, IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
-        IConfigGenerator configGenerator, IConfigService configService, ILogger logger)
+        IConfigGenerator configGenerator, IConfigService configService, INativeUserInterface nativeUserInterface, ILogger logger)
     {
         DataDirectory = dataDirectory;
         Logger = logger;
 
-        Construct(autostart, backgroundTask, configEditor, configGenerator, configService);
+        Construct(autostart, backgroundTask, configEditor, configGenerator, configService, nativeUserInterface);
     }
 
     [MemberNotNull(nameof(Autostart), nameof(BackgroundTask), nameof(ConfigEditor),
-        nameof(ConfigGenerator), nameof(ConfigService))]
+        nameof(ConfigGenerator), nameof(ConfigService), nameof(NativeUserInterface))]
     void Construct(IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
-        IConfigGenerator configGenerator, IConfigService configService)
+        IConfigGenerator configGenerator, IConfigService configService, INativeUserInterface nativeUserInterface)
     {
         Autostart = autostart;
         BackgroundTask = backgroundTask;
         ConfigEditor = configEditor;
         ConfigGenerator = configGenerator;
         ConfigService = configService;
+        NativeUserInterface = nativeUserInterface;
 
         // Set up exception logging
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -104,9 +104,8 @@ public partial class App : Application
         }
         catch (FileNotFoundException)
         {
-            var message = "Configuration file not found, create a new one?";
-            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO not testable
-            if (result != MessageBoxResult.Yes)
+            var result = NativeUserInterface.QuestionBox("Configuration file not found, create a new one?", "Shadow KVM");
+            if (!result)
             {
                 Shutdown();
                 return;
@@ -120,8 +119,9 @@ public partial class App : Application
         {
             var message = $"Configuration file is invalid, edit it manually?\n\n"
                 + $"{exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
-            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO not testable
-            if (result != MessageBoxResult.Yes)
+
+            var result = NativeUserInterface.QuestionBox(message, "Shadow KVM");
+            if (!result)
             {
                 Shutdown();
                 return;
@@ -169,7 +169,7 @@ public partial class App : Application
         var message = "Shadow KVM encountered an error and needs to close.\n\n"
             + $"{error}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
 
-        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error); // TODO not testable
+        NativeUserInterface.ErrorBox(message, "Shadow KVM");
 
         Logger.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
     }
@@ -178,7 +178,8 @@ public partial class App : Application
     {
         var message = "Shadow KVM encountered an error and needs to close.\n\n"
             + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
-        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error); // TODO not testable
+
+        NativeUserInterface.ErrorBox(message, "Shadow KVM");
 
         Logger.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
@@ -189,6 +190,7 @@ public partial class App : Application
     IConfigGenerator ConfigGenerator { get; set; }
     IConfigService ConfigService { get; set; }
     ILogger Logger { get; set; }
+    INativeUserInterface NativeUserInterface { get; set; }
 
     TaskbarIcon NotifyIcon => (TaskbarIcon)FindResource("NotifyIcon");
     HiddenWindow HiddenWindow { get; } = new();

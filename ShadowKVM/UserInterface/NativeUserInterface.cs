@@ -8,7 +8,10 @@ public interface INativeUserInterface
 {
     Task OpenEditor(string path);
     void OpenUrl(string url);
+
+    void ErrorBox(string message, string title);
     void InfoBox(string message, string title);
+    bool QuestionBox(string message, string title);
 }
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementation of the native UI interface")]
@@ -30,8 +33,19 @@ public class NativeUserInterface : INativeUserInterface
         Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
 
+    public void ErrorBox(string message, string title)
+    {
+        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
     public void InfoBox(string message, string title)
     {
         MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    public bool QuestionBox(string message, string title)
+    {
+        var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
+        return result == MessageBoxResult.Yes;
     }
 }
