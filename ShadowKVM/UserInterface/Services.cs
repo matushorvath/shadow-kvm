@@ -2,12 +2,15 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using Serilog;
 
+// TODO write unit tests, this looks testable
+
 namespace ShadowKVM;
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementations of the service interfaces")]
 public class Services : IDisposable
 {
-    public static Services Instance = new();
+    static Services? _instance;
+    public static Services Instance => _instance ?? (_instance = new Services());
 
     Services()
     {

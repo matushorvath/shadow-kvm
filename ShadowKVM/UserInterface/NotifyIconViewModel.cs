@@ -42,7 +42,7 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public Task About()
     {
-        // TODO refactor to make this testable (do not open a window directly)
+        // TODO use NativeUserInterface for aboutWindow.Show()
 
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();

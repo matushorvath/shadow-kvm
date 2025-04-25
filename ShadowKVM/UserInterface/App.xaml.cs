@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Windows;
 using H.NotifyIcon;
 using Serilog;
@@ -7,16 +8,39 @@ using Serilog.Core;
 namespace ShadowKVM;
 
 // TODO make testable, write unit tests
+// TODO use NativeUserInterface for MessageBox.Show
+// TODO use NativeUserInterface for configGeneratorWindow.Show()
 
 public partial class App : Application
 {
     public App()
-        : this(Services.Instance.Autostart, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor,
-            Services.Instance.ConfigGenerator, Services.Instance.ConfigService)
     {
+        // Use the real app data directory
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        DataDirectory = Path.Combine(appData, "Shadow KVM");
+
+        // Set up logger
+        Logger = Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.ControlledBy(LoggingLevelSwitch)
+            .WriteTo.File(LogPath, rollingInterval: RollingInterval.Day) // LogPath depends on DataDirectory
+            .CreateLogger();
+
+        Construct(Services.Instance.Autostart, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor,
+            Services.Instance.ConfigGenerator, Services.Instance.ConfigService);
     }
 
-    public App(IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
+    public App(string dataDirectory, IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
+        IConfigGenerator configGenerator, IConfigService configService, ILogger logger)
+    {
+        DataDirectory = dataDirectory;
+        Logger = logger;
+
+        Construct(autostart, backgroundTask, configEditor, configGenerator, configService);
+    }
+
+    [MemberNotNull(nameof(Autostart), nameof(BackgroundTask), nameof(ConfigEditor),
+        nameof(ConfigGenerator), nameof(ConfigService))]
+    void Construct(IAutostart autostart, IBackgroundTask backgroundTask, IConfigEditor configEditor,
         IConfigGenerator configGenerator, IConfigService configService)
     {
         Autostart = autostart;
@@ -25,21 +49,22 @@ public partial class App : Application
         ConfigGenerator = configGenerator;
         ConfigService = configService;
 
+        // Set up exception logging
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
         Startup += OnStartupAsync;
     }
 
     async void OnStartupAsync(object sender, StartupEventArgs e)
     {
-        // Set up data directory
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-        var dataDirectory = Path.Combine(appData, "Shadow KVM");
-        Directory.CreateDirectory(dataDirectory);
-
-        InitLogger(dataDirectory);
-
-        Log.Information("Initializing, version {FullSemVer} ({CommitDate})",
+        Logger.Information("Initializing, version {FullSemVer} ({CommitDate})",
             GitVersionInformation.FullSemVer, GitVersionInformation.CommitDate);
+
+        Directory.CreateDirectory(DataDirectory);
+
+        // Set up config file location
+        ConfigService.SetDataDirectory(DataDirectory);
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
@@ -55,36 +80,19 @@ public partial class App : Application
         NotifyIcon.ForceCreate();
 
         // Create or load the config file
-        await InitConfig(dataDirectory);
+        await InitConfig();
 
         // Debug log can only be enabled after loading config
-        Log.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
+        Logger.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
     }
 
-    void InitLogger(string dataDirectory)
+    async Task InitConfig()
     {
-        _logPath = Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
-
-        // Set up logger
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.ControlledBy(_loggingLevelSwitch)
-            .WriteTo.File(_logPath, rollingInterval: RollingInterval.Day)
-            .CreateLogger();
-
-        // Set up exception logging
-        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
-    }
-
-    async Task InitConfig(string dataDirectory)
-    {
-        ConfigService.SetDataDirectory(dataDirectory);
-
         // Reinitialize whenever the config file is changed
         ConfigService.ConfigChanged += (configService) =>
         {
             // Set up logging level based on config file
-            _loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
+            LoggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
 
             BackgroundTask.Restart();
         };
@@ -97,7 +105,7 @@ public partial class App : Application
         catch (FileNotFoundException)
         {
             var message = "Configuration file not found, create a new one?";
-            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO not testable
             if (result != MessageBoxResult.Yes)
             {
                 Shutdown();
@@ -111,8 +119,8 @@ public partial class App : Application
         catch (ConfigFileException exception)
         {
             var message = $"Configuration file is invalid, edit it manually?\n\n"
-                + $"{exception.Message}\n\nSee {Path.GetDirectoryName(_logPath)} for details";
-            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                + $"{exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
+            var result = MessageBox.Show(message, "Shadow KVM", MessageBoxButton.YesNo, MessageBoxImage.Question); // TODO not testable
             if (result != MessageBoxResult.Yes)
             {
                 Shutdown();
@@ -127,7 +135,7 @@ public partial class App : Application
     async Task GenerateConfigWithProgress()
     {
         var configGeneratorWindow = new ConfigGeneratorWindow();
-        configGeneratorWindow.Show();
+        configGeneratorWindow.Show(); // TODO not testable
 
         var progress = configGeneratorWindow.ViewModel.Progress;
 
@@ -145,7 +153,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        Log.Information("Shutting down");
+        Logger.Information("Shutting down");
 
         NotifyIcon.Dispose();
         HiddenWindow.Dispose();
@@ -159,31 +167,34 @@ public partial class App : Application
     {
         var error = (args.ExceptionObject as Exception)?.Message ?? args.ExceptionObject.ToString();
         var message = "Shadow KVM encountered an error and needs to close.\n\n"
-            + $"{error}\n\nSee {Path.GetDirectoryName(_logPath)} for details";
+            + $"{error}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
 
-        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error); // TODO not testable
 
-        Log.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
+        Logger.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
     }
 
     void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs args)
     {
         var message = "Shadow KVM encountered an error and needs to close.\n\n"
-            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(_logPath)} for details";
-        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error);
+            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
+        MessageBox.Show(message, "Shadow KVM", MessageBoxButton.OK, MessageBoxImage.Error); // TODO not testable
 
-        Log.Error("Unobserved task exception: {@Exception}", args.Exception);
+        Logger.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    IAutostart Autostart { get; }
-    IBackgroundTask BackgroundTask { get; }
-    IConfigEditor ConfigEditor { get; }
-    IConfigGenerator ConfigGenerator { get; }
-    IConfigService ConfigService { get; }
+    IAutostart Autostart { get; set; }
+    IBackgroundTask BackgroundTask { get; set; }
+    IConfigEditor ConfigEditor { get; set; }
+    IConfigGenerator ConfigGenerator { get; set; }
+    IConfigService ConfigService { get; set; }
+    ILogger Logger { get; set; }
 
     TaskbarIcon NotifyIcon => (TaskbarIcon)FindResource("NotifyIcon");
     HiddenWindow HiddenWindow { get; } = new();
 
-    LoggingLevelSwitch _loggingLevelSwitch = new();
-    string? _logPath;
+    string DataDirectory { get; }
+    string LogPath => Path.Combine(DataDirectory, "logs", "shadow-kvm-.log");
+
+    LoggingLevelSwitch LoggingLevelSwitch = new();
 }
