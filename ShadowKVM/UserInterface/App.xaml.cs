@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows;
+using H.NotifyIcon;
 using Serilog;
 using Serilog.Core;
 
@@ -28,24 +29,42 @@ public partial class App : Application
         // Instantiate the testable implementation class
         Behavior = new AppBehavior(dataDirectory, Services.Instance.AppControl, Services.Instance.Autostart,
             Services.Instance.BackgroundTask, Services.Instance.ConfigEditor, Services.Instance.ConfigGenerator,
-            Services.Instance.ConfigService, Services.Instance.NativeUserInterface, Log.Logger, loggingLevelSwitch);
+            Services.Instance.ConfigService, Services.Instance.FileSystem, Services.Instance.NativeUserInterface,
+            Log.Logger, loggingLevelSwitch);
 
         // Set up exception logging
         AppDomain.CurrentDomain.UnhandledException += Behavior.OnUnhandledException;
         TaskScheduler.UnobservedTaskException += Behavior.OnUnobservedTaskException;
 
         // Set up application startup
-        Startup += Behavior.OnStartupAsync;
+        Startup += OnStartupAsync;
+    }
+
+    async void OnStartupAsync(object sender, StartupEventArgs e)
+    {
+        // Hidden window to listen for WM_CLOSE from installer
+        HiddenWindow.Create();
+
+        // Taskbar icon
+        NotifyIcon.ForceCreate();
+
+        await Behavior.OnStartupAsync(sender, e);
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
-        AppDomain.CurrentDomain.UnhandledException -= Behavior.OnUnhandledException;
-        TaskScheduler.UnobservedTaskException -= Behavior.OnUnobservedTaskException;
+        Log.Information("Shutting down");
 
-        Behavior.OnExit(e);
+        NotifyIcon.Dispose();
+        HiddenWindow.Dispose();
+
+        Services.Instance.Dispose();
+
         base.OnExit(e);
     }
 
     AppBehavior Behavior { get; }
+
+    TaskbarIcon NotifyIcon => (TaskbarIcon)FindResource("NotifyIcon");
+    HiddenWindow HiddenWindow { get; } = new();
 }

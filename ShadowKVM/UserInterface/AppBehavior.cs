@@ -1,6 +1,5 @@
 ﻿using System.IO;
-using System.Windows;
-using H.NotifyIcon;
+using System.IO.Abstractions;
 using Serilog;
 using Serilog.Core;
 
@@ -10,15 +9,15 @@ namespace ShadowKVM;
 
 // This contains testable parts of the App class
 public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostart autostart, IBackgroundTask backgroundTask,
-        IConfigEditor configEditor, IConfigGenerator configGenerator, IConfigService configService,
+        IConfigEditor configEditor, IConfigGenerator configGenerator, IConfigService configService, IFileSystem fileSystem,
         INativeUserInterface nativeUserInterface, ILogger logger, LoggingLevelSwitch loggingLevelSwitch)
 {
-    public async void OnStartupAsync(object sender, StartupEventArgs e)
+    public async Task OnStartupAsync(object sender, EventArgs e)
     {
         logger.Information("Initializing, version {FullSemVer} ({CommitDate})",
             GitVersionInformation.FullSemVer, GitVersionInformation.CommitDate);
 
-        Directory.CreateDirectory(dataDirectory); // TODO use mockable filesystem
+        fileSystem.Directory.CreateDirectory(dataDirectory);
 
         // Set up config file location
         configService.SetDataDirectory(dataDirectory);
@@ -29,12 +28,6 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
         {
             autostart.SetEnabled(true);
         }
-
-        // Hidden window to listen for WM_CLOSE from installer
-        HiddenWindow.Create();
-
-        // Taskbar icon
-        NotifyIcon.ForceCreate();
 
         // Create or load the config file
         await InitConfig();
@@ -108,16 +101,6 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
         configGeneratorWindow.Close();
     }
 
-    public void OnExit(ExitEventArgs e)
-    {
-        logger.Information("Shutting down");
-
-        NotifyIcon.Dispose();
-        HiddenWindow.Dispose();
-
-        Services.Instance.Dispose();
-    }
-
     public void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
     {
         var error = (args.ExceptionObject as Exception)?.Message ?? args.ExceptionObject.ToString();
@@ -143,9 +126,6 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
     {
         return Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
     }
-
-    TaskbarIcon NotifyIcon => (TaskbarIcon)Application.Current.FindResource("NotifyIcon");
-    HiddenWindow HiddenWindow { get; } = new();
 
     string LogPath => FormatLogPath(dataDirectory);
 }

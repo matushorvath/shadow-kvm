@@ -1,6 +1,7 @@
-using System.Reflection;
+using System.IO.Abstractions.TestingHelpers;
 using Moq;
 using Serilog;
+using Serilog.Core;
 
 namespace ShadowKVM.Tests;
 
@@ -16,20 +17,25 @@ public class AppTests
     Mock<ILogger> _loggerMock = new();
 
     [Fact]
+    public async Task OnStartupAsync_InitializesApplication()
+    {
+        var fileSystem = new MockFileSystem();
+
+        var appBehavior = new AppBehavior("tEsTdAtDaTaDiReCtOrY", _appControlMock.Object, _autostartMock.Object,
+            _backgroundTaskMock.Object, _configEditorMock.Object, _configGeneratorMock.Object, _configServiceMock.Object,
+            fileSystem, _nativeUserInterfaceMock.Object, _loggerMock.Object, new LoggingLevelSwitch());
+
+        await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
+
+        Assert.True(fileSystem.Directory.Exists("tEsTdAtDaTaDiReCtOrY"));
+    }
+
+    [Fact]
     public void OnUnhandledException_LogsException()
     {
-        var appBehavior = new AppBehavior(
-            "tEsTdAtDaTaDiReCtOrY",
-            _appControlMock.Object,
-            _autostartMock.Object,
-            _backgroundTaskMock.Object,
-            _configEditorMock.Object,
-            _configGeneratorMock.Object,
-            _configServiceMock.Object,
-            _nativeUserInterfaceMock.Object,
-            _loggerMock.Object,
-            new()
-        );
+        var appBehavior = new AppBehavior("tEsTdAtDaTaDiReCtOrY", _appControlMock.Object, _autostartMock.Object,
+            _backgroundTaskMock.Object, _configEditorMock.Object, _configGeneratorMock.Object, _configServiceMock.Object,
+            new MockFileSystem(), _nativeUserInterfaceMock.Object, _loggerMock.Object, new LoggingLevelSwitch());
 
         appBehavior.OnUnhandledException(new(), new UnhandledExceptionEventArgs(new Exception("tEsTeXcEpTiOn"), true));
 
