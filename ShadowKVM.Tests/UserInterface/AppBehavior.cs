@@ -1,9 +1,8 @@
-using System;
 using System.IO.Abstractions.TestingHelpers;
-using System.Windows;
 using Moq;
 using Serilog;
 using Serilog.Core;
+using YamlDotNet.Core;
 
 namespace ShadowKVM.Tests;
 
@@ -136,6 +135,7 @@ public class AppBehaviorTests
         await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
 
         _configServiceMock.Verify();
+        _configEditorMock.Verify(configEditor => configEditor.EditConfig(), Times.Once);
 
         // Don't shutdown, since we want to create a new config
         _appControlMock.Verify(appControl => appControl.Shutdown(), Times.Never);
@@ -144,7 +144,93 @@ public class AppBehaviorTests
         Assert.Equal("cOnFiGfIlEcOnTeNt", await _fileSystem.File.ReadAllTextAsync(@"C:\cOnFiGpAtH"));
     }
 
-    // TODO test restart when config file changed
+    [Fact]
+    public async Task OnStartupAsync_InitConfig_NotFound_Shutdown()
+    {
+        _configServiceMock
+            .Setup(configService => configService.ReloadConfig())
+            .Throws(new FileNotFoundException())
+            .Verifiable();
+
+        _nativeUserInterfaceMock
+            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(
+                "Configuration file not found, create a new one?", "Shadow KVM"))
+            .Returns(false)
+            .Verifiable();
+
+        var appBehavior = CreateAppBehavior();
+        await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
+
+        _configServiceMock.Verify();
+        _appControlMock.Verify(appControl => appControl.Shutdown(), Times.Once);
+
+        // Don't edit or generate or write a new config, just shutdown
+        _nativeUserInterfaceMock.Verify(nativeUserInterface => nativeUserInterface.ShowWindow(It.IsAny<Action<ConfigGeneratorWindow>>()), Times.Never);
+        _configGeneratorMock.Verify(configGenerator => configGenerator.Generate(It.IsAny<IProgress<ConfigGeneratorStatus>>()), Times.Never);
+        _configEditorMock.Verify(configEditor => configEditor.EditConfig(), Times.Never);
+    }
+
+    [Fact]
+    public async Task OnStartupAsync_InitConfig_Invalid_Edit()
+    {
+        _configServiceMock
+            .Setup(configService => configService.ReloadConfig())
+            .Throws(new ConfigFileException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
+            .Verifiable();
+
+        var question = """
+            Configuration file is invalid, edit it manually?
+
+            yAmLpAtH(1,1): yAmLeExCePtIoN
+
+            See tEsTdAtDaTaDiReCtOrY\logs for details
+            """;
+
+        _nativeUserInterfaceMock
+            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question, "Shadow KVM"))
+            .Returns(true)
+            .Verifiable();
+
+        var appBehavior = CreateAppBehavior();
+        await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
+
+        _configServiceMock.Verify();
+        _configEditorMock.Verify(configEditor => configEditor.EditConfig(), Times.Once);
+
+        // Don't shutdown, since we want to edit the config
+        _appControlMock.Verify(appControl => appControl.Shutdown(), Times.Never);
+    }
+
+    [Fact]
+    public async Task OnStartupAsync_InitConfig_Invalid_Shutdown()
+    {
+        _configServiceMock
+            .Setup(configService => configService.ReloadConfig())
+            .Throws(new ConfigFileException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
+            .Verifiable();
+
+        var question = """
+            Configuration file is invalid, edit it manually?
+
+            yAmLpAtH(1,1): yAmLeExCePtIoN
+
+            See tEsTdAtDaTaDiReCtOrY\logs for details
+            """;
+
+        _nativeUserInterfaceMock
+            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question, "Shadow KVM"))
+            .Returns(false)
+            .Verifiable();
+
+        var appBehavior = CreateAppBehavior();
+        await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
+
+        _configServiceMock.Verify();
+        _appControlMock.Verify(appControl => appControl.Shutdown(), Times.Once);
+
+        // Don't edit the config, just shutdown
+        _configEditorMock.Verify(configEditor => configEditor.EditConfig(), Times.Never);
+    }
 
     [Fact]
     public void OnUnhandledException_LogsException()
