@@ -16,10 +16,16 @@ public partial class ConfigGeneratorViewModel : ObservableObject
     int maximum = 1;
 
     public Progress<ConfigGeneratorStatus> Progress { get; init; }
+    public event Action<object>? GenerationCompleted;
 
     void UpdateProgress(ConfigGeneratorStatus status)
     {
         Maximum = status.Maximum;
         Current = status.Current;
+
+        if (Current >= Maximum)
+        {
+            GenerationCompleted?.Invoke(this);
+        }
     }
 }

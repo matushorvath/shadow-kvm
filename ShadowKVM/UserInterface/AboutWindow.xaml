@@ -11,10 +11,6 @@
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
-        <local:AboutViewModel />
-    </Window.DataContext>
-
     <StackPanel Orientation="Vertical" Margin="10">
         <StackPanel Orientation="Horizontal">
             <Image Source="pack://application:,,,/UserInterface/Application.ico" Width="48" Height="48" />

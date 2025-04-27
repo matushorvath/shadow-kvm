@@ -13,7 +13,8 @@ public interface INativeUserInterface
     void InfoBox(string message, string title);
     bool QuestionBox(string message, string title);
 
-    void ShowWindow(Window window);
+    void ShowWindow<TWindow>(Action<TWindow>? setup = null)
+        where TWindow : Window, new();
 }
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementation of the native UI interface")]
@@ -51,8 +52,11 @@ public class NativeUserInterface : INativeUserInterface
         return result == MessageBoxResult.Yes;
     }
 
-    public void ShowWindow(Window window)
+    public void ShowWindow<TWindow>(Action<TWindow>? setup = null)
+        where TWindow : Window, new()
     {
+        var window = new TWindow();
+        setup?.Invoke(window);
         window.Show();
     }
 }

@@ -50,10 +50,12 @@ public partial class NotifyIconViewModel : ObservableObject
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();
 
-        var aboutWindow = new AboutWindow();
-        aboutWindow.Closed += (_, _) => tcs.SetResult();
-
-        NativeUserInterface.ShowWindow(aboutWindow);
+        var aboutViewContext = new AboutViewModel();
+        NativeUserInterface.ShowWindow((AboutWindow aboutWindow) =>
+        {
+            aboutWindow.DataContext = aboutViewContext;
+            aboutWindow.Closed += (_, _) => tcs.SetResult();
+        });
 
         return tcs.Task;
     }

@@ -19,9 +19,6 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
 
         fileSystem.Directory.CreateDirectory(dataDirectory);
 
-        // Set up config file location
-        configService.SetDataDirectory(dataDirectory);
-
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
         if (!autostart.IsConfigured())
@@ -30,20 +27,22 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
         }
 
         // Create or load the config file
-        await InitConfig();
+        await InitConfig(dataDirectory);
 
         // Debug log can only be enabled after loading config
         logger.Debug("Version: {InformationalVersion}", GitVersionInformation.InformationalVersion);
     }
 
-    async Task InitConfig()
+    async Task InitConfig(string dataDirectory)
     {
+        // Set up config file location
+        configService.SetDataDirectory(dataDirectory);
+
         // Reinitialize whenever the config file is changed
         configService.ConfigChanged += (configService) =>
         {
             // Set up logging level based on config file
             loggingLevelSwitch.MinimumLevel = configService.Config.LogLevel;
-
             backgroundTask.Restart();
         };
 
@@ -84,21 +83,23 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
 
     async Task GenerateConfigWithProgress()
     {
-        var configGeneratorWindow = new ConfigGeneratorWindow();
-        nativeUserInterface.ShowWindow(configGeneratorWindow);
-
-        var progress = configGeneratorWindow.ViewModel.Progress;
+        var configGeneratorViewModel = new ConfigGeneratorViewModel();
+        nativeUserInterface.ShowWindow((ConfigGeneratorWindow configGeneratorWindow) =>
+        {
+            configGeneratorWindow.DataContext = configGeneratorViewModel;
+        });
 
         await Task.Run(() =>
         {
+            var progress = configGeneratorViewModel.Progress;
             var configText = configGenerator.Generate(progress);
-            using (var output = new StreamWriter(configService.ConfigPath))
+
+            using (var stream = fileSystem.File.Create(configService.ConfigPath))
+            using (var output = new StreamWriter(stream))
             {
                 output.Write(configText);
             }
         });
-
-        configGeneratorWindow.Close();
     }
 
     public void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
@@ -115,7 +116,7 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
     public void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs args)
     {
         var message = "Shadow KVM encountered an error and needs to close.\n\n"
-            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
+            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details.";
 
         nativeUserInterface.ErrorBox(message, "Shadow KVM");
 

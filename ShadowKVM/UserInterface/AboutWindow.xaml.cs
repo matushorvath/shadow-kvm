@@ -10,8 +10,18 @@ public partial class AboutWindow : Window
     {
         InitializeComponent();
 
-        ViewModel.RequestClose += Close;
+        DataContextChanged += OnDataContextChanged;
     }
 
-    public AboutViewModel ViewModel => (AboutViewModel)DataContext;
+    void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        // Close the window when the view model requests it
+        DataContext.RequestClose += sender => Dispatcher.Invoke(Close);
+    }
+
+    public new AboutViewModel DataContext
+    {
+        get => (AboutViewModel)base.DataContext;
+        set => base.DataContext = value;
+    }
 }
