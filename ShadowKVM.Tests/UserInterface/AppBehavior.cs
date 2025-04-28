@@ -118,7 +118,8 @@ public class AppBehaviorTests
             .Verifiable();
 
         _nativeUserInterfaceMock
-            .Setup(nativeUserInterface => nativeUserInterface.ShowWindow(It.IsAny<Action<ConfigGeneratorWindow>>()))
+            .Setup(nativeUserInterface => nativeUserInterface.ShowWindow<ConfigGeneratorWindow, ConfigGeneratorViewModel>(
+                It.IsAny<ConfigGeneratorViewModel>(), It.IsAny<EventHandler>()))
             .Verifiable();
 
         _configGeneratorMock
@@ -165,7 +166,9 @@ public class AppBehaviorTests
         _appControlMock.Verify(appControl => appControl.Shutdown(), Times.Once);
 
         // Don't edit or generate or write a new config, just shutdown
-        _nativeUserInterfaceMock.Verify(nativeUserInterface => nativeUserInterface.ShowWindow(It.IsAny<Action<ConfigGeneratorWindow>>()), Times.Never);
+        _nativeUserInterfaceMock.Verify(nativeUserInterface => nativeUserInterface.ShowWindow<ConfigGeneratorWindow, ConfigGeneratorViewModel>(
+            It.IsAny<ConfigGeneratorViewModel>(), It.IsAny<EventHandler>()), Times.Never);
+
         _configGeneratorMock.Verify(configGenerator => configGenerator.Generate(It.IsAny<IProgress<ConfigGeneratorStatus>>()), Times.Never);
         _configEditorMock.Verify(configEditor => configEditor.EditConfig(), Times.Never);
     }

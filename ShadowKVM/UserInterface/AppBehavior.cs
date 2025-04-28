@@ -5,8 +5,6 @@ using Serilog.Core;
 
 namespace ShadowKVM;
 
-// TODO write unit tests
-
 // This contains testable parts of the App class
 public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostart autostart, IBackgroundTask backgroundTask,
         IConfigEditor configEditor, IConfigGenerator configGenerator, IConfigService configService, IFileSystem fileSystem,
@@ -89,10 +87,7 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
     async Task GenerateConfigWithProgress()
     {
         var configGeneratorViewModel = new ConfigGeneratorViewModel();
-        nativeUserInterface.ShowWindow((ConfigGeneratorWindow configGeneratorWindow) =>
-        {
-            configGeneratorWindow.DataContext = configGeneratorViewModel;
-        });
+        nativeUserInterface.ShowWindow<ConfigGeneratorWindow, ConfigGeneratorViewModel>(dataContext: configGeneratorViewModel);
 
         await Task.Run(() =>
         {

@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-// TODO test About(), it's testable now
-
 namespace ShadowKVM;
 
 public partial class NotifyIconViewModel : ObservableObject
@@ -50,12 +48,10 @@ public partial class NotifyIconViewModel : ObservableObject
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();
 
-        var aboutViewContext = new AboutViewModel();
-        NativeUserInterface.ShowWindow((AboutWindow aboutWindow) =>
-        {
-            aboutWindow.DataContext = aboutViewContext;
-            aboutWindow.Closed += (_, _) => tcs.SetResult();
-        });
+        var aboutViewModel = new AboutViewModel();
+        EventHandler aboutViewCloseHandler = (_, _) => tcs.SetResult();
+
+        NativeUserInterface.ShowWindow<AboutWindow, AboutViewModel>(dataContext: aboutViewModel, closedHandler: aboutViewCloseHandler);
 
         return tcs.Task;
     }

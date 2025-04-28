@@ -13,8 +13,9 @@ public interface INativeUserInterface
     void InfoBox(string message, string title);
     bool QuestionBox(string message, string title);
 
-    void ShowWindow<TWindow>(Action<TWindow>? setup = null)
-        where TWindow : Window, new();
+    void ShowWindow<TWindow, TDataContext>(TDataContext? dataContext = null, EventHandler? closedHandler = null)
+        where TWindow : Window, new()
+        where TDataContext : class;
 }
 
 [ExcludeFromCodeCoverage(Justification = "Productive implementation of the native UI interface")]
@@ -52,11 +53,22 @@ public class NativeUserInterface : INativeUserInterface
         return result == MessageBoxResult.Yes;
     }
 
-    public void ShowWindow<TWindow>(Action<TWindow>? setup = null)
+    public void ShowWindow<TWindow, TDataContext>(TDataContext? dataContext = null, EventHandler? closedHandler = null)
         where TWindow : Window, new()
+        where TDataContext : class
     {
         var window = new TWindow();
-        setup?.Invoke(window);
+
+        if (dataContext != null)
+        {
+            window.DataContext = dataContext;
+        }
+
+        if (closedHandler != null)
+        {
+            window.Closed += closedHandler;
+        }
+
         window.Show();
     }
 }
