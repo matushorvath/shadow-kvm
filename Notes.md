@@ -3,11 +3,8 @@ Backlog
 
 - required
    - add installation and usage to README.md
-   - logger probably does not work, Services constructor runs before the logger is initialized in App
-      - perhaps create Services first time Services.Instance is accessed
 
 - useful
-   - finish unit tests in C#
    - real configuration UI
    - better UI for invalid config file, it looks like a crash now
 
