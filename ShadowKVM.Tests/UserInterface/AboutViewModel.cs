@@ -25,7 +25,7 @@ public class AboutViewModelTests
         var model = new AboutViewModel(_nativeUserInterfaceMock.Object);
 
         var eventTriggered = false;
-        model.RequestClose += () => { eventTriggered = true; };
+        model.RequestClose += sender => { eventTriggered = true; };
 
         model.CloseCommand.Execute(null);
 

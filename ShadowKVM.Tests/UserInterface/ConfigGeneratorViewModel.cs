@@ -28,8 +28,6 @@ public class ConfigGeneratorViewModelTests
 
         Assert.Equal(5, model.Current);
         Assert.Equal(7, model.Maximum);
-
-        // OnPropertyChanged also
     }
 
     [Fact]
@@ -70,5 +68,48 @@ public class ConfigGeneratorViewModelTests
         model.Maximum = 13;
 
         Assert.True(called);
+    }
+
+    [Fact]
+    public void GenerationCompleted_DoesNotTrigger()
+    {
+        var model = new ConfigGeneratorViewModel();
+
+        var called = false;
+        model.GenerationCompleted += (sender) =>
+        {
+            called = true;
+        };
+
+        model.Maximum = 17;
+        model.Current = 13;
+
+        Assert.False(called);
+    }
+
+    [Fact]
+    public void GenerationCompleted_Triggers()
+    {
+        var model = new ConfigGeneratorViewModel();
+
+        var called = false;
+        model.GenerationCompleted += (sender) =>
+        {
+            called = true;
+        };
+
+        model.Maximum = 17;
+        model.Current = 17;
+
+        Assert.True(called);
+    }
+
+    [Fact]
+    public void GenerationCompleted_WithoutEventHandler()
+    {
+        var model = new ConfigGeneratorViewModel();
+
+        model.Maximum = 17;
+        model.Current = 17;
     }
 }

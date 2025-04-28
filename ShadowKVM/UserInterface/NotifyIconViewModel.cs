@@ -6,16 +6,19 @@ namespace ShadowKVM;
 public partial class NotifyIconViewModel : ObservableObject
 {
     public NotifyIconViewModel()
-        : this(Services.Instance.AppControl, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor, Services.Instance.Autostart)
+        : this(Services.Instance.AppControl, Services.Instance.Autostart, Services.Instance.BackgroundTask,
+        Services.Instance.ConfigEditor, Services.Instance.NativeUserInterface)
     {
     }
 
-    public NotifyIconViewModel(IAppControl appControl, IBackgroundTask backgroundTask, IConfigEditor configEditor, IAutostart autostart)
+    public NotifyIconViewModel(IAppControl appControl, IAutostart autostart, IBackgroundTask backgroundTask,
+        IConfigEditor configEditor, INativeUserInterface nativeUserInterface)
     {
         AppControl = appControl;
+        Autostart = autostart;
         BackgroundTask = backgroundTask;
         ConfigEditor = configEditor;
-        Autostart = autostart;
+        NativeUserInterface = nativeUserInterface;
 
         isAutostart = Autostart.IsEnabled();
 
@@ -42,14 +45,13 @@ public partial class NotifyIconViewModel : ObservableObject
     [RelayCommand(FlowExceptionsToTaskScheduler = true)]
     public Task About()
     {
-        // TODO refactor to make this testable (do not open a window directly)
-
         // Making this async grays out the menu item while the window is open
         var tcs = new TaskCompletionSource();
 
-        var aboutWindow = new AboutWindow();
-        aboutWindow.Closed += (_, _) => tcs.SetResult();
-        aboutWindow.Show();
+        var aboutViewModel = new AboutViewModel();
+        EventHandler aboutViewCloseHandler = (_, _) => tcs.SetResult();
+
+        NativeUserInterface.ShowWindow<AboutWindow, AboutViewModel>(dataContext: aboutViewModel, closedHandler: aboutViewCloseHandler);
 
         return tcs.Task;
     }
@@ -78,7 +80,8 @@ public partial class NotifyIconViewModel : ObservableObject
         : "pack://application:,,,/UserInterface/TrayDisabled.ico";
 
     IAppControl AppControl { get; }
+    IAutostart Autostart { get; }
     IBackgroundTask BackgroundTask { get; }
     IConfigEditor ConfigEditor { get; }
-    IAutostart Autostart { get; }
+    INativeUserInterface NativeUserInterface { get; }
 }

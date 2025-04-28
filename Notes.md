@@ -5,7 +5,6 @@ Backlog
    - add installation and usage to README.md
 
 - useful
-   - finish unit tests in C#
    - real configuration UI
    - better UI for invalid config file, it looks like a crash now
 

@@ -180,7 +180,7 @@ public class ConfigServiceTests
                     attach:
                       code: input-select
                       value: hdmi1
-                """.ReplaceLineEndings("\r\n")
+                """.ReplaceLineEndings()
         });
 
         var configService = new ConfigService(fileSystem, _loggerMock.Object);

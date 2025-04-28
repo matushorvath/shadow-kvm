@@ -8,8 +8,6 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace ShadowKVM;
 
-// TODO write unit tests
-
 [ExcludeFromCodeCoverage(Justification = "User interface code")]
 public class HideCloseButton : Behavior<Window>
 {

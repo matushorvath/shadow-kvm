@@ -17,12 +17,12 @@ public partial class AboutViewModel : ObservableObject
 
     INativeUserInterface NativeUserInterface { get; }
 
-    public event Action? RequestClose;
+    public event Action<object>? RequestClose;
 
     [RelayCommand]
     public void Close()
     {
-        RequestClose?.Invoke();
+        RequestClose?.Invoke(this);
     }
 
     [ObservableProperty]

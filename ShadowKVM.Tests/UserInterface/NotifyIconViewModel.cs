@@ -5,9 +5,10 @@ namespace ShadowKVM.Tests;
 public class NotifyIconViewModelTests
 {
     Mock<IAppControl> _appControlMock = new();
+    Mock<IAutostart> _autostartMock = new();
     Mock<IBackgroundTask> _backgroundTaskMock = new();
     Mock<IConfigEditor> _configEditorMock = new();
-    Mock<IAutostart> _autostartMock = new();
+    Mock<INativeUserInterface> _nativeUserInterfaceMock = new();
 
     [Fact]
     public void Construct_WithDefaultServices()
@@ -23,7 +24,7 @@ public class NotifyIconViewModelTests
             .Returns(Task.CompletedTask)
             .Verifiable();
 
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
         await model.ConfigureCommand.ExecuteAsync(null);
 
         _configEditorMock.Verify();
@@ -32,7 +33,7 @@ public class NotifyIconViewModelTests
     [Fact]
     public async Task IsConfigEditorEnabled_RespondsToEvents()
     {
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
 
         Assert.True(model.IsConfigEditorEnabled);
 
@@ -57,10 +58,28 @@ public class NotifyIconViewModelTests
         _appControlMock.Setup(m => m.Shutdown())
             .Verifiable();
 
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
         model.ExitCommand.Execute(null);
 
         _appControlMock.Verify();
+    }
+
+    [Fact]
+    public void About_ShowsAboutBox()
+    {
+        _nativeUserInterfaceMock
+            .Setup(m => m.ShowWindow<AboutWindow, AboutViewModel>(It.IsAny<AboutViewModel>(), It.IsAny<EventHandler>()))
+            .Callback((AboutViewModel dataContext, EventHandler closedHandler) =>
+            {
+                // Simulate the window being closed
+                closedHandler(null, EventArgs.Empty);
+            })
+            .Verifiable();
+
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
+        model.AboutCommand.Execute(null);
+
+        _nativeUserInterfaceMock.Verify();
     }
 
     [Fact]
@@ -69,7 +88,7 @@ public class NotifyIconViewModelTests
         _autostartMock.Setup(m => m.SetEnabled(true));
         _autostartMock.Setup(m => m.SetEnabled(false));
 
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
 
         Assert.False(model.IsAutostart);
         Assert.False(_autostartMock.Object.IsEnabled());
@@ -91,7 +110,7 @@ public class NotifyIconViewModelTests
         _backgroundTaskMock.SetupSet(m => m.Enabled = false);
         _backgroundTaskMock.SetupSet(m => m.Enabled = true);
 
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
 
         _backgroundTaskMock.SetupGet(m => m.Enabled).Returns(true);
         model.EnableDisableCommand.Execute(null);
@@ -109,7 +128,7 @@ public class NotifyIconViewModelTests
     [Fact]
     public void EnableDisable_UpdatesUI()
     {
-        var model = new NotifyIconViewModel(_appControlMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _autostartMock.Object);
+        var model = new NotifyIconViewModel(_appControlMock.Object, _autostartMock.Object, _backgroundTaskMock.Object, _configEditorMock.Object, _nativeUserInterfaceMock.Object);
 
         var invocations = new Dictionary<string, int>();
         model.PropertyChanged += (sender, args) =>

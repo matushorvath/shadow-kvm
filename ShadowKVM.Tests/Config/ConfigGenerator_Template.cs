@@ -314,7 +314,7 @@ public class ConfigGenerator_TemplateTests
         var text = generator.Generate();
 
         // No lines should end in whitespace
-        Assert.All(text.Split("\r\n"), line => Assert.DoesNotMatch(@"\s$", line));
+        Assert.All(text.Split(Environment.NewLine), line => Assert.DoesNotMatch(@"\s$", line));
     }
 
     [Fact]
@@ -328,7 +328,7 @@ public class ConfigGenerator_TemplateTests
         var text = generator.Generate();
 
         Assert.StartsWith("# ShadowKVM automatically switches", text);
-        Assert.EndsWith("version: 1\r\n", text);
+        Assert.EndsWith($"version: 1{Environment.NewLine}", text);
     }
 
     [Fact]

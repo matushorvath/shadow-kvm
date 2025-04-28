@@ -17,10 +17,6 @@
         <local:HideCloseButton />
     </b:Interaction.Behaviors>
 
-    <Window.DataContext>
-        <local:ConfigGeneratorViewModel />
-    </Window.DataContext>
-
     <StackPanel Orientation="Vertical">
         <Label Content="Generating new configuration" />
         <ProgressBar

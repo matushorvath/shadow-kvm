@@ -51,10 +51,6 @@ jobs:
         with:
           filename: bin/Release/coverage.cobertura.xml
           badge: true
-          # TODO overall_coverage_fail_threshold: 70
-          # TODO file_coverage_error_min: 80
-          # TODO file_coverage_warning_max: 90
-          # TODO fail_on_negative_difference: true
 
       - name: Add Coverage Comment to PR
         uses: marocchino/sticky-pull-request-comment@v2
