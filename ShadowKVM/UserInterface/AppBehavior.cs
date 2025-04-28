@@ -66,10 +66,15 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
         }
         catch (ConfigFileException exception)
         {
-            var message = $"Configuration file is invalid, edit it manually?\n\n"
-                + $"{exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details";
+            var message = $"""
+                Configuration file is invalid, edit it manually?
 
-            var result = nativeUserInterface.QuestionBox(message, "Shadow KVM");
+                {exception.Message}
+
+                See {Path.GetDirectoryName(LogPath)} for details
+                """;
+
+            var result = nativeUserInterface.QuestionBox(message.ReplaceLineEndings(), "Shadow KVM");
             if (!result)
             {
                 appControl.Shutdown();
@@ -105,20 +110,30 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
     public void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
     {
         var error = (args.ExceptionObject as Exception)?.Message ?? args.ExceptionObject.ToString();
-        var message = "Shadow KVM encountered an error and needs to close.\n\n"
-            + $"{error}\n\nSee {Path.GetDirectoryName(LogPath)} for details.";
+        var message = $"""
+            Shadow KVM encountered an error and needs to close.
 
-        nativeUserInterface.ErrorBox(message, "Shadow KVM");
+            {error}
+
+            See {Path.GetDirectoryName(LogPath)} for details.
+            """;
+
+        nativeUserInterface.ErrorBox(message.ReplaceLineEndings(), "Shadow KVM");
 
         logger.Error("Unhandled exception: {@Exception}", args.ExceptionObject);
     }
 
     public void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs args)
     {
-        var message = "Shadow KVM encountered an error and needs to close.\n\n"
-            + $"{args.Exception.Message}\n\nSee {Path.GetDirectoryName(LogPath)} for details.";
+        var message = $"""
+            Shadow KVM encountered an error and needs to close.
 
-        nativeUserInterface.ErrorBox(message, "Shadow KVM");
+            {args.Exception.Message}
+
+            See {Path.GetDirectoryName(LogPath)} for details.
+            """;
+
+        nativeUserInterface.ErrorBox(message.ReplaceLineEndings(), "Shadow KVM");
 
         logger.Error("Unobserved task exception: {@Exception}", args.Exception);
     }

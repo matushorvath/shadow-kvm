@@ -187,7 +187,7 @@ public class AppBehaviorTests
             """;
 
         _nativeUserInterfaceMock
-            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question, "Shadow KVM"))
+            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question.ReplaceLineEndings(), "Shadow KVM"))
             .Returns(true)
             .Verifiable();
 
@@ -218,7 +218,7 @@ public class AppBehaviorTests
             """;
 
         _nativeUserInterfaceMock
-            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question, "Shadow KVM"))
+            .Setup(nativeUserInterface => nativeUserInterface.QuestionBox(question.ReplaceLineEndings(), "Shadow KVM"))
             .Returns(false)
             .Verifiable();
 
@@ -245,7 +245,7 @@ public class AppBehaviorTests
             
             See tEsTdAtDaTaDiReCtOrY\logs for details.
             """;
-        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage, "Shadow KVM"), Times.Once);
+        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
         _loggerMock.Verify(logger => logger.Error("Unhandled exception: {@Exception}",
             It.Is<object[]>(p => p.Length == 1 && ((Exception)p[0]).Message == "tEsTeXcEpTiOn")), Times.Once);
@@ -264,7 +264,7 @@ public class AppBehaviorTests
             
             See tEsTdAtDaTaDiReCtOrY\logs for details.
             """;
-        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage, "Shadow KVM"), Times.Once);
+        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
         _loggerMock.Verify(logger => logger.Error("Unhandled exception: {@Exception}",
             It.Is<object[]>(p => p.Length == 1 && (string)p[0] == "tEsTeXcEpTiOn")), Times.Once);
@@ -283,7 +283,7 @@ public class AppBehaviorTests
             
             See tEsTdAtDaTaDiReCtOrY\logs for details.
             """;
-        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage, "Shadow KVM"), Times.Once);
+        _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
         _loggerMock.Verify(logger => logger.Error("Unobserved task exception: {@Exception}",
             It.Is<AggregateException>(e => e.Message == "tEsTeXcEpTiOn")), Times.Once);
