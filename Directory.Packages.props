@@ -19,15 +19,15 @@
     <PackageVersion Include="ReportGenerator" Version="5.4.8" />
     <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageVersion Include="System.Management" Version="9.0.6" />
-    <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.14" />
-    <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.14" />
+    <PackageVersion Include="System.Management" Version="9.0.7" />
+    <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
+    <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
     <PackageVersion Include="WixToolset.Netfx.wixext" Version="6.0.1" />
     <PackageVersion Include="WixToolset.UI.wixext" Version="6.0.1" />
     <PackageVersion Include="WixToolset.Util.wixext" Version="6.0.1" />
     <PackageVersion Include="YamlDotNet" Version="16.3.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.2" />
   </ItemGroup>
 
 </Project>
