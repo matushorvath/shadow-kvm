@@ -31,7 +31,7 @@ public class ConfigEditor(IConfigService configService, INativeUserInterface nat
                 return;
             }
 
-            nativeUserInterface.InfoBox("Configuration file loaded successfully", "Shadow KVM");
+            nativeUserInterface.InfoToast("Configuration file loaded successfully");
         }
         finally
         {

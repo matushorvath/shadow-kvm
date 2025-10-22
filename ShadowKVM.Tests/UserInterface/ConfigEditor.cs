@@ -45,7 +45,7 @@ public class ConfigEditorTests
         _nativeUserInterface.Verify();
         _logger.Verify();
 
-        _nativeUserInterface.Verify(m => m.InfoBox(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _nativeUserInterface.Verify(m => m.InfoToast(It.IsAny<string>()), Times.Never);
 
         Assert.True(openedEvent);
         Assert.True(closedEvent);
@@ -70,7 +70,7 @@ public class ConfigEditorTests
             .Verifiable();
 
         _nativeUserInterface
-            .Setup(m => m.InfoBox("Configuration file loaded successfully", "Shadow KVM"))
+            .Setup(m => m.InfoToast("Configuration file loaded successfully"))
             .Verifiable();
 
         var editor = new ConfigEditor(_configService.Object, _nativeUserInterface.Object, _logger.Object);
@@ -184,6 +184,6 @@ public class ConfigEditorTests
         _nativeUserInterface.Verify();
         _logger.Verify();
 
-        _nativeUserInterface.Verify(m => m.InfoBox(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _nativeUserInterface.Verify(m => m.InfoToast(It.IsAny<string>()), Times.Never);
     }
 }

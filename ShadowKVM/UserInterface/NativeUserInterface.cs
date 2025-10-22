@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace ShadowKVM;
 
@@ -10,8 +11,9 @@ public interface INativeUserInterface
     void OpenUrl(string url);
 
     void ErrorBox(string message, string title);
-    void InfoBox(string message, string title);
     bool QuestionBox(string message, string title);
+
+    void InfoToast(string message);
 
     void ShowWindow<TWindow, TDataContext>(TDataContext? dataContext = null, EventHandler? closedHandler = null)
         where TWindow : Window, new()
@@ -42,15 +44,17 @@ public class NativeUserInterface : INativeUserInterface
         MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
-    public void InfoBox(string message, string title)
-    {
-        MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
-    }
-
     public bool QuestionBox(string message, string title)
     {
         var result = MessageBox.Show(message, title, MessageBoxButton.YesNo, MessageBoxImage.Question);
         return result == MessageBoxResult.Yes;
+    }
+
+    public void InfoToast(string message)
+    {
+        new ToastContentBuilder()
+            .AddText(message)
+            .Show();
     }
 
     public void ShowWindow<TWindow, TDataContext>(TDataContext? dataContext = null, EventHandler? closedHandler = null)

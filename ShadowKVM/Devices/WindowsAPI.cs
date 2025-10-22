@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Management;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Devices.Display;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
@@ -113,7 +112,6 @@ public class WindowsAPI : IWindowsAPI
     }
 
     // For DeviceNotificationService
-    [SupportedOSPlatform("windows8.0")]
     public unsafe CONFIGRET CM_Register_Notification(CM_NOTIFY_FILTER pFilter, nuint pContext,
         PCM_NOTIFY_CALLBACK pCallback, out CM_Unregister_NotificationSafeHandle pNotifyContext)
     {

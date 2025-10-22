@@ -18,10 +18,11 @@
     <Icon Id="Icon" SourceFile="..\ShadowKVM\UserInterface\Application.ico" />
     <Property Id="ARPPRODUCTICON" Value="Icon" />
 
-    <!-- Check for Windows 8 or newer -->
+    <!-- Check for Windows 10 or newer -->
+    <!-- TODO This actually checks for Windows 8 or newer, find out how to check for Windows 10 -->
     <Launch
         Condition="Installed OR (VersionNT >= 602)"
-        Message="This application requires Windows 8 or newer." />
+        Message="This application requires Windows 10 or newer." />
 
     <!-- Always replace installed package when updating -->
     <MajorUpgrade

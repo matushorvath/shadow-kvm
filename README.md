@@ -14,7 +14,7 @@ If you have multiple computers connected to the same displays and a USB switch t
 
 ## Requirements
 
-- Windows 8.0 or newer
+- Windows 10.0 or newer
 - Monitors that support DDC/CI for input switching
 - A USB switch with a connected keyboard (and optionally a mouse)
 

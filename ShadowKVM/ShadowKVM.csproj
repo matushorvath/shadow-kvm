@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <ApplicationIcon>UserInterface/Application.ico</ApplicationIcon>
-    <AssemblyTitle>Shadow KVM: Sync your monitor inputs with a USB switch for seamless multi-PC control</AssemblyTitle>
+    <AssemblyTitle>Shadow KVM</AssemblyTitle>
     <Authors>Matúš Horváth</Authors>
     <Copyright>© 2025 Matúš Horváth. All rights reserved.</Copyright>
     <Product>Shadow KVM</Product>
@@ -26,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="H.NotifyIcon.Wpf" />
     <PackageReference Include="Handlebars.Net" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
     <PackageReference Include="Microsoft.Windows.CsWin32">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
