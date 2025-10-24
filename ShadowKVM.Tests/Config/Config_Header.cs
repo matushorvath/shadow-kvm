@@ -260,7 +260,7 @@ public class ConfigHeaderTests
         // This code is not reachable through ConfigService
         var exception = Assert.Throws<ConfigException>(() =>
         {
-            var triggerDevice = new TriggerDevice((TriggerDeviceType)(object)(-1));
+            var triggerDevice = new TriggerDeviceClass((TriggerDeviceType)(object)(-1));
         });
 
         Assert.Equal("Invalid trigger device type -1 in configuration file", exception.Message);

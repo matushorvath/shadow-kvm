@@ -70,7 +70,8 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
 
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(namingConvention)
-                .WithTypeConverter(new TriggerDeviceConverter(namingConvention))
+                .WithTypeConverter(new TriggerDeviceTypeConverter())
+                .WithTypeConverter(new TriggerDeviceClassTypeConverter(namingConvention))
                 .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpCodeEnum>(namingConvention))
                 .WithTypeConverter(new OpenEnumByteYamlTypeConverter<VcpValueEnum>(namingConvention))
                 .Build();
@@ -99,10 +100,7 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
 
     void ValidateConfig()
     {
-        if (Config.Version != 1)
-        {
-            throw new ConfigException($"Unsupported configuration version (found {Config.Version}, supporting 1)");
-        }
+        ValidateVersion();
 
         if (Config.Monitors == null || Config.Monitors.Count == 0)
         {
@@ -120,6 +118,28 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
             {
                 throw new ConfigException($"Either attach or detach action needs to be specified for each monitor");
             }
+        }
+    }
+
+    void ValidateVersion()
+    {
+        if (Config.Version == 1)
+        {
+            if (Config.TriggerDevice.Version != 1)
+            {
+                throw new ConfigException($"Invalid TriggerDevice format for configuration version 1");
+            }
+        }
+        else if (Config.Version == 2)
+        {
+            if (Config.TriggerDevice.Version != 2)
+            {
+                throw new ConfigException($"Invalid TriggerDevice format for configuration version 2");
+            }
+        }
+        else
+        {
+            throw new ConfigException($"Unsupported configuration version (found {Config.Version}, supporting <= 2)");
         }
     }
 }

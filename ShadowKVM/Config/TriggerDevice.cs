@@ -1,37 +1,104 @@
-using Windows.Win32;
+using System.Globalization;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
 
-public enum TriggerDeviceType { Keyboard, Mouse }
-
-public class TriggerDevice : OpenEnum<TriggerDeviceType, Guid>
+public class TriggerDevice
 {
     public TriggerDevice()
     {
     }
 
-    public TriggerDevice(TriggerDeviceType enumValue)
-    {
-        Enum = enumValue;
-    }
+    public TriggerDeviceClass Class { get; set; } = new(TriggerDeviceType.Keyboard);
+    public int? VendorId { get; set; }
+    public int? ProductId { get; set; }
 
-    protected override Guid ConvertEnumToRaw(TriggerDeviceType enumValue)
-    {
-        switch (enumValue)
-        {
-            case TriggerDeviceType.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
-            case TriggerDeviceType.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
-            default: throw new ConfigException($"Invalid trigger device type {enumValue} in configuration file");
-        }
-    }
+    public int Version { get; init; }
 }
 
-public class TriggerDeviceConverter(INamingConvention namingConvention)
-        : OpenEnumYamlTypeConverter<TriggerDevice, TriggerDeviceType, Guid>(namingConvention)
+public class TriggerDeviceTypeConverter() : IYamlTypeConverter
 {
-    protected override bool TryConvertStringToRaw(string str, out Guid rawValue)
+    public bool Accepts(Type type) => type == typeof(TriggerDevice);
+
+    public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        return Guid.TryParse(str, out rawValue);
+        if (parser.Current == null)
+        {
+            throw new ArgumentNullException(nameof(parser));
+        }
+
+        var startMark = parser.Current.Start;
+        var endMark = parser.Current.End;
+
+        if (parser.TryConsume<MappingStart>(out _))
+        {
+            // Config version 2 has a mapping here
+            var triggerDevice = new TriggerDevice { Version = 2 };
+            while (!parser.TryConsume<MappingEnd>(out _))
+            {
+                ConsumePropertyVersion2(parser, triggerDevice, rootDeserializer);
+            }
+
+            if (triggerDevice.Class == null)
+            {
+                throw new YamlException(startMark, endMark, $"Missing trigger device class");
+            }
+
+            return triggerDevice;
+        }
+        else
+        {
+            // Config version 1 has just a scalar with TriggerDeviceClass
+            var triggerDeviceClass = (TriggerDeviceClass?)rootDeserializer(typeof(TriggerDeviceClass));
+            if (triggerDeviceClass == null)
+            {
+                throw new YamlException(startMark, endMark, $"Null trigger device class");
+            }
+
+            return new TriggerDevice { Version = 1, Class = triggerDeviceClass };
+        }
+    }
+
+    void ConsumePropertyVersion2(IParser parser, TriggerDevice triggerDevice, ObjectDeserializer rootDeserializer)
+    {
+        if (parser.Current == null)
+        {
+            throw new ArgumentNullException(nameof(parser));
+        }
+
+        var startMark = parser.Current.Start;
+        var endMark = parser.Current.End;
+
+        var key = parser.Consume<Scalar>();
+
+        if (key.Value == "class")
+        {
+            var triggerDeviceClass = (TriggerDeviceClass?)rootDeserializer(typeof(TriggerDeviceClass));
+            if (triggerDeviceClass == null)
+            {
+                throw new YamlException(startMark, endMark, $"Null trigger device class");
+            }
+
+            triggerDevice.Class = triggerDeviceClass;
+        }
+        else if (key.Value == "vendor-id")
+        {
+            triggerDevice.VendorId = int.Parse(parser.Consume<Scalar>().Value, NumberStyles.HexNumber);
+        }
+        else if (key.Value == "product-id")
+        {
+            triggerDevice.ProductId = int.Parse(parser.Consume<Scalar>().Value, NumberStyles.HexNumber);
+        }
+        else
+        {
+            throw new Exception("Invalid property name");
+        }
+    }
+
+    public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
+    {
+        throw new NotImplementedException("Serialization of TriggerDevice to Yaml is not implemented");
     }
 }
