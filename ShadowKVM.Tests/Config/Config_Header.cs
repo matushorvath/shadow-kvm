@@ -9,6 +9,10 @@ public class ConfigHeaderTests
 {
     protected Mock<ILogger> _loggerMock = new();
 
+    // TODO select-device this is version 1, add version 2
+    // TODO select-device test mixing versions and trigger device syntax fails
+    // TODO select-device check that the version 1 results have version in in Config and in TriggerDevice
+
     [Fact]
     public void ReloadConfig_ThrowsWithMissingVersion()
     {
@@ -174,8 +178,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}"), configService.Config.TriggerDevice.Raw);
+        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}"), configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Theory]
@@ -201,8 +205,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(enumValue, configService.Config.TriggerDevice.Enum);
-        Assert.Equal(rawValue, configService.Config.TriggerDevice.Raw);
+        Assert.Equal(enumValue, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(rawValue, configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Fact]
@@ -226,8 +230,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Null(configService.Config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{266976bd-7ba2-4d38-b21c-85bd406917bd}"), configService.Config.TriggerDevice.Raw);
+        Assert.Null(configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{266976bd-7ba2-4d38-b21c-85bd406917bd}"), configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Fact]

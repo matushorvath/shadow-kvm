@@ -16,10 +16,10 @@ public interface IDeviceNotificationService
 
 public class DeviceNotificationService(IWindowsAPI windowsAPI, ILogger logger) : IDeviceNotificationService
 {
-    public IDeviceNotification Register(Guid deviceClassGuid, int? filterVid, int? filterPid)
+    public IDeviceNotification Register(Guid filterDeviceClassGuid, int? filterVid, int? filterPid)
     {
         var notification = new DeviceNotification(windowsAPI, logger);
-        notification.Register(deviceClassGuid, filterVid, filterPid);
+        notification.Register(filterDeviceClassGuid, filterVid, filterPid);
         return notification;
     }
 }

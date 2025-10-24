@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Moq;
+using Serilog;
 using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
@@ -9,8 +10,19 @@ namespace ShadowKVM.Tests;
 public class DeviceNotificationTests
 {
     public Mock<IWindowsAPI> _windowsAPIMock = new();
+    protected Mock<ILogger> _loggerMock = new();
 
     static Guid _testGuid = new("{582a0a58-a22c-431a-bffe-8e381e0522e7}");
+    protected int _testVid = 0xabcde;
+    protected int _testPid = 0xfedcba;
+
+    // TODO select-device
+    // check vid and pid get passed to DeviceNotification and saved
+    // test getting device vid, pid; parse with & and with _
+    // test with missing filters, one filter, two filters
+    // test with each filter matches and misses; check log message when misses
+    // check logging of vid and pid
+    // GetDeviceInfo with missing symlink (null?), with not matching nonsense symlink, with missing VID or PID
 
     [Fact]
     public void Register_CMRegisterNotification_Fails()
@@ -28,8 +40,8 @@ public class DeviceNotificationTests
                 })
             .Verifiable();
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        var exception = Assert.Throws<Exception>(() => service.Register(_testGuid));
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        var exception = Assert.Throws<Exception>(() => service.Register(_testGuid, _testVid, _testPid));
 
         _windowsAPIMock.Verify();
 
@@ -56,8 +68,8 @@ public class DeviceNotificationTests
                 })
             .Verifiable();
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        service.Register(_testGuid);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        service.Register(_testGuid, _testVid, _testPid);
 
         _windowsAPIMock.Verify();
     }
@@ -78,10 +90,10 @@ public class DeviceNotificationTests
                 })
             .Verifiable();
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        var notification = (DeviceNotification)service.Register(_testGuid);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        var notification = (DeviceNotification)service.Register(_testGuid, _testVid, _testPid);
 
-        var exception = Assert.Throws<Exception>(() => notification.Register(_testGuid));
+        var exception = Assert.Throws<Exception>(() => notification.Register(_testGuid, _testVid, _testPid));
 
         _windowsAPIMock.Verify();
 
@@ -108,9 +120,9 @@ public class DeviceNotificationTests
                 })
             .Verifiable();
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
 
-        var notification = (DeviceNotification)service.Register(_testGuid);
+        var notification = (DeviceNotification)service.Register(_testGuid, _testVid, _testPid);
         notification.Dispose();
 
         Assert.Null(notification._notification);
@@ -150,8 +162,8 @@ public class DeviceNotificationTests
             CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL,
             new() { FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE });
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        var notification = service.Register(_testGuid);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        var notification = service.Register(_testGuid, _testVid, _testPid);
 
         _windowsAPIMock.Verify();
 
@@ -166,8 +178,8 @@ public class DeviceNotificationTests
             CM_NOTIFY_ACTION.CM_NOTIFY_ACTION_DEVICECUSTOMEVENT,
             new() { FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE });
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        var notification = service.Register(_testGuid);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        var notification = service.Register(_testGuid, _testVid, _testPid);
 
         _windowsAPIMock.Verify();
 
@@ -184,8 +196,8 @@ public class DeviceNotificationTests
             callbackAction,
             new() { FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE });
 
-        var service = new DeviceNotificationService(_windowsAPIMock.Object);
-        var notification = service.Register(_testGuid);
+        var service = new DeviceNotificationService(_windowsAPIMock.Object, _loggerMock.Object);
+        var notification = service.Register(_testGuid, _testVid, _testPid);
 
         _windowsAPIMock.Verify();
 

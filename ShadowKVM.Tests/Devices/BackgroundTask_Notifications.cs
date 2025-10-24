@@ -30,7 +30,13 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
             .SetupGet(m => m.Config)
             .Returns(new Config
             {
-                TriggerDevice = new() { Raw = _testGuid },
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    Version = 2
+                },
                 Monitors = new()
                 {
                     new()
@@ -102,7 +108,13 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
             .SetupGet(m => m.Config)
             .Returns(new Config
             {
-                TriggerDevice = new() { Raw = _testGuid },
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    Version = 2
+                },
                 Monitors = new()
                 {
                     new()
@@ -144,7 +156,7 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
     public void ProcessNotifications_FailsWhenRegisterThrows()
     {
         _deviceNotificationServiceMock
-            .Setup(m => m.Register(_testGuid))
+            .Setup(m => m.Register(_testGuid, _testVid, _testPid))
             .Throws(new Exception("rEgIsTeR"))
             .Verifiable();
 
@@ -158,7 +170,16 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
 
         _configServiceMock
             .SetupGet(m => m.Config)
-            .Returns(new Config { TriggerDevice = { Raw = _testGuid } });
+            .Returns(new Config
+            {
+                TriggerDevice =
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    Version = 2
+                }
+            });
 
         using (var backgroundTask = new BackgroundTask(
             _configServiceMock.Object, _deviceNotificationServiceMock.Object,
@@ -193,7 +214,13 @@ public class BackgroundTask_NotificationsTests : BackgroundTaskFixture
             .SetupGet(m => m.Config)
             .Returns(new Config
             {
-                TriggerDevice = new() { Raw = _testGuid }
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    Version = 2
+                }
             });
 
         using (var backgroundTask = new BackgroundTask(

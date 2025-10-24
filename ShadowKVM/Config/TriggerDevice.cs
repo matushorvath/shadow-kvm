@@ -15,7 +15,7 @@ public class TriggerDevice
     public int? VendorId { get; set; }
     public int? ProductId { get; set; }
 
-    public int Version { get; init; }
+    public int Version { get; set; }
 }
 
 public class TriggerDeviceTypeConverter() : IYamlTypeConverter

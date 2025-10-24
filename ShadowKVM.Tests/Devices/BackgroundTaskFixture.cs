@@ -15,6 +15,8 @@ public class BackgroundTaskFixture
     protected Mock<ILogger> _loggerMock = new();
 
     protected Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
+    protected int _testVid = 0xabcde;
+    protected int _testPid = 0xfedcba;
 
     protected Mock<IDeviceNotification> SetupNotification(Channel<IDeviceNotification.Action> channel)
     {
@@ -22,7 +24,7 @@ public class BackgroundTaskFixture
         var notificationMock = new Mock<IDeviceNotification>();
 
         _deviceNotificationServiceMock
-            .Setup(m => m.Register(_testGuid))
+            .Setup(m => m.Register(_testGuid, _testVid, _testPid))
             .Returns(notificationMock.Object)
             .Verifiable();
 
@@ -97,7 +99,13 @@ public class BackgroundTaskFixture
             .SetupGet(m => m.Config)
             .Returns(new Config
             {
-                TriggerDevice = new() { Raw = _testGuid },
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    Version = 2
+                },
                 Monitors = monitorConfigs?.ToList()
             });
 
