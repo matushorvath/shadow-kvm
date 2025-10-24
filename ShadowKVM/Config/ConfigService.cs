@@ -127,14 +127,14 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
         {
             if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion > 1)
             {
-                throw new ConfigException($"Invalid TriggerDevice format for configuration version 1");
+                throw new ConfigException("Invalid TriggerDevice format for configuration version 1");
             }
         }
         else if (Config.Version == 2)
         {
             if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion < 2)
             {
-                throw new ConfigException($"Invalid TriggerDevice format for configuration version 2");
+                throw new ConfigException("Invalid TriggerDevice format for configuration version 2");
             }
         }
         else
