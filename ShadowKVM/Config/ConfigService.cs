@@ -8,8 +8,6 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace ShadowKVM;
 
-// TODO select-device check version validation, either version 1 or 2 is acceptable, but don't mix trigger device version with config version
-
 public interface IConfigService
 {
     string ConfigPath { get; }
@@ -127,14 +125,14 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
     {
         if (Config.Version == 1)
         {
-            if (Config.TriggerDevice.Version != 1)
+            if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion > 1)
             {
                 throw new ConfigException($"Invalid TriggerDevice format for configuration version 1");
             }
         }
         else if (Config.Version == 2)
         {
-            if (Config.TriggerDevice.Version != 2)
+            if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion < 2)
             {
                 throw new ConfigException($"Invalid TriggerDevice format for configuration version 2");
             }

@@ -4,6 +4,8 @@ using Serilog;
 
 namespace ShadowKVM.Tests;
 
+// TODO select-device check version validation, either version 1 or 2 is acceptable, but don't mix trigger device version with config version
+
 public class ConfigActionsTests
 {
     protected Mock<ILogger> _loggerMock = new();

@@ -15,7 +15,8 @@ public class TriggerDevice
     public int? VendorId { get; set; }
     public int? ProductId { get; set; }
 
-    public int Version { get; set; }
+    // Format of the structure as it was loaded; null if not loaded
+    public int? LoadedVersion { get; set; }
 }
 
 public class TriggerDeviceTypeConverter() : IYamlTypeConverter
@@ -35,7 +36,7 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
         if (parser.TryConsume<MappingStart>(out _))
         {
             // Config version 2 has a mapping here
-            var triggerDevice = new TriggerDevice { Version = 2 };
+            var triggerDevice = new TriggerDevice { LoadedVersion = 2 };
             while (!parser.TryConsume<MappingEnd>(out _))
             {
                 ConsumePropertyVersion2(parser, triggerDevice, rootDeserializer);
@@ -57,7 +58,7 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
                 throw new YamlException(startMark, endMark, $"Null trigger device class");
             }
 
-            return new TriggerDevice { Version = 1, Class = triggerDeviceClass };
+            return new TriggerDevice { LoadedVersion = 1, Class = triggerDeviceClass };
         }
     }
 

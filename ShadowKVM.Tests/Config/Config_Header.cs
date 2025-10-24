@@ -32,7 +32,7 @@ public class ConfigHeaderTests
 
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 0, supporting 1)", exception.Message);
+        Assert.Equal(@"Unsupported configuration version (found 0, supporting <= 2)", exception.Message);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class ConfigHeaderTests
 
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 987, supporting 1)", exception.Message);
+        Assert.Equal(@"Unsupported configuration version (found 987, supporting <= 2)", exception.Message);
     }
 
     [Fact]

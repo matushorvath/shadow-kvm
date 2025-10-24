@@ -33,7 +33,7 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
                     Class = new() { Raw = _testGuid },
                     VendorId = _testVid,
                     ProductId = _testPid,
-                    Version = 2
+                    LoadedVersion = 2
                 }
             });
 
@@ -97,7 +97,7 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
                     Class = new() { Raw = _testGuid },
                     VendorId = _testVid,
                     ProductId = _testPid,
-                    Version = 2
+                    LoadedVersion = 2
                 }
             });
 
