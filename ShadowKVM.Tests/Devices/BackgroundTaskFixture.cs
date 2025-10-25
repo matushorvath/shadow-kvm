@@ -14,9 +14,9 @@ public class BackgroundTaskFixture
     protected Mock<IWindowsAPI> _windowsAPIMock = new();
     protected Mock<ILogger> _loggerMock = new();
 
-    protected Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
-    protected int _testVid = 0xabcde;
-    protected int _testPid = 0xfedcba;
+    protected readonly Guid _testGuid = new("{3f527904-28d8-4cda-b1c3-08cca9dc3dff}");
+    protected readonly int _testVid = 0xabcde;
+    protected readonly int _testPid = 0xfedcba;
 
     protected Mock<IDeviceNotification> SetupNotification(Channel<IDeviceNotification.Action> channel)
     {

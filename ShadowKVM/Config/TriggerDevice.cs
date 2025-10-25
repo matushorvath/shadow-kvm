@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
@@ -7,10 +8,6 @@ namespace ShadowKVM;
 
 public class TriggerDevice
 {
-    public TriggerDevice()
-    {
-    }
-
     public TriggerDeviceClass Class { get; set; } = new(TriggerDeviceType.Keyboard);
     public int? VendorId { get; set; }
     public int? ProductId { get; set; }
@@ -25,13 +22,8 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
 
     public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        if (parser.Current == null)
-        {
-            throw new ArgumentNullException(nameof(parser));
-        }
-
-        var startMark = parser.Current.Start;
-        var endMark = parser.Current.End;
+        var startMark = parser.Current!.Start;
+        var endMark = parser.Current!.End;
 
         if (parser.TryConsume<MappingStart>(out _))
         {
@@ -64,13 +56,8 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
 
     void ConsumePropertyVersion2(IParser parser, TriggerDevice triggerDevice, ObjectDeserializer rootDeserializer)
     {
-        if (parser.Current == null)
-        {
-            throw new ArgumentNullException(nameof(parser));
-        }
-
-        var startMark = parser.Current.Start;
-        var endMark = parser.Current.End;
+        var startMark = parser.Current!.Start;
+        var endMark = parser.Current!.End;
 
         var key = parser.Consume<Scalar>();
 

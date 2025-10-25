@@ -63,13 +63,8 @@ public abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingC
 
     public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        if (parser.Current == null)
-        {
-            throw new ArgumentNullException(nameof(parser));
-        }
-
-        var startMark = parser.Current.Start;
-        var endMark = parser.Current.End;
+        var startMark = parser.Current!.Start;
+        var endMark = parser.Current!.End;
 
         var scalar = parser.Consume<Scalar>().Value;
         var reversedScalar = namingConvention.Reverse(scalar);

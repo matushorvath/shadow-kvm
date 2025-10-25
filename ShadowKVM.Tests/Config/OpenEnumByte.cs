@@ -7,7 +7,7 @@ namespace ShadowKVM.Tests;
 
 public class OpenEnumByteTests
 {
-    // Cover parts of OpenEnum that are not reachable through ConfigService
+    // Cover parts of OpenEnumByte that are not reachable through ConfigService
 
     enum ByteEnum : byte { A = 3, B = 5, C = 7 };
     enum NonByteEnum { A, B, C };
@@ -57,20 +57,6 @@ public class OpenEnumByteTests
         var openEnum = new OpenEnumByte<ByteEnum>(ByteEnum.C);
 
         Assert.Equal(7, (byte)openEnum);
-    }
-
-    [Fact]
-    public void ReadYaml_WorksWithoutMarks()
-    {
-        ParsingEvent parsingEvent = new Scalar(AnchorName.Empty, TagName.Empty, "iNvAlid", ScalarStyle.Any, true, true, Mark.Empty, Mark.Empty);
-
-        var mockParser = new Mock<IParser>();
-        mockParser.Setup(p => p.Current).Returns(() => null);
-
-        var converter = new OpenEnumByteYamlTypeConverter<ByteEnum>(HyphenatedNamingConvention.Instance);
-
-        var exception = Assert.Throws<ArgumentNullException>(() =>
-            converter.ReadYaml(mockParser.Object, typeof(ByteEnum), null!));
     }
 
     [Fact]
