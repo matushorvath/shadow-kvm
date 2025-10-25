@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -63,11 +64,8 @@ public abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingC
 
     public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        if (parser.Current == null)
-        {
-            throw new ArgumentNullException(nameof(parser));
-        }
-
+        // IParser.Current is only null before and after parsing the file
+        Debug.Assert(parser.Current != null);
         var startMark = parser.Current.Start;
         var endMark = parser.Current.End;
 
@@ -96,18 +94,6 @@ public abstract class OpenEnumYamlTypeConverter<TOpenEnum, TEnum, TRaw>(INamingC
     public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer serializer)
     {
         throw new NotImplementedException("Serialization of OpenEnum to Yaml is not implemented");
-
-        // var openEnum = (TOpenEnum)value!;
-
-        // if (openEnum.Enum != null)
-        // {
-        //     var yamlEnumValue = namingConvention.Apply(openEnum.Enum?.ToString() ?? string.Empty);
-        //     emitter.Emit(new Scalar(yamlEnumValue));
-        // }
-        // else
-        // {
-        //     emitter.Emit(new Scalar(openEnum.Raw!.ToString() ?? string.Empty));
-        // }
     }
 
     protected abstract bool TryConvertStringToRaw(string str, out TRaw rawValue);

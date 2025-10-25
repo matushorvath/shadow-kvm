@@ -30,7 +30,7 @@ public class Services : IDisposable
         NativeUserInterface = new NativeUserInterface();
         ConfigEditor = new ConfigEditor(ConfigService, NativeUserInterface, Log.Logger);
 
-        DeviceNotificationService = new DeviceNotificationService(WindowsAPI);
+        DeviceNotificationService = new DeviceNotificationService(WindowsAPI, Log.Logger);
         BackgroundTask = new BackgroundTask(ConfigService, DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);
 
         Autostart = new Autostart(Log.Logger);

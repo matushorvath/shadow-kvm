@@ -221,8 +221,8 @@ public class ConfigMonitorsTests
         Assert.Equal(1, configService.Config.Version);
         Assert.Equal(LogEventLevel.Fatal, configService.Config.LogLevel);
 
-        Assert.Equal(TriggerDeviceType.Mouse, configService.Config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{378DE44C-56EF-11D1-BC8C-00A0C91405DD}"), configService.Config.TriggerDevice.Raw);
+        Assert.Equal(TriggerDeviceType.Mouse, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{378DE44C-56EF-11D1-BC8C-00A0C91405DD}"), configService.Config.TriggerDevice.Class.Raw);
 
         Assert.Collection(configService.Config.Monitors ?? [],
         monitor =>

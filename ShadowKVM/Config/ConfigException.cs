@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using YamlDotNet.Core;
 
@@ -32,7 +33,9 @@ public class ConfigFileException : ConfigException
 
         builder.Append(_path);
 
-        YamlException yamlException = (YamlException)InnerException!;
+         // Inner exception is mandatory in the constructor
+        Debug.Assert(InnerException != null);
+        YamlException yamlException = (YamlException)InnerException;
 
         builder.Append('(');
         builder.Append(yamlException.Start.Line);

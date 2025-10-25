@@ -377,7 +377,7 @@ public class ConfigGenerator_TemplateTests
         Assert.True(configService.ReloadConfig());
 
         Assert.Equal(1, configService.Config.Version);
-        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
+        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Class.Enum);
         Assert.Equal(LogEventLevel.Information, configService.Config.LogLevel);
 
         Assert.NotNull(configService.Config.Monitors);

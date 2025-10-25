@@ -7,6 +7,9 @@ Backlog
 - useful
    - real configuration UI
    - better UI for invalid config file, it looks like a crash now
+   - select specific device to monitor
+     - fix sample config to be version 2
+     - fix UT, check various parsing use cases
 
 - nice to have
    - add a way to check for updates
@@ -16,6 +19,13 @@ Backlog
    - always install to C:\Program Files, both on 64-bit and 32-bit systems
    - apply windows 11 design guidelines
       - https://learn.microsoft.com/en-us/windows/apps/design/
+   - watch for filechanges in the config file
+      - https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-9.0
+      - when changes, display a toast asking to reload
+      - https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/send-local-toast?tabs=uwp
+      - when reloaded, display a toast saying if successful
+      - when not successful, keep using the old config
+      - review the current UI after editing config, it should use the same toast mechanism
 
 Build and Test
 ==============

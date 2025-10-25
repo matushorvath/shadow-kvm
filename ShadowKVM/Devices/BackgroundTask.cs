@@ -38,7 +38,8 @@ public class BackgroundTask(
 
         try
         {
-            using (var notification = deviceNotificationService.Register(configService.Config.TriggerDevice))
+            using (var notification = deviceNotificationService.Register(configService.Config.TriggerDevice.Class,
+                configService.Config.TriggerDevice.VendorId, configService.Config.TriggerDevice.ProductId))
             {
                 await ProcessNotifications(notification);
             }

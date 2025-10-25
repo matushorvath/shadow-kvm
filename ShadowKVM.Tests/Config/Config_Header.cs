@@ -9,6 +9,13 @@ public class ConfigHeaderTests
 {
     protected Mock<ILogger> _loggerMock = new();
 
+    // TODO select-device this is version 1, add version 2
+    // TODO select-device test mixing versions and trigger device syntax fails
+    // TODO select-device check that the version 1 results have version in in Config and in TriggerDevice
+    // TODO select-device parse where version 2 and class is missing and null (if possible), also version 1 and null class (if possible)
+    // TODO select-device parse config vith vendorid and productid and invalid property in trigger device
+    // TODO select-device check version validation, either version 1 or 2 is acceptable, but don't mix trigger device version with config version
+
     [Fact]
     public void ReloadConfig_ThrowsWithMissingVersion()
     {
@@ -28,7 +35,7 @@ public class ConfigHeaderTests
 
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 0, supporting 1)", exception.Message);
+        Assert.Equal(@"Unsupported configuration version (found 0, supporting <= 2)", exception.Message);
     }
 
     [Fact]
@@ -51,7 +58,7 @@ public class ConfigHeaderTests
 
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 987, supporting 1)", exception.Message);
+        Assert.Equal(@"Unsupported configuration version (found 987, supporting <= 2)", exception.Message);
     }
 
     [Fact]
@@ -174,8 +181,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}"), configService.Config.TriggerDevice.Raw);
+        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{884b96c3-56ef-11d1-bc8c-00a0c91405dd}"), configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Theory]
@@ -201,8 +208,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(enumValue, configService.Config.TriggerDevice.Enum);
-        Assert.Equal(rawValue, configService.Config.TriggerDevice.Raw);
+        Assert.Equal(enumValue, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(rawValue, configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Fact]
@@ -226,8 +233,8 @@ public class ConfigHeaderTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Null(configService.Config.TriggerDevice.Enum);
-        Assert.Equal(new Guid("{266976bd-7ba2-4d38-b21c-85bd406917bd}"), configService.Config.TriggerDevice.Raw);
+        Assert.Null(configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{266976bd-7ba2-4d38-b21c-85bd406917bd}"), configService.Config.TriggerDevice.Class.Raw);
     }
 
     [Fact]
@@ -260,7 +267,7 @@ public class ConfigHeaderTests
         // This code is not reachable through ConfigService
         var exception = Assert.Throws<ConfigException>(() =>
         {
-            var triggerDevice = new TriggerDevice((TriggerDeviceType)(object)(-1));
+            var triggerDevice = new TriggerDeviceClass((TriggerDeviceType)(object)(-1));
         });
 
         Assert.Equal("Invalid trigger device type -1 in configuration file", exception.Message);
