@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -123,12 +124,9 @@ public partial class DeviceNotification : IDeviceNotification
         string? symbolicLink;
         fixed (char* symbolicLinkPtr = &evt->u.DeviceInterface.SymbolicLink.e0)
         {
+            // The pointer points to a structure buffer, so it won't be null
             symbolicLink = Marshal.PtrToStringUni((nint)symbolicLinkPtr);
-        }
-
-        if (symbolicLink == null)
-        {
-            return (null, null);
+            Debug.Assert(symbolicLink != null);
         }
 
         var vidMatch = VidRegex().Match(symbolicLink);

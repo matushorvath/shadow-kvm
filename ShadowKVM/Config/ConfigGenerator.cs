@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -33,9 +34,14 @@ public class ConfigGenerator(IMonitorService monitorService, IMonitorInputServic
     HandlebarsTemplate<object, object> LoadTemplate()
     {
         using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ShadowKVM.Config.DefaultConfig.hbs"))
-        using (var reader = new StreamReader(stream!))
         {
-            return Handlebars.Compile(reader.ReadToEnd().ReplaceLineEndings());
+            // The data is built into the assembly, so it can't be null unless there's a compile time problem
+            Debug.Assert(stream != null);
+
+            using (var reader = new StreamReader(stream))
+            {
+                return Handlebars.Compile(reader.ReadToEnd().ReplaceLineEndings());
+            }
         }
     }
 

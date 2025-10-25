@@ -14,6 +14,7 @@ public class ConfigHeaderTests
     // TODO select-device check that the version 1 results have version in in Config and in TriggerDevice
     // TODO select-device parse where version 2 and class is missing and null (if possible), also version 1 and null class (if possible)
     // TODO select-device parse config vith vendorid and productid and invalid property in trigger device
+    // TODO select-device check version validation, either version 1 or 2 is acceptable, but don't mix trigger device version with config version
 
     [Fact]
     public void ReloadConfig_ThrowsWithMissingVersion()

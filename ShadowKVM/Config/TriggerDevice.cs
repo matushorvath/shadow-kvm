@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using YamlDotNet.Core;
@@ -22,8 +23,10 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
 
     public object ReadYaml(IParser parser, Type type, ObjectDeserializer rootDeserializer)
     {
-        var startMark = parser.Current!.Start;
-        var endMark = parser.Current!.End;
+        // IParser.Current is only null before and after parsing the file
+        Debug.Assert(parser.Current != null);
+        var startMark = parser.Current.Start;
+        var endMark = parser.Current.End;
 
         if (parser.TryConsume<MappingStart>(out _))
         {
@@ -56,8 +59,10 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
 
     void ConsumePropertyVersion2(IParser parser, TriggerDevice triggerDevice, ObjectDeserializer rootDeserializer)
     {
-        var startMark = parser.Current!.Start;
-        var endMark = parser.Current!.End;
+        // IParser.Current is only null before and after parsing the file
+        Debug.Assert(parser.Current != null);
+        var startMark = parser.Current.Start;
+        var endMark = parser.Current.End;
 
         var key = parser.Consume<Scalar>();
 
