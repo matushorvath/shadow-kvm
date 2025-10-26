@@ -1,4 +1,5 @@
 using System.IO.Abstractions.TestingHelpers;
+using System.Text;
 using Moq;
 using Serilog;
 using Serilog.Events;
@@ -9,12 +10,9 @@ public class ConfigHeaderTests
 {
     protected Mock<ILogger> _loggerMock = new();
 
-    // TODO select-device this is version 1, add version 2
     // TODO select-device test mixing versions and trigger device syntax fails
-    // TODO select-device check that the version 1 results have version in in Config and in TriggerDevice
     // TODO select-device parse where version 2 and class is missing and null (if possible), also version 1 and null class (if possible)
     // TODO select-device parse config vith vendorid and productid and invalid property in trigger device
-    // TODO select-device check version validation, either version 1 or 2 is acceptable, but don't mix trigger device version with config version
 
     [Fact]
     public void ReloadConfig_ThrowsWithMissingVersion()
@@ -85,12 +83,35 @@ public class ConfigHeaderTests
     }
 
     [Fact]
+    public void ReloadConfig_LoadsVersion2()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        Assert.True(configService.ReloadConfig());
+
+        Assert.Equal(2, configService.Config.Version);
+    }
+
+    [Fact]
     public void ReloadConfig_LoadsDefaultLogLevel()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [@"x:\mOcKfS\config.yaml"] = """
-                version: 1
+                version: 2
                 monitors:
                   - description: mOnItOr 1
                     attach:
@@ -119,7 +140,7 @@ public class ConfigHeaderTests
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [@"x:\mOcKfS\config.yaml"] = $"""
-                version: 1
+                version: 2
                 log-level: {enumString}
                 monitors:
                   - description: mOnItOr 1
@@ -143,7 +164,7 @@ public class ConfigHeaderTests
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [@"x:\mOcKfS\config.yaml"] = """
-                version: 1
+                version: 2
                 log-level: iNvAlIdLoGlEvEl
                 monitors:
                   - description: mOnItOr 1
@@ -167,7 +188,7 @@ public class ConfigHeaderTests
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [@"x:\mOcKfS\config.yaml"] = """
-                version: 1
+                version: 2
                 monitors:
                   - description: mOnItOr 1
                     attach:
@@ -188,7 +209,7 @@ public class ConfigHeaderTests
     [Theory]
     [InlineData("keyboard", TriggerDeviceType.Keyboard, "{884b96c3-56ef-11d1-bc8c-00a0c91405dd}")]
     [InlineData("mouse", TriggerDeviceType.Mouse, "{378DE44C-56EF-11D1-BC8C-00A0C91405DD}")]
-    public void ReloadConfig_LoadsEnumTriggerDevice(string enumString, TriggerDeviceType enumValue, Guid rawValue)
+    public void ReloadConfig_LoadsEnumTriggerDeviceVersion1(string enumString, TriggerDeviceType enumValue, Guid rawValue)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -212,8 +233,36 @@ public class ConfigHeaderTests
         Assert.Equal(rawValue, configService.Config.TriggerDevice.Class.Raw);
     }
 
+    [Theory]
+    [InlineData("keyboard", TriggerDeviceType.Keyboard, "{884b96c3-56ef-11d1-bc8c-00a0c91405dd}")]
+    [InlineData("mouse", TriggerDeviceType.Mouse, "{378DE44C-56EF-11D1-BC8C-00A0C91405DD}")]
+    public void ReloadConfig_LoadsEnumTriggerDeviceVersion2(string enumString, TriggerDeviceType enumValue, Guid rawValue)
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = $"""
+                version: 2
+                trigger-device:
+                    class: {enumString}
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        Assert.True(configService.ReloadConfig());
+
+        Assert.Equal(enumValue, configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(rawValue, configService.Config.TriggerDevice.Class.Raw);
+    }
+
     [Fact]
-    public void ReloadConfig_LoadsGuidTriggerDevice()
+    public void ReloadConfig_LoadsGuidTriggerDeviceVersion1()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -238,7 +287,78 @@ public class ConfigHeaderTests
     }
 
     [Fact]
-    public void ReloadConfig_ThrowsWithInvalidTriggerDevice()
+    public void ReloadConfig_LoadsGuidTriggerDeviceVersion2()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                trigger-device:
+                    class: '{266976bd-7ba2-4d38-b21c-85bd406917bd}'
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        Assert.True(configService.ReloadConfig());
+
+        Assert.Null(configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid("{266976bd-7ba2-4d38-b21c-85bd406917bd}"), configService.Config.TriggerDevice.Class.Raw);
+    }
+
+    [Theory]
+    [InlineData("{266976bd-7ba2-4d38-b21c-85bd406917bd}", null, 0xC52B)]
+    [InlineData("{266976bd-7ba2-4d38-b21c-85bd406917bd}", 0x046D, null)]
+    [InlineData("{266976bd-7ba2-4d38-b21c-85bd406917bd}", 0x046D, 0xC52B)]
+    public void ReloadConfig_LoadsVidPidTriggerDeviceVersion2(string guid, int? vid, int? pid)
+    {
+        var triggerDeviceYaml = new StringBuilder();
+        triggerDeviceYaml.Append($"    class: '{guid}'");
+
+        // Intentionally swapped order of VID and PID, to test that the order does not matter
+        if (pid != null)
+        {
+            triggerDeviceYaml.Append($"\n    product-id: {pid:x}");
+        }
+        if (vid != null)
+        {
+            triggerDeviceYaml.Append($"\n    vendor-id: {vid:x}");
+        }
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = $"""
+                version: 2
+                trigger-device:
+                {triggerDeviceYaml.ToString()}
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        Assert.True(configService.ReloadConfig());
+
+        Assert.Null(configService.Config.TriggerDevice.Class.Enum);
+        Assert.Equal(new Guid(guid), configService.Config.TriggerDevice.Class.Raw);
+
+        Assert.Equal(vid, configService.Config.TriggerDevice.VendorId);
+        Assert.Equal(pid, configService.Config.TriggerDevice.ProductId);
+    }
+
+    [Fact]
+    public void ReloadConfig_ThrowsWithInvalidTriggerDeviceVersion1()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -259,6 +379,31 @@ public class ConfigHeaderTests
         var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
         Assert.Equal("x:\\mOcKfS\\config.yaml(2,17): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
+    }
+
+    [Fact]
+    public void ReloadConfig_ThrowsWithInvalidTriggerDeviceVersion2()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                trigger-device:
+                    class: iNvAlIdDeViCe
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+
+        Assert.Equal("x:\\mOcKfS\\config.yaml(3,12): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
     }
 
     [Fact]

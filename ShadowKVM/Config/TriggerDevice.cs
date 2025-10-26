@@ -1,11 +1,12 @@
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
 namespace ShadowKVM;
+
+// TODO VID and PID are always hexadecimal in the config file, without a 0x prefix; is that confusing? what is the yaml hex syntax?
 
 public class TriggerDevice
 {
