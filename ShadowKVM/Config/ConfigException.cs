@@ -33,7 +33,7 @@ public class ConfigFileException : ConfigException
 
         builder.Append(_path);
 
-         // Inner exception is mandatory in the constructor
+        // Inner exception is mandatory in the constructor
         Debug.Assert(InnerException != null);
         YamlException yamlException = (YamlException)InnerException;
 

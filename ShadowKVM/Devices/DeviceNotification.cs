@@ -62,14 +62,15 @@ public partial class DeviceNotification : IDeviceNotification
         filter.FilterType = CM_NOTIFY_FILTER_TYPE.CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
         filter.u.DeviceInterface.ClassGuid = filterDeviceClassGuid;
 
+        _filterVid = filterVid;
+        _filterPid = filterPid;
+
+        // Unit tests call DeviceCallback from inside the mocked CM_Register_Notification, so we need to have everything set up at this point
         CONFIGRET res = _windowsAPI.CM_Register_Notification(filter, 0, DeviceCallback, out _notification);
         if (res != CONFIGRET.CR_SUCCESS)
         {
             throw new Exception($"Registration for device notifications failed, result {res}");
         }
-
-        _filterVid = filterVid;
-        _filterPid = filterPid;
     }
 
     unsafe uint DeviceCallback(HCMNOTIFICATION notification, void* context,
