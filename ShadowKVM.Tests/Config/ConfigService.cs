@@ -9,7 +9,7 @@ public class ConfigServiceTests
     protected Mock<ILogger> _loggerMock = new();
 
     string _validConfig = """
-        version: 1
+        version: 2
         monitors:
           - description: mOnItOr 1
             attach:
@@ -69,7 +69,7 @@ public class ConfigServiceTests
         Assert.True(configService.ReloadConfig());
 
         var differentValidConfig = """
-            version: 1
+            version: 2
             monitors:
               - description: mOnItOr DiFfErEnT
                 attach:
@@ -111,7 +111,7 @@ public class ConfigServiceTests
     }
 
     [Fact]
-    public void ReloadConfig_LoadsMinimumValidConfig()
+    public void ReloadConfig_LoadsMinimumValidConfigVersion1()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -138,13 +138,40 @@ public class ConfigServiceTests
     }
 
     [Fact]
+    public void ReloadConfig_LoadsMinimumValidConfigVersion2()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        Assert.True(configService.ReloadConfig());
+
+        Assert.Equal(2, configService.Config.Version);
+        Assert.Collection(configService.Config.Monitors ?? [], monitor =>
+        {
+            Assert.Equal("mOnItOr 1", monitor.Description);
+        });
+    }
+
+    [Fact]
     public void ReloadConfig_LoadsValidConfigWithComments()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [@"x:\mOcKfS\config.yaml"] = """
                 # cOmMeNt1
-                version: 1 # cOmMeNt2
+                version: 2 # cOmMeNt2
                 # cOmMeNt3
                 monitors:
                   # cOmMeNt4
@@ -161,7 +188,7 @@ public class ConfigServiceTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(1, configService.Config.Version);
+        Assert.Equal(2, configService.Config.Version);
         Assert.Collection(configService.Config.Monitors ?? [], monitor =>
         {
             Assert.Equal("mOnItOr 1", monitor.Description);
@@ -214,6 +241,55 @@ public class ConfigServiceTests
         configService.ReloadConfig();
 
         Assert.True(eventTriggered);
+    }
+
+    [Fact]
+    public void ReloadConfig_ThrowsWithTriggerVersion1()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                trigger-device: keyboard
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+
+        Assert.Equal("Invalid TriggerDevice format for configuration version 2", exception.Message);
+    }
+
+    [Fact]
+    public void ReloadConfig_ThrowsWithTriggerVersion2()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 1
+                trigger-device:
+                  class: keyboard
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+
+        Assert.Equal("Invalid TriggerDevice format for configuration version 1", exception.Message);
     }
 
     [Fact]

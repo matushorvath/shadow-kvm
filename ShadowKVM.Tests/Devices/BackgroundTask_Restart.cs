@@ -26,7 +26,16 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
         // The task will be restarted with this config
         _configServiceMock
             .SetupGet(m => m.Config)
-            .Returns(new Config { TriggerDevice = new() { Raw = _testGuid } });
+            .Returns(new Config
+            {
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    LoadedVersion = 2
+                }
+            });
 
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel
@@ -81,7 +90,16 @@ public class BackgroundTask_RestartTests : BackgroundTaskFixture
         // The task will be restarted with this config
         _configServiceMock
             .SetupGet(m => m.Config)
-            .Returns(new Config { TriggerDevice = new() { Raw = _testGuid } });
+            .Returns(new Config
+            {
+                TriggerDevice = new()
+                {
+                    Class = new() { Raw = _testGuid },
+                    VendorId = _testVid,
+                    ProductId = _testPid,
+                    LoadedVersion = 2
+                }
+            });
 
         // The task will forever wait on channel.Reader, which will never read anything
         // since we never write anything to the channel

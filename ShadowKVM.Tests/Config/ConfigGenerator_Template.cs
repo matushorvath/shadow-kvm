@@ -328,7 +328,7 @@ public class ConfigGenerator_TemplateTests
         var text = generator.Generate();
 
         Assert.StartsWith("# ShadowKVM automatically switches", text);
-        Assert.EndsWith($"version: 1{Environment.NewLine}", text);
+        Assert.EndsWith($"version: 2{Environment.NewLine}", text);
     }
 
     [Fact]
@@ -376,8 +376,8 @@ public class ConfigGenerator_TemplateTests
 
         Assert.True(configService.ReloadConfig());
 
-        Assert.Equal(1, configService.Config.Version);
-        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Enum);
+        Assert.Equal(2, configService.Config.Version);
+        Assert.Equal(TriggerDeviceType.Keyboard, configService.Config.TriggerDevice.Class.Enum);
         Assert.Equal(LogEventLevel.Information, configService.Config.LogLevel);
 
         Assert.NotNull(configService.Config.Monitors);

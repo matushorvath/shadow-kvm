@@ -6,7 +6,8 @@ public class Config
 {
     public int Version { get; set; }
     public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
-    public TriggerDevice TriggerDevice { get; set; } = new(TriggerDeviceType.Keyboard);
+
+    public TriggerDevice TriggerDevice { get; set; } = new();
 
     public List<MonitorConfig>? Monitors { get; set; }
 
