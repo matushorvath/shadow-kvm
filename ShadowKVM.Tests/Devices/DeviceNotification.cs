@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using Moq;
 using Serilog;
 using Windows.Win32;
@@ -13,9 +12,9 @@ public class DeviceNotificationTests
     public Mock<IWindowsAPI> _windowsAPIMock = new();
     protected Mock<ILogger> _loggerMock = new();
 
-    static Guid _testGuid = new("{582a0a58-a22c-431a-bffe-8e381e0522e7}");
-    const int _testVid = 0xabcde;
-    const int _testPid = 0xfedcba;
+    readonly Guid _testGuid = new("{582a0a58-a22c-431a-bffe-8e381e0522e7}");
+    readonly int _testVid = 0xabcde;
+    readonly int _testPid = 0xfedcba;
 
     [Fact]
     public void Register_CMRegisterNotification_Fails()

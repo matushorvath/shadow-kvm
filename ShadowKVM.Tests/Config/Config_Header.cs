@@ -3,7 +3,6 @@ using System.Text;
 using Moq;
 using Serilog;
 using Serilog.Events;
-using YamlDotNet.Core;
 
 namespace ShadowKVM.Tests;
 
