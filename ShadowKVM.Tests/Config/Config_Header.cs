@@ -3,16 +3,13 @@ using System.Text;
 using Moq;
 using Serilog;
 using Serilog.Events;
+using YamlDotNet.Core;
 
 namespace ShadowKVM.Tests;
 
 public class ConfigHeaderTests
 {
     protected Mock<ILogger> _loggerMock = new();
-
-    // TODO select-device test mixing versions and trigger device syntax fails
-    // TODO select-device parse where version 2 and class is missing and null (if possible), also version 1 and null class (if possible)
-    // TODO select-device parse config vith vendorid and productid and invalid property in trigger device
 
     [Fact]
     public void ReloadConfig_ThrowsWithMissingVersion()
@@ -57,6 +54,31 @@ public class ConfigHeaderTests
         var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"Unsupported configuration version (found 987, supporting <= 2)", exception.Message);
+    }
+
+    [Fact]
+    public void ReloadConfig_ThrowsWithExtraTriggerDeviceProperties()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            [@"x:\mOcKfS\config.yaml"] = """
+                version: 2
+                trigger-device:
+                    nOnSeNsE: BaD
+                monitors:
+                  - description: mOnItOr 1
+                    attach:
+                      code: input-select
+                      value: hdmi1
+                """
+        });
+
+        var configService = new ConfigService(fileSystem, _loggerMock.Object);
+        configService.SetDataDirectory(@"x:\mOcKfS");
+
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+
+        Assert.Equal(@"x:\mOcKfS\config.yaml(3,5): Unexpected property nOnSeNsE", exception.Message);
     }
 
     [Fact]

@@ -38,22 +38,13 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
                 ConsumePropertyVersion2(parser, triggerDevice, rootDeserializer);
             }
 
-            if (triggerDevice.Class == null)
-            {
-                throw new YamlException(startMark, endMark, $"Missing trigger device class");
-            }
-
             return triggerDevice;
         }
         else
         {
             // Config version 1 has just a scalar with TriggerDeviceClass
             var triggerDeviceClass = (TriggerDeviceClass?)rootDeserializer(typeof(TriggerDeviceClass));
-            if (triggerDeviceClass == null)
-            {
-                throw new YamlException(startMark, endMark, $"Null trigger device class");
-            }
-
+            Debug.Assert(triggerDeviceClass != null);
             return new TriggerDevice { LoadedVersion = 1, Class = triggerDeviceClass };
         }
     }
@@ -70,11 +61,7 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
         if (key.Value == "class")
         {
             var triggerDeviceClass = (TriggerDeviceClass?)rootDeserializer(typeof(TriggerDeviceClass));
-            if (triggerDeviceClass == null)
-            {
-                throw new YamlException(startMark, endMark, $"Null trigger device class");
-            }
-
+            Debug.Assert(triggerDeviceClass != null);
             triggerDevice.Class = triggerDeviceClass;
         }
         else if (key.Value == "vendor-id")
@@ -87,7 +74,7 @@ public class TriggerDeviceTypeConverter() : IYamlTypeConverter
         }
         else
         {
-            throw new Exception("Invalid property name");
+            throw new YamlException(startMark, endMark, $"Unexpected property {key.Value}");
         }
     }
 
