@@ -7,9 +7,6 @@ Backlog
 - useful
    - real configuration UI
    - better UI for invalid config file, it looks like a crash now
-   - select specific device to monitor
-     - fix sample config to be version 2
-     - fix UT, check various parsing use cases
 
 - nice to have
    - add a way to check for updates

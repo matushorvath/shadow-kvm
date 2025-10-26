@@ -4,8 +4,11 @@
 # the monitor to HDMI2.
 
 # Trigger device: Defines which device type will trigger monitor switching
-# options: keyboard or mouse (or one of the GUID_DEVINTERFACE_* guids)
-trigger-device: keyboard
+# class: keyboard or mouse (or one of the GUID_DEVINTERFACE_* guids)
+# vendor-d: optional, hexadecimal vendor id of the trigger device
+# product-d: optional, hexadecimal product id of the trigger device
+trigger-device:
+  class: keyboard
 
 # Monitor actions: When a trigger device is attached or detached, ShadowKVM sends a
 # DDC/CI command to the monitor to change its input source.
@@ -29,8 +32,7 @@ monitors:
 {{{Inputs.CommentUnsupported}}}    code: input-select
 {{{Inputs.CommentUnsupported}}}    value: {{{Inputs.UnselectedInputStringAndComment}}}
 
-{{/each}}
-# Monitor Identification
+{{/each}}# Monitor Identification
 #
 # You can specify monitors using one or more of these attributes:
 #   description: Monitor model name as recognized by Windows
@@ -52,4 +54,4 @@ monitors:
 # options: information (default) or debug
 log-level: information
 
-version: 1
+version: 2
