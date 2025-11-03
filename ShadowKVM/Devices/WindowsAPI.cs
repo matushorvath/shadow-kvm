@@ -105,11 +105,7 @@ public class WindowsAPI : IWindowsAPI
     public unsafe int GetVCPFeatureAndVCPFeatureReply(
         SafeHandle hMonitor, byte bVCPCode, ref MC_VCP_CODE_TYPE vct, out uint pdwCurrentValue, out uint dwMaximumValue)
     {
-        fixed (MC_VCP_CODE_TYPE* pvct = &vct)
-        fixed (uint* pdwMaximumValue = &dwMaximumValue)
-        {
-            return PInvoke.GetVCPFeatureAndVCPFeatureReply(hMonitor, bVCPCode, pvct, out pdwCurrentValue, pdwMaximumValue);
-        }
+        return PInvoke.GetVCPFeatureAndVCPFeatureReply(hMonitor, bVCPCode, out vct, out pdwCurrentValue, out dwMaximumValue);
     }
 
     // For DeviceNotificationService
