@@ -27,9 +27,9 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 0, supporting <= 2)", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Unsupported configuration version (found 0, supporting <= 2)", exception.Message);
     }
 
     [Fact]
@@ -50,9 +50,9 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Unsupported configuration version (found 987, supporting <= 2)", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Unsupported configuration version (found 987, supporting <= 2)", exception.Message);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"x:\mOcKfS\config.yaml(3,5): Unexpected property nOnSeNsE", exception.Message);
     }
@@ -198,7 +198,7 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"x:\mOcKfS\config.yaml(2,12): Exception during deserialization: Requested value 'iNvAlIdLoGlEvEl' was not found.", exception.Message);
     }
@@ -397,7 +397,7 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal("x:\\mOcKfS\\config.yaml(2,17): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
     }
@@ -422,7 +422,7 @@ public class ConfigHeaderTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal("x:\\mOcKfS\\config.yaml(3,12): Invalid value \"iNvAlIdDeViCe\"", exception.Message);
     }
@@ -431,7 +431,7 @@ public class ConfigHeaderTests
     public void TriggerDeviceConstructor_ThrowsWithInvalidEnumValue()
     {
         // This code is not reachable through ConfigService
-        var exception = Assert.Throws<ConfigException>(() =>
+        var exception = Assert.Throws<InvalidOperationException>(() =>
         {
             var triggerDevice = new TriggerDeviceClass((TriggerDeviceType)(object)(-1));
         });

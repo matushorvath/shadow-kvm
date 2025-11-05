@@ -28,7 +28,7 @@ public class Services : IDisposable
         ConfigGenerator = new ConfigGenerator(MonitorService, MonitorInputService);
 
         NativeUserInterface = new NativeUserInterface();
-        ConfigEditor = new ConfigEditor(ConfigService, NativeUserInterface, Log.Logger);
+        ConfigEditor = new ConfigEditor(ConfigService, AppControl, NativeUserInterface);
 
         DeviceNotificationService = new DeviceNotificationService(WindowsAPI, Log.Logger);
         BackgroundTask = new BackgroundTask(ConfigService, DeviceNotificationService, MonitorService, WindowsAPI, Log.Logger);

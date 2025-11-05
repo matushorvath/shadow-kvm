@@ -27,7 +27,7 @@ public class TriggerDeviceClass : OpenEnum<TriggerDeviceType, Guid>
         {
             case TriggerDeviceType.Keyboard: return PInvoke.GUID_DEVINTERFACE_KEYBOARD;
             case TriggerDeviceType.Mouse: return PInvoke.GUID_DEVINTERFACE_MOUSE;
-            default: throw new ConfigException($"Invalid trigger device type {enumValue} in configuration file");
+            default: throw new InvalidOperationException($"Invalid trigger device type {enumValue} in configuration file");
         }
     }
 }

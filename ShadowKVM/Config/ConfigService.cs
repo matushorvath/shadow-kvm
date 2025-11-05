@@ -62,10 +62,24 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
 
     void LoadConfig()
     {
+        logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
+
+        DeserializeConfig();
+        ValidateConfig();
+
+        using (var stream = fileSystem.File.OpenRead(ConfigPath))
+        using (var md5 = MD5.Create())
+        {
+            Config.LoadedChecksum = md5.ComputeHash(stream);
+        }
+
+        ConfigChanged?.Invoke(this);
+    }
+
+    void DeserializeConfig()
+    {
         try
         {
-            logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
-
             var namingConvention = HyphenatedNamingConvention.Instance;
 
             var deserializer = new DeserializerBuilder()
@@ -81,20 +95,10 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
             {
                 _config = deserializer.Deserialize<Config>(input);
             }
-
-            ValidateConfig();
-
-            using (var stream = fileSystem.File.OpenRead(ConfigPath))
-            using (var md5 = MD5.Create())
-            {
-                Config.LoadedChecksum = md5.ComputeHash(stream);
-            }
-
-            ConfigChanged?.Invoke(this);
         }
         catch (YamlException exception)
         {
-            throw new ConfigFileException(ConfigPath, exception);
+            throw new ConfigYamlException(ConfigPath, exception);
         }
     }
 
@@ -104,19 +108,19 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
 
         if (Config.Monitors == null || Config.Monitors.Count == 0)
         {
-            throw new ConfigException($"At least one monitor needs to be specified in configuration");
+            throw new ConfigFileException(ConfigPath, "At least one monitor needs to be specified in configuration");
         }
 
         foreach (var monitor in Config.Monitors)
         {
             if (monitor.Description == null && monitor.Adapter == null && monitor.SerialNumber == null)
             {
-                throw new ConfigException($"Either description, adapter or serial-number needs to be specified for each monitor");
+                throw new ConfigFileException(ConfigPath, "Either description, adapter or serial-number needs to be specified for each monitor");
             }
 
             if (monitor.Attach == null && monitor.Detach == null)
             {
-                throw new ConfigException($"Either attach or detach action needs to be specified for each monitor");
+                throw new ConfigFileException(ConfigPath, "Either attach or detach action needs to be specified for each monitor");
             }
         }
     }
@@ -127,19 +131,19 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
         {
             if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion > 1)
             {
-                throw new ConfigException("Invalid TriggerDevice format for configuration version 1");
+                throw new ConfigFileException(ConfigPath, "Invalid TriggerDevice format for configuration version 1");
             }
         }
         else if (Config.Version == 2)
         {
             if (Config.TriggerDevice.LoadedVersion != null && Config.TriggerDevice.LoadedVersion < 2)
             {
-                throw new ConfigException("Invalid TriggerDevice format for configuration version 2");
+                throw new ConfigFileException(ConfigPath, "Invalid TriggerDevice format for configuration version 2");
             }
         }
         else
         {
-            throw new ConfigException($"Unsupported configuration version (found {Config.Version}, supporting <= 2)");
+            throw new ConfigFileException(ConfigPath, $"Unsupported configuration version (found {Config.Version}, supporting <= 2)");
         }
     }
 }

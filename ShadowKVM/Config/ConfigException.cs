@@ -19,7 +19,15 @@ public class ConfigException : Exception
 
 public class ConfigFileException : ConfigException
 {
-    public ConfigFileException(string path, YamlException exception)
+    public ConfigFileException(string path, string message)
+        : base($"{path}: {message}")
+    {
+    }
+}
+
+public class ConfigYamlException : ConfigException
+{
+    public ConfigYamlException(string path, YamlException exception)
         : base(string.Empty, exception)
     {
         _path = path;

@@ -22,9 +22,9 @@ public class ConfigMonitorsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: At least one monitor needs to be specified in configuration", exception.Message);
     }
 
     [Fact]
@@ -41,9 +41,9 @@ public class ConfigMonitorsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"At least one monitor needs to be specified in configuration", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: At least one monitor needs to be specified in configuration", exception.Message);
     }
 
     [Fact]
@@ -63,9 +63,9 @@ public class ConfigMonitorsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Either description, adapter or serial-number needs to be specified for each monitor", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Either description, adapter or serial-number needs to be specified for each monitor", exception.Message);
     }
 
     [Fact]

@@ -62,7 +62,7 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
             await GenerateConfigWithProgress();
             await configEditor.EditConfig();
         }
-        catch (ConfigFileException exception)
+        catch (ConfigException exception)
         {
             var message = $"""
                 Configuration file is invalid, edit it manually?
