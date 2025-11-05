@@ -178,7 +178,7 @@ public class AppBehaviorTests
     {
         _configServiceMock
             .Setup(configService => configService.ReloadConfig())
-            .Throws(new ConfigFileException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
+            .Throws(new ConfigYamlException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
             .Verifiable();
 
         var question = """
@@ -209,7 +209,7 @@ public class AppBehaviorTests
     {
         _configServiceMock
             .Setup(configService => configService.ReloadConfig())
-            .Throws(new ConfigFileException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
+            .Throws(new ConfigYamlException("yAmLpAtH", new YamlException(Mark.Empty, Mark.Empty, "yAmLeExCePtIoN")))
             .Verifiable();
 
         var question = """

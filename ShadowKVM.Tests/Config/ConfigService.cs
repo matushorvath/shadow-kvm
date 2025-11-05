@@ -105,7 +105,7 @@ public class ConfigServiceTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal(@"x:\mOcKfS\config.yaml(1,7): Block sequence entries are not allowed in this context.", exception.Message);
     }
@@ -262,9 +262,9 @@ public class ConfigServiceTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal("Invalid TriggerDevice format for configuration version 2", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Invalid TriggerDevice format for configuration version 2", exception.Message);
     }
 
     [Fact]
@@ -287,9 +287,9 @@ public class ConfigServiceTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal("Invalid TriggerDevice format for configuration version 1", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Invalid TriggerDevice format for configuration version 1", exception.Message);
     }
 
     [Fact]

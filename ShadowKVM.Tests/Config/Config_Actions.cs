@@ -23,9 +23,9 @@ public class ConfigActionsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
 
-        Assert.Equal(@"Either attach or detach action needs to be specified for each monitor", exception.Message);
+        Assert.Equal(@"x:\mOcKfS\config.yaml: Either attach or detach action needs to be specified for each monitor", exception.Message);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class ConfigActionsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(5,13): Invalid value \"{invalidString}\"", exception.Message);
     }
@@ -300,7 +300,7 @@ public class ConfigActionsTests
         var configService = new ConfigService(fileSystem, _loggerMock.Object);
         configService.SetDataDirectory(@"x:\mOcKfS");
 
-        var exception = Assert.Throws<ConfigFileException>(() => configService.ReloadConfig());
+        var exception = Assert.Throws<ConfigYamlException>(() => configService.ReloadConfig());
 
         Assert.Equal($"x:\\mOcKfS\\config.yaml(6,14): Invalid value \"{invalidString}\"", exception.Message);
     }
