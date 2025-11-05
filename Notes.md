@@ -2,7 +2,9 @@ Backlog
 =======
 
 - required
-   - add installation and usage to README.md
+   - when loading file with syntax error, no error is displayed
+      - when I then fix the error and the file is loaded with same contents as in memory,
+        no "loaded successfully" is displayed because the config is technically not change compared to memory
 
 - useful
    - real configuration UI
