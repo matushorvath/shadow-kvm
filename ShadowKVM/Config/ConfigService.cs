@@ -62,10 +62,24 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
 
     void LoadConfig()
     {
+        logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
+
+        DeserializeConfig();
+        ValidateConfig();
+
+        using (var stream = fileSystem.File.OpenRead(ConfigPath))
+        using (var md5 = MD5.Create())
+        {
+            Config.LoadedChecksum = md5.ComputeHash(stream);
+        }
+
+        ConfigChanged?.Invoke(this);
+    }
+
+    void DeserializeConfig()
+    {
         try
         {
-            logger.Information("Loading configuration from {ConfigPath}", ConfigPath);
-
             var namingConvention = HyphenatedNamingConvention.Instance;
 
             var deserializer = new DeserializerBuilder()
@@ -81,16 +95,6 @@ public class ConfigService(IFileSystem fileSystem, ILogger logger) : IConfigServ
             {
                 _config = deserializer.Deserialize<Config>(input);
             }
-
-            ValidateConfig();
-
-            using (var stream = fileSystem.File.OpenRead(ConfigPath))
-            using (var md5 = MD5.Create())
-            {
-                Config.LoadedChecksum = md5.ComputeHash(stream);
-            }
-
-            ConfigChanged?.Invoke(this);
         }
         catch (YamlException exception)
         {

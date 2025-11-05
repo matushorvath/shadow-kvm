@@ -18,7 +18,7 @@ public class TriggerDevice
     public int? LoadedVersion { get; set; }
 }
 
-public class TriggerDeviceTypeConverter() : IYamlTypeConverter
+public class TriggerDeviceTypeConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type) => type == typeof(TriggerDevice);
 
