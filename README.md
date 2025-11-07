@@ -14,7 +14,7 @@ Do you have multiple computers sharing the same display and a USB switch for you
 Shadow KVM automatically switches your display input when you toggle the USB switch to a different machine.
 
 <!-- ![Hardware Connection Diagram](Documents/Connections.png) -->
-<img src="Documents/Connections.png" width="33%" height="33%" alt="Hardware Connection Diagram">
+<img src="Documents/Connections.png" width="20%" height="20%" alt="Hardware Connection Diagram">
 
 ## Installation & Usage
 
@@ -24,7 +24,7 @@ Download and install the latest [ShadowKVM release](https://github.com/matushorv
 
 The configuration file is pre-populated with your currently connected monitors to give you a starting point. Shadow KVM will open the config file in a text editor:
 
-<img src="Documents/FirstRun%20-%20ConfigFile.png" width="50%" height="50%" alt="First Run - Config File">
+<img src="Documents/FirstRun%20-%20ConfigFile.png" width="80%" height="80%" alt="First Run - Config File">
 
 The config file includes helpful comments explaining each setting.
 Once you've finished editing, save and close the editor. Shadow KVM will automatically reload the configuration.
