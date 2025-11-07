@@ -14,7 +14,7 @@ Do you have multiple computers sharing the same display and a USB switch for you
 Shadow KVM automatically switches your display input when you toggle the USB switch to a different machine.
 
 <!-- ![Hardware Connection Diagram](Documents/Connections.png) -->
-<img src="Documents/Connections.png" width="20%" height="20%" alt="Hardware Connection Diagram">
+<img src="Documents/Connections.png" width="25%" height="25%" alt="Hardware Connection Diagram">
 
 ## Installation & Usage
 
