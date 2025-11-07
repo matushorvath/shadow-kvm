@@ -135,4 +135,4 @@ The icon colors have been modified.
 ## License
 
 [MIT License](https://opensource.org/license/mit)  
-(see [NOTICE.md](Installer/Notice.md) for details)
+(see [NOTICE.md](Installer/NOTICE.md) for details)
