@@ -1,5 +1,5 @@
 [![Build and Test](https://github.com/matushorvath/shadow-kvm/actions/workflows/build.yml/badge.svg)](https://github.com/matushorvath/shadow-kvm/actions/workflows/build.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/matushorvath/shadow-kvm?display_name=release)](https://github.com/matushorvath/shadow-kvm/releases/latest) 
+[![GitHub Release](https://img.shields.io/github/v/release/matushorvath/shadow-kvm?display_name=release)](https://github.com/matushorvath/shadow-kvm/releases/latest)
 
 <img src="Documents/Application.png" width="50px" height="50px" align="right">
 
