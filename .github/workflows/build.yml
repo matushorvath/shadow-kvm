@@ -65,7 +65,7 @@ jobs:
           Rename-Item -Path bin/Release/ShadowKVM.msi -NewName ShadowKVM-${{ steps.version_step.outputs.fullSemVer }}.msi
 
       - name: Upload installer
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: installer
           path: bin/Release/ShadowKVM-*.msi
