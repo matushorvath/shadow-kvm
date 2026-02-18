@@ -9,6 +9,7 @@ Backlog
 - useful
    - real configuration UI
    - better UI for invalid config file, it looks like a crash now
+   - splitting actions to build and publish, to avoid the ugly "skipped" action
 
 - nice to have
    - add a way to check for updates
