@@ -53,7 +53,7 @@ jobs:
           badge: true
 
       - name: Add Coverage Comment to PR
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: steps.code_coverage_report_action.outputs.file != '' && github.event_name == 'pull_request' && (success() || failure())
         with:
           path: code-coverage-results.md
