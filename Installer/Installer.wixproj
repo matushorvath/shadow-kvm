@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="WixToolset.Sdk/6.0.0">
+<Project Sdk="WixToolset.Sdk/7.0.0">
 
   <PropertyGroup>
     <OutputName>ShadowKVM</OutputName>
     <SuppressIces>ICE61</SuppressIces>
+    <AcceptEula>wix7</AcceptEula>
   </PropertyGroup>
 
   <ItemGroup>
