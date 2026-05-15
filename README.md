@@ -36,14 +36,14 @@ First, configure the `trigger-device` property. Shadow KVM switches monitor inpu
 The default is `keyboard`, meaning monitor inputs switch each time a keyboard connects to or disconnects from your computer.
 
 ```yaml
-trigger device:
+trigger-device:
     class: keyboard
 ```
 
 You can use a mouse instead, or specify a particular keyboard or mouse by Vendor ID and Product ID. This is useful when multiple keyboards or mice are attached and you only want one to trigger Shadow KVM. See the config file for additional details.
 
 ```yaml
-trigger device:
+trigger-device:
     class: mouse
     vendor-id: 2f68
 ```
