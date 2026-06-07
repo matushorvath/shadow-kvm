@@ -80,7 +80,7 @@
     <!-- MIT license text to be displayed by the installer -->
     <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
 
-    <!-- Display a Launch checbox on the last screen of the installer -->
+    <!-- Display a Launch checkbox on the last screen of the installer -->
     <SetProperty
         Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
         Value="Launch [ProductName]."
@@ -93,7 +93,7 @@
     <UI>
       <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
 
-      <!-- Launch the application after clicking Finish, if the Launch checbox was checked -->
+      <!-- Launch the application after clicking Finish, if the Launch checkbox was checked -->
       <Publish Dialog="ExitDialog"
           Control="Finish"
           Event="DoAction"
