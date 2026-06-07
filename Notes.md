@@ -2,30 +2,33 @@ Backlog
 =======
 
 - required
-   - when loading file with syntax error, no error is displayed
-      - when I then fix the error and the file is loaded with same contents as in memory,
-        no "loaded successfully" is displayed because the config is technically not change compared to memory
+  - when loading file with syntax error, no error is displayed
+    - when I then fix the error and the file is loaded with same contents as in memory,
+      no "loaded successfully" is displayed because the config is technically not change compared to memory
 
 - useful
-   - real configuration UI
-   - better UI for invalid config file, it looks like a crash now
-   - splitting actions to build and publish, to avoid the ugly "skipped" action
+  - real configuration UI
+  - better UI for invalid config file, it looks like a crash now
+  - splitting actions to build and publish, to avoid the ugly "skipped" action
+    - workflow_run trigger for Release, access run id using ${{ github.event.workflow_run.id }}
+    - https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run
+    - https://docs.github.com/en/webhooks/webhook-events-and-payloads#workflow_run
 
 - nice to have
-   - add a way to check for updates
-      - perhaps add to about box: "<version xyz> is available online"?
-   - winget support
-   - the "config reloaded succesfully" window does not have focus and sometimes opens in background
-   - always install to C:\Program Files, both on 64-bit and 32-bit systems
-   - apply windows 11 design guidelines
-      - https://learn.microsoft.com/en-us/windows/apps/design/
-   - watch for filechanges in the config file
-      - https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-9.0
-      - when changes, display a toast asking to reload
-      - https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/send-local-toast?tabs=uwp
-      - when reloaded, display a toast saying if successful
-      - when not successful, keep using the old config
-      - review the current UI after editing config, it should use the same toast mechanism
+  - add a way to check for updates
+    - perhaps add to about box: "<version xyz> is available online"?
+  - winget support
+  - the "config reloaded succesfully" window does not have focus and sometimes opens in background
+  - always install to C:\Program Files, both on 64-bit and 32-bit systems
+  - apply windows 11 design guidelines
+    - https://learn.microsoft.com/en-us/windows/apps/design/
+  - watch for filechanges in the config file
+    - https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher?view=net-9.0
+    - when changes, display a toast asking to reload
+    - https://learn.microsoft.com/en-us/windows/apps/design/shell/tiles-and-notifications/send-local-toast?tabs=uwp
+    - when reloaded, display a toast saying if successful
+    - when not successful, keep using the old config
+    - review the current UI after editing config, it should use the same toast mechanism
 
 Build and Test
 ==============
