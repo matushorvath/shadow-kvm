@@ -22,7 +22,7 @@ public class AppBehaviorTests
 
     AppBehavior CreateAppBehavior()
     {
-        return new AppBehavior("tEsTdAtDaTaDiReCtOrY", _appControlMock.Object, _autostartMock.Object,
+        return new AppBehavior("tEsTdAtAdIrEcToRy", "tEsTlOcAlDaTaDiReCtOrY", _appControlMock.Object, _autostartMock.Object,
             _backgroundTaskMock.Object, _configEditorMock.Object, _configGeneratorMock.Object, _configServiceMock.Object,
             _fileSystem, _nativeUserInterfaceMock.Object, _loggerMock.Object, _loggingLevelSwitch);
     }
@@ -40,12 +40,13 @@ public class AppBehaviorTests
     }
 
     [Fact]
-    public async Task OnStartupAsync_CreatesDataDirectory()
+    public async Task OnStartupAsync_CreatesDataDirectories()
     {
         var appBehavior = CreateAppBehavior();
         await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
 
-        Assert.True(_fileSystem.Directory.Exists("tEsTdAtDaTaDiReCtOrY"));
+        Assert.True(_fileSystem.Directory.Exists("tEsTdAtAdIrEcToRy"));
+        Assert.True(_fileSystem.Directory.Exists("tEsTlOcAlDaTaDiReCtOrY"));
     }
 
     [Fact]
@@ -83,7 +84,7 @@ public class AppBehaviorTests
         var appBehavior = CreateAppBehavior();
         await appBehavior.OnStartupAsync(new object(), EventArgs.Empty);
 
-        _configServiceMock.Verify(configService => configService.SetDataDirectory("tEsTdAtDaTaDiReCtOrY"), Times.Once);
+        _configServiceMock.Verify(configService => configService.SetDataDirectory("tEsTdAtAdIrEcToRy"), Times.Once);
         _configServiceMock.VerifyAdd(configService => configService.ConfigChanged += It.IsAny<Action<IConfigService>>(), Times.Once);
     }
 
@@ -186,7 +187,7 @@ public class AppBehaviorTests
 
             yAmLpAtH(1,1): yAmLeExCePtIoN
 
-            See tEsTdAtDaTaDiReCtOrY\logs for details
+            See tEsTlOcAlDaTaDiReCtOrY\logs for details
             """;
 
         _nativeUserInterfaceMock
@@ -217,7 +218,7 @@ public class AppBehaviorTests
 
             yAmLpAtH(1,1): yAmLeExCePtIoN
 
-            See tEsTdAtDaTaDiReCtOrY\logs for details
+            See tEsTlOcAlDaTaDiReCtOrY\logs for details
             """;
 
         _nativeUserInterfaceMock
@@ -246,7 +247,7 @@ public class AppBehaviorTests
             
             tEsTeXcEpTiOn
             
-            See tEsTdAtDaTaDiReCtOrY\logs for details.
+            See tEsTlOcAlDaTaDiReCtOrY\logs for details.
             """;
         _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
@@ -265,7 +266,7 @@ public class AppBehaviorTests
             
             tEsTeXcEpTiOn
             
-            See tEsTdAtDaTaDiReCtOrY\logs for details.
+            See tEsTlOcAlDaTaDiReCtOrY\logs for details.
             """;
         _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
@@ -284,7 +285,7 @@ public class AppBehaviorTests
             
             tEsTeXcEpTiOn
             
-            See tEsTdAtDaTaDiReCtOrY\logs for details.
+            See tEsTlOcAlDaTaDiReCtOrY\logs for details.
             """;
         _nativeUserInterfaceMock.Verify(ui => ui.ErrorBox(uiMessage.ReplaceLineEndings(), "Shadow KVM"), Times.Once);
 
