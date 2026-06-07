@@ -90,7 +90,7 @@ You can temporarily disable or enable Shadow KVM. When disabled, it won't react 
 Shadow KVM supports multiple monitors if you have more than one display connected to your computers. Currently, only one trigger device is supported.
 
 **Config file location:** `C:\Users\<username>\AppData\Roaming\Shadow KVM\config.yaml`  
-**Log files** are stored in the same directory and contain useful troubleshooting information.
+**Log files** `C:\Users\<username>\AppData\Local\Shadow KVM\logs`  
 
 To regenerate the default config file, exit Shadow KVM, delete the existing config file, and restart the application. It will prompt you to generate a new one.
 

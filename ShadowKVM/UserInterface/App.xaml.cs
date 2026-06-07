@@ -17,8 +17,11 @@ public partial class App : Application
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var dataDirectory = Path.Combine(appData, "Shadow KVM");
 
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var localDataDirectory = Path.Combine(localAppData, "Shadow KVM");
+
         // Set up logger
-        var logPath = AppBehavior.FormatLogPath(dataDirectory);
+        var logPath = AppBehavior.FormatLogPath(localDataDirectory);
         var loggingLevelSwitch = new LoggingLevelSwitch();
 
         Log.Logger = new LoggerConfiguration()
@@ -27,10 +30,10 @@ public partial class App : Application
             .CreateLogger();
 
         // Instantiate the testable implementation class
-        Behavior = new AppBehavior(dataDirectory, Services.Instance.AppControl, Services.Instance.Autostart,
-            Services.Instance.BackgroundTask, Services.Instance.ConfigEditor, Services.Instance.ConfigGenerator,
-            Services.Instance.ConfigService, Services.Instance.FileSystem, Services.Instance.NativeUserInterface,
-            Log.Logger, loggingLevelSwitch);
+        Behavior = new AppBehavior(dataDirectory, localDataDirectory, Services.Instance.AppControl,
+            Services.Instance.Autostart, Services.Instance.BackgroundTask, Services.Instance.ConfigEditor,
+            Services.Instance.ConfigGenerator, Services.Instance.ConfigService, Services.Instance.FileSystem,
+            Services.Instance.NativeUserInterface, Log.Logger, loggingLevelSwitch);
 
         // Set up exception logging
         AppDomain.CurrentDomain.UnhandledException += Behavior.OnUnhandledException;

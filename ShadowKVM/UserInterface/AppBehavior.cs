@@ -6,9 +6,9 @@ using Serilog.Core;
 namespace ShadowKVM;
 
 // This contains testable parts of the App class
-public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostart autostart, IBackgroundTask backgroundTask,
-        IConfigEditor configEditor, IConfigGenerator configGenerator, IConfigService configService, IFileSystem fileSystem,
-        INativeUserInterface nativeUserInterface, ILogger logger, LoggingLevelSwitch loggingLevelSwitch)
+public class AppBehavior(string dataDirectory, string localDataDirectory, IAppControl appControl, IAutostart autostart,
+        IBackgroundTask backgroundTask, IConfigEditor configEditor, IConfigGenerator configGenerator, IConfigService configService,
+        IFileSystem fileSystem, INativeUserInterface nativeUserInterface, ILogger logger, LoggingLevelSwitch loggingLevelSwitch)
 {
     public async Task OnStartupAsync(object sender, EventArgs e)
     {
@@ -16,6 +16,7 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
             GitVersionInformation.FullSemVer, GitVersionInformation.CommitDate);
 
         fileSystem.Directory.CreateDirectory(dataDirectory);
+        fileSystem.Directory.CreateDirectory(localDataDirectory);
 
         // Enable autostart if this is the first time we run for this user
         // Needs to happen before initializing the notify icon
@@ -133,10 +134,10 @@ public class AppBehavior(string dataDirectory, IAppControl appControl, IAutostar
         logger.Error("Unobserved task exception: {@Exception}", args.Exception);
     }
 
-    public static string FormatLogPath(string dataDirectory)
+    public static string FormatLogPath(string localDataDirectory)
     {
-        return Path.Combine(dataDirectory, "logs", "shadow-kvm-.log");
+        return Path.Combine(localDataDirectory, "logs", "shadow-kvm-.log");
     }
 
-    string LogPath => FormatLogPath(dataDirectory);
+    string LogPath => FormatLogPath(localDataDirectory);
 }
