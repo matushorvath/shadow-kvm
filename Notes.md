@@ -20,6 +20,7 @@ Backlog
   - winget support
   - the "config reloaded succesfully" window does not have focus and sometimes opens in background
   - always install to C:\Program Files, both on 64-bit and 32-bit systems
+    - http://blog.deploymentengineering.com/2008/01/even-developers-are-concerned-about.html
   - apply windows 11 design guidelines
     - https://learn.microsoft.com/en-us/windows/apps/design/
   - watch for filechanges in the config file
