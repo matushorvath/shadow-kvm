@@ -65,8 +65,12 @@ public partial class DeviceNotification : IDeviceNotification
         _filterVid = filterVid;
         _filterPid = filterPid;
 
+        // This implicitly generates a delegate, and whe need to control its lifetime
+        // https://github.com/matushorvath/shadow-kvm/issues/224
+        _deviceCallback = DeviceCallback;
+
         // Unit tests call DeviceCallback from inside the mocked CM_Register_Notification, so we need to have everything set up at this point
-        CONFIGRET res = _windowsAPI.CM_Register_Notification(filter, 0, DeviceCallback, out _notification);
+        CONFIGRET res = _windowsAPI.CM_Register_Notification(filter, 0, _deviceCallback, out _notification);
         if (res != CONFIGRET.CR_SUCCESS)
         {
             throw new Exception($"Registration for device notifications failed, result {res}");
@@ -154,6 +158,7 @@ public partial class DeviceNotification : IDeviceNotification
                 _notification.Dispose();
                 _notification = null;
             }
+            _deviceCallback = null;
         }
     }
 
@@ -164,6 +169,7 @@ public partial class DeviceNotification : IDeviceNotification
 
     Channel<IDeviceNotification.Action> _channel;
     public CM_Unregister_NotificationSafeHandle? _notification; // public for unit tests, don't use
+    PCM_NOTIFY_CALLBACK? _deviceCallback;
 
     int? _filterVid;
     int? _filterPid;
