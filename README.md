@@ -123,11 +123,11 @@ The icon colors have been modified.
 1. Prepare the release in the `main` branch
 1. Tag the commit with the version number:
    ```sh
-   $ git tag v0.1.0 main
+   git tag v0.1.0 main
    ```
 1. Push the tag to GitHub:
    ```sh
-   $ git push origin tag v0.1.0
+   git push origin tag v0.1.0
    ```
 1. GitHub Actions will create a release draft for the tag
 1. Edit the release draft, add release notes, and publish
