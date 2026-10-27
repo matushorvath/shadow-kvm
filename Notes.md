@@ -53,6 +53,12 @@ dotnet build
 dotnet test
 ```
 
+Update packages:
+```sh
+# needs Microsoft .NET SDK 10.0
+dotnet package update
+```
+
 Useful Links
 ============
 
