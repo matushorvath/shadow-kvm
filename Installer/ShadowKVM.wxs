@@ -45,7 +45,7 @@
       <File Source="ShadowKVM.runtimeconfig.json" />
 
       <!-- The System.Management.dll in output directory is just a stub, use the real one -->
-      <File Source="runtimes\win\lib\net9.0\System.Management.dll" />
+      <File Source="runtimes\win\lib\net10.0\System.Management.dll" />
 
       <Files Include="!(bindpath.ShadowKVM)\*.dll">
         <Exclude Files="!(bindpath.ShadowKVM)\System.Management.dll" />

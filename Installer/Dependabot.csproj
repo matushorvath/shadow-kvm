@@ -4,7 +4,7 @@
   <!-- Dependabot does not support .wixproj files, so we need this dummy .csproj file to make it work -->
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
