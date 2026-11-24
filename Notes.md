@@ -48,7 +48,7 @@ Build and test:
 # this actually makes the source worse
 # wix format Installer/*.wxs
 
-dotnet format --verify-no-changes
+dotnet format --verify-no-changes --verbosity diagnostic
 dotnet build
 dotnet test
 ```
